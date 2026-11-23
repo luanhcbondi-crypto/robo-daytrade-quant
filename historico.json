@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-23T18:08:39.290193-03:00",
-  "ultimo_update_id": 211649478,
+  "atualizado_em": "2026-11-23T18:26:57.978934-03:00",
+  "ultimo_update_id": 211649479,
   "sinais": [
     {
       "chave": "BOVA11::VENDA::15m",
@@ -33,7 +33,7 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795467804.406084,
+      "ultimo_ts": 1795469217.978894,
       "ultimo_simbolo": "SOLUSDT",
       "mensagens": [
         {
@@ -51,6 +51,14 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, Peregrino! Para o nosso swing trade, a grande oportunidade do momento está na SOLUSDT, que acabou de encostar no nosso SUPORTE CONSOLIDADO 1 em US$ 69,89. O preço atual está em US$ 72,98, mostrando que o ativo segurou muito bem nesse piso e gerou aquela assimetria excelente que a gente gosta, com um stop bem curto e bastante espaço livre para buscar os alvos lá em cima.\n\nOlhando para cima, a"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot quais oportunidades de swingtrade com 2k"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, Peregrino! Cara, com um aporte de US$ 2.000 para um swing trade na SOLUSDT, a oportunidade tá excelente agora que o preço encostou no nosso SUPORTE CONSOLIDADO 1 lá em US$ 69,89 e negocia atualmente em US$ 72,56. Com essa grana, você consegue montar uma mão de mais ou menos 27 unidades, posicionando aquele stop defensivo logo abaixo do nosso piso para proteger o capital. \n\nSe a operação enca"
         }
       ]
     }
