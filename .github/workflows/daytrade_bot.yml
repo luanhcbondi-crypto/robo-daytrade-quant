@@ -2,7 +2,7 @@ name: Quant Day Trade Bot (TradingView + Gemini Free)
 
 on:
   schedule:
-    # Executa a cada 15 minutos (24/7 para Cripto; filtra horário de pregão B3 no código)
+    # Executa a cada 15 minutos (varre sinais + fica escutando perguntas no chat em tempo real)
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
@@ -13,7 +13,7 @@ concurrency:
 jobs:
   auditar-e-disparar-sinais:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: write
 
@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Executar Robô Quant Day Trade
+      - name: Executar Scanner Day Trade + Analista Interativo no Chat
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -45,6 +45,7 @@ jobs:
           DAYTRADE_INTERVAL: "15m"
           ATR_MULTIPLIER: "1.5"
           NOTA_MINIMA_IA: "75"
+          CHAT_LISTEN_SECONDS: "720"
           PYTHONUNBUFFERED: "1"
         run: |
           git config user.name "github-actions[bot]"
@@ -55,7 +56,7 @@ jobs:
 
           if [ -n "$(git status --porcelain historico.json)" ]; then
             git add historico.json
-            git commit -m "Atualiza histórico de sinais Day Trade [skip ci]" || true
+            git commit -m "Atualiza histórico de sinais e chat [skip ci]" || true
             git pull --rebase -X theirs origin main || true
             git push origin main || true
           fi
