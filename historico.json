@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-23T16:14:49.550110-03:00",
-  "ultimo_update_id": 211649474,
+  "atualizado_em": "2026-11-23T17:46:27.578743-03:00",
+  "ultimo_update_id": 211649476,
   "sinais": [
     {
       "chave": "BOVA11::VENDA::15m",
@@ -30,5 +30,21 @@
       "nota_ia": 100,
       "ts": 1795459757.876934
     }
-  ]
+  ],
+  "conversas_chat": {
+    "-1004412148750": {
+      "ultimo_ts": 1795466751.994256,
+      "ultimo_simbolo": "SOLUSDT",
+      "mensagens": [
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot oque acha de solana"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, Peregrino! Beleza? Cara, olhando a SOLUSDT no gráfico de 15 minutos agora, o ativo tá com um viés"
+        }
+      ]
+    }
+  }
 }
