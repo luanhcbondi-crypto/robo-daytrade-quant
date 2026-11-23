@@ -158,38 +158,26 @@ class AtivoMonitorado:
 ATIVO_LIDER_B3 = AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True)
 ATIVO_LIDER_CRIPTO = AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False)
 
-# Watchlist padrão para varredura automática de Day Trade: Blue Chips B3 + Criptoativos Majors 24/7
-WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
-    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BBDC4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False),
-    AtivoMonitorado("ETHUSDT", "BINANCE", "crypto", "US$", 2, False),
-    AtivoMonitorado("SOLUSDT", "BINANCE", "crypto", "US$", 2, False),
-)
-
-# Carteira setorial expandida para o Scanner de Recomendações de Swing Trade / Oportunidades
+# Carteira Multi-Mercado de Swing Trade ("Swing em Tudo": Ações B3, Criptomoedas, BDRs Globais, Ouro, Prata e Câmbio)
 CARTEIRA_SWING_B3: Tuple[AtivoMonitorado, ...] = (
-    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("EMBR3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("ELET3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("SBSP3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("RENT3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("GGBR4", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    AtivoMonitorado("SUZB3", "BMFBOVESPA", "brazil", "R$", 2, True),
+    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("EMBR3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("ELET3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("SBSP3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("RENT3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("GGBR4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("SUZB3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBDC4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("EQTL3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("RADL3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("JBSS3", "BMFBOVESPA", "brazil", "R$", 2, False),
 )
 
 CARTEIRA_SWING_CRIPTO: Tuple[AtivoMonitorado, ...] = (
@@ -198,9 +186,54 @@ CARTEIRA_SWING_CRIPTO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("SOLUSDT", "BINANCE", "crypto", "US$", 2, False),
     AtivoMonitorado("BNBUSDT", "BINANCE", "crypto", "US$", 2, False),
     AtivoMonitorado("XRPUSDT", "BINANCE", "crypto", "US$", 4, False),
+    AtivoMonitorado("ADAUSDT", "BINANCE", "crypto", "US$", 4, False),
+    AtivoMonitorado("DOGEUSDT", "BINANCE", "crypto", "US$", 5, False),
     AtivoMonitorado("AVAXUSDT", "BINANCE", "crypto", "US$", 2, False),
     AtivoMonitorado("LINKUSDT", "BINANCE", "crypto", "US$", 3, False),
     AtivoMonitorado("SUIUSDT", "BINANCE", "crypto", "US$", 4, False),
+    AtivoMonitorado("DOTUSDT", "BINANCE", "crypto", "US$", 3, False),
+    AtivoMonitorado("NEARUSDT", "BINANCE", "crypto", "US$", 3, False),
+    AtivoMonitorado("LTCUSDT", "BINANCE", "crypto", "US$", 2, False),
+)
+
+CARTEIRA_SWING_GLOBAL_MACRO: Tuple[AtivoMonitorado, ...] = (
+    AtivoMonitorado("XAUUSD", "OANDA", "cfd", "US$", 2, False),       # Ouro Spot
+    AtivoMonitorado("XAGUSD", "OANDA", "cfd", "US$", 3, False),       # Prata Spot
+    AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),     # Dólar / Real
+    AtivoMonitorado("EURUSD", "FX_IDC", "forex", "US$", 4, False),    # Euro / Dólar
+    AtivoMonitorado("NVDC34", "BMFBOVESPA", "brazil", "R$", 2, False), # Nvidia BDR
+    AtivoMonitorado("AAPL34", "BMFBOVESPA", "brazil", "R$", 2, False), # Apple BDR
+    AtivoMonitorado("TSLA34", "BMFBOVESPA", "brazil", "R$", 2, False), # Tesla BDR
+    AtivoMonitorado("MSFT34", "BMFBOVESPA", "brazil", "R$", 2, False), # Microsoft BDR
+    AtivoMonitorado("AMZO34", "BMFBOVESPA", "brazil", "R$", 2, False), # Amazon BDR
+    AtivoMonitorado("GOGL34", "BMFBOVESPA", "brazil", "R$", 2, False), # Google BDR
+    AtivoMonitorado("META34", "BMFBOVESPA", "brazil", "R$", 2, False), # Meta BDR
+    AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, False), # ETF Ibovespa
+    AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False), # ETF S&P 500
+)
+
+# Watchlist Multi-Mercado padrão para varredura automática de Swing Trade (Ações + Cripto + Ouro/Dólar/Big Techs)
+WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
+    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("EMBR3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False),
+    AtivoMonitorado("ETHUSDT", "BINANCE", "crypto", "US$", 2, False),
+    AtivoMonitorado("SOLUSDT", "BINANCE", "crypto", "US$", 2, False),
+    AtivoMonitorado("BNBUSDT", "BINANCE", "crypto", "US$", 2, False),
+    AtivoMonitorado("XRPUSDT", "BINANCE", "crypto", "US$", 4, False),
+    AtivoMonitorado("AVAXUSDT", "BINANCE", "crypto", "US$", 2, False),
+    AtivoMonitorado("LINKUSDT", "BINANCE", "crypto", "US$", 3, False),
+    AtivoMonitorado("SUIUSDT", "BINANCE", "crypto", "US$", 4, False),
+    AtivoMonitorado("XAUUSD", "OANDA", "cfd", "US$", 2, False),
+    AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    AtivoMonitorado("NVDC34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
 )
 
 # Mapa de apelidos e nomes populares para consultas no chat ("o que acha do bitcoin?", "analisa petrobras")
@@ -250,15 +283,30 @@ ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "b3": AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, True),
     "ibovespa": AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True),
     "ibov": AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "nvidia": AtivoMonitorado("NVDC34", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "apple": AtivoMonitorado("AAPL34", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "tesla": AtivoMonitorado("TSLA34", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "microsoft": AtivoMonitorado("MSFT34", "BMFBOVESPA", "brazil", "R$", 2, True),
+    "nvidia": AtivoMonitorado("NVDC34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "apple": AtivoMonitorado("AAPL34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "tesla": AtivoMonitorado("TSLA34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "microsoft": AtivoMonitorado("MSFT34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "amazon": AtivoMonitorado("AMZO34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "google": AtivoMonitorado("GOGL34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "meta": AtivoMonitorado("META34", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "sp500": AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "s&p": AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    "ivvb11": AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
     "dolar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
     "dólar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
     "usdbrl": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "euro": AtivoMonitorado("EURUSD", "FX_IDC", "forex", "US$", 4, False),
+    "eurusd": AtivoMonitorado("EURUSD", "FX_IDC", "forex", "US$", 4, False),
     "ouro": AtivoMonitorado("XAUUSD", "OANDA", "cfd", "US$", 2, False),
     "xauusd": AtivoMonitorado("XAUUSD", "OANDA", "cfd", "US$", 2, False),
+    "prata": AtivoMonitorado("XAGUSD", "OANDA", "cfd", "US$", 3, False),
+    "xagusd": AtivoMonitorado("XAGUSD", "OANDA", "cfd", "US$", 3, False),
+    "polkadot": AtivoMonitorado("DOTUSDT", "BINANCE", "crypto", "US$", 3, False),
+    "dot": AtivoMonitorado("DOTUSDT", "BINANCE", "crypto", "US$", 3, False),
+    "near": AtivoMonitorado("NEARUSDT", "BINANCE", "crypto", "US$", 3, False),
+    "litecoin": AtivoMonitorado("LTCUSDT", "BINANCE", "crypto", "US$", 2, False),
+    "ltc": AtivoMonitorado("LTCUSDT", "BINANCE", "crypto", "US$", 2, False),
 }
 
 REGEX_TICKER_B3 = re.compile(r"\b([A-Z]{4}(?:3|4|5|6|11|31|32|33|34|35|39))\b")
@@ -277,11 +325,12 @@ REGEX_INTENCAO_PERGUNTA = re.compile(
     flags=re.IGNORECASE,
 )
 REGEX_PEDIDO_RECOMENDACAO = re.compile(
-    r"(?:qual\s+(?:a\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel)|"
-    r"quais\s+(?:as\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is)|"
-    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae])\s+(?:um\s+|uma\s+|algum\w*\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|swing\s*trade|day\s*trade)|"
-    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|swing\s*trade|day\s*trade|call|hoje|agora)?|"
-    r"o\s+que\s+(?:comprar|operar|vender)\b|"
+    r"(?:qual\s+(?:a\s+|o\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel|mercado|trade|op[çc][ãa]o)|"
+    r"quais\s+(?:as\s+|os\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is|op[çc][õo]es|oportunidades)|"
+    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae]|mostr[ae]|fala|diz)\s+(?:um\s+|uma\s+|algum\w*\s+|mais\s+|outr[oa]s?\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|swing\s*trade|day\s*trade|ativo\w*|a[çc][ãa]o|a[çc][õo]es|cripto\w*|op[çc][ãa]o|op[çc][õo]es)|"
+    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+|de\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|swing\s*trade|day\s*trade|call|hoje|agora|tudo)?|"
+    r"o\s+que\s+(?:comprar|operar|vender|tem\s+de\s+bom|est[áa]\s+bom|t[áa]\s+bom)\b|"
+    r"\b(?:tem\s+outr[oa]s?|qual\s+outr[oa]|quais\s+outros|me\s+fala\s+outr[oa]|mais\s+op[çc][õo]es|outros\s+ativos|swing\s+em\s+tudo)\b|"
     r"^(?:swing\s*trade|day\s*trade|oportunidades|calls|recomenda[çc][ãa]o)\??$)",
     flags=re.IGNORECASE,
 )
@@ -1519,10 +1568,10 @@ def extrair_intervalo_da_mensagem(texto: str) -> str:
 
 def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") -> Optional[Tuple[str, str]]:
     """Detecta quando o trader pede recomendações/calls gerais sem especificar um único ativo
-    (ex.: 'quero fazer swing trade, qual ação recomenda?', '/swing', 'qual a melhor cripto pra hoje?').
+    (ex.: 'quero fazer swing trade, qual recomenda?', '/swing', 'tem outro ativo bom?', 'swing em tudo').
     Retorna (modalidade, segmento):
       - modalidade: 'SWING TRADE' | 'DAY TRADE'
-      - segmento: 'B3' | 'CRIPTO' | 'TODOS'
+      - segmento: 'B3' | 'CRIPTO' | 'GLOBAL' | 'TODOS'
     """
     if not texto:
         return None
@@ -1539,10 +1588,14 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     else:
         modalidade = "SWING TRADE"
 
-    if re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|papel|pap[ée]is)\b", t_low):
+    if re.search(r"\b(?:tudo|todos|geral|multi|qualquer\s+mercado)\b", t_low):
+        segmento = "TODOS"
+    elif re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|papel|pap[ée]is)\b", t_low):
         segmento = "B3"
     elif re.search(r"\b(?:cripto|criptomoeda|criptos|moeda|altcoin|binance)\b", t_low):
         segmento = "CRIPTO"
+    elif re.search(r"\b(?:global|bdr\w*|commodit\w*|forex|c[âa]mbio|big\s*tech\w*|exterior|internacional)\b", t_low):
+        segmento = "GLOBAL"
     else:
         segmento = "TODOS"
 
@@ -1661,28 +1714,38 @@ def escanear_melhores_oportunidades(
     segmento: str = "TODOS",
     top_n: int = 3,
     apenas_compra: bool = False,
+    excluir_simbolos: Optional[Set[str]] = None,
 ) -> List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]]:
-    """Varre a carteira institucional de Ações B3 e/ou Cripto no timeframe adequado
-    (1D para Swing Trade com Stop 2.0x ATR; 15m para Day Trade com Stop 1.5x ATR),
-    priorizando oportunidades reais e ranqueando pelas 6 Camadas Quant + Força Relativa.
+    """Varre a carteira Multi-Mercado ("Swing em Tudo": Ações B3, Criptomoedas, Ouro/Prata, Dólar/Forex e BDRs Globais)
+    no timeframe adequado (1D para Swing Trade com Stop 2.0x ATR; 15m para Day Trade com Stop 1.5x ATR).
+    Quando segmento='TODOS', garante diversidade real entre classes de ativos e rotaciona ativos já comentados.
     """
     eh_swing = "SWING" in modalidade.upper()
     tf = "1d" if eh_swing else TIMEFRAME_PADRAO
     mult_atr = ATR_MULTIPLIER_SWING if eh_swing else ATR_MULTIPLIER
+    ignorados = {s.upper() for s in (excluir_simbolos or set()) if s}
 
     if segmento == "B3":
         universo: Tuple[AtivoMonitorado, ...] = CARTEIRA_SWING_B3
     elif segmento == "CRIPTO":
         universo = CARTEIRA_SWING_CRIPTO
+    elif segmento == "GLOBAL":
+        universo = CARTEIRA_SWING_GLOBAL_MACRO
     else:
-        universo = (*CARTEIRA_SWING_B3[:8], *CARTEIRA_SWING_CRIPTO[:4])
+        universo = (
+            *CARTEIRA_SWING_B3[:10],
+            *CARTEIRA_SWING_CRIPTO[:8],
+            *CARTEIRA_SWING_GLOBAL_MACRO[:8],
+        )
 
     tf_sup, tf_inf = obter_pares_mtf(tf)
     ativos_lote = tuple(dict.fromkeys([*universo, ATIVO_LIDER_B3, ATIVO_LIDER_CRIPTO]))
     for tf_b in dict.fromkeys([tf, tf_sup, tf_inf]):
         pre_carregar_lote_tradingview(ativos_lote, tf_b)
 
-    candidatos: List[Tuple[int, float, SnapshotIndicadores, PlanoRisco, bool, str]] = []
+    simbolos_global_macro = {a.simbolo for a in CARTEIRA_SWING_GLOBAL_MACRO}
+    candidatos: List[Tuple[int, float, str, SnapshotIndicadores, PlanoRisco, bool, str]] = []
+
     for ativo in universo:
         snap = extrair_dados_tradingview(ativo, tf, enriquecer_mtf=True)
         if not snap:
@@ -1698,17 +1761,47 @@ def escanear_melhores_oportunidades(
             modalidade="SWING TRADE" if eh_swing else "DAY TRADE",
             moeda=snap.moeda,
         )
-        # No Swing Trade (ou quando o trader pede recomendação de compra), prioriza setups de COMPRA
+        # Bônus para ativos apoiados em Suporte Consolidado ou Rompendo Resistência
+        bonus_sr = 14 if "APOIADO EM SUPORTE" in snap.zona_sr_descricao else (10 if "ROMPENDO RESISTÊNCIA" in snap.zona_sr_descricao else 0)
         bonus_compra = 15 if (eh_swing or apenas_compra) and direcao == "COMPRA" else 0
-        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra
+        penalidade_repetido = -35 if ativo.simbolo.upper() in ignorados else 0
+        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra + bonus_sr + penalidade_repetido
         alpha_favoravel = snap.alpha_vs_lider_pct if direcao == "COMPRA" else -snap.alpha_vs_lider_pct
         nota_rank = snap.score_quant_local + bonus
+
+        if ativo.simbolo in simbolos_global_macro:
+            classe_ativo = "GLOBAL"
+        elif ativo.screener == "crypto":
+            classe_ativo = "CRIPTO"
+        else:
+            classe_ativo = "B3"
+
         candidatos.append(
-            (nota_rank, alpha_favoravel, snap, plano, aprovado_pre, status_vies if not aprovado_pre else "SINAL APROVADO")
+            (nota_rank, alpha_favoravel, classe_ativo, snap, plano, aprovado_pre, status_vies if not aprovado_pre else "SINAL APROVADO")
         )
 
     candidatos.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return [(s, p, ap, st) for _, _, s, p, ap, st in candidatos[:top_n]]
+
+    # Se o usuário pediu "TODOS" ("Swing em Tudo"), garante pelo menos 1 Ação B3, 1 Cripto e 1 Global/Macro/BDR no Top 3
+    if segmento == "TODOS" and top_n >= 3 and len(candidatos) >= 3:
+        selecionados: List[Tuple[int, float, str, SnapshotIndicadores, PlanoRisco, bool, str]] = []
+        simbolos_ja_pegos: Set[str] = set()
+        for classe_alvo in ("B3", "CRIPTO", "GLOBAL"):
+            for cand in candidatos:
+                if cand[2] == classe_alvo and cand[3].simbolo not in simbolos_ja_pegos:
+                    selecionados.append(cand)
+                    simbolos_ja_pegos.add(cand[3].simbolo)
+                    break
+        for cand in candidatos:
+            if len(selecionados) >= top_n:
+                break
+            if cand[3].simbolo not in simbolos_ja_pegos:
+                selecionados.append(cand)
+                simbolos_ja_pegos.add(cand[3].simbolo)
+        selecionados.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return [(s, p, ap, st) for _, _, _, s, p, ap, st in selecionados[:top_n]]
+
+    return [(s, p, ap, st) for _, _, _, s, p, ap, st in candidatos[:top_n]]
 
 
 def _resposta_conversa_completa(texto: str, finish_reason: str = "") -> bool:
@@ -1891,9 +1984,10 @@ def conversar_como_trader_humano_gemini(
         "3. DESIGN LIMPO E BONITO: Escreva em 2 a 3 parágrafos curtos e fluidos. Use apenas negrito HTML (<b>...</b>) para destacar o ativo e os preços de Suporte, Resistência, Stop e Alvos, e itálico (<i>...</i>) com moderação. "
         "NUNCA use a tag <code> (caixas azuis) e NUNCA despeje siglas cruas ('Score Quant', 'Alpha', 'DI+', 'Stoch.K').\n"
         "4. RESPONDA DIRETAMENTE A PERGUNTAS CURTAS DE CONTINUAÇÃO: Se o usuário perguntar algo curto como 'que viés?', 'qual suporte?', 'vale entrar?', olhe o contexto das últimas mensagens e responda diretamente de forma completa.\n"
-        "5. FAÇA PERGUNTAS NO FINAL: Sempre termine sua resposta fazendo 1 ou 2 perguntas naturais para continuar a conversa "
-        "(ex: perguntar se a pessoa prefere esperar o toque no suporte consolidado ou entrar no rompimento da resistência, se já está posicionada, ou qual valor pensa em alocar para calcular o lote).\n"
-        "6. USE APENAS OS PREÇOS REAIS fornecidos nos dados do TradingView abaixo. Nunca invente cotações."
+        "5. QUANDO HOUVER 3 ATIVOS NOS DADOS (RECOMENDAÇÃO MULTI-MERCADO / TOP 3): Você é OBRIGADO a apresentar e comentar TODOS OS 3 ATIVOS da lista (citando o Preço Atual, o Suporte Consolidado e a Resistência Consolidada de cada um dos 3). NUNCA fale de apenas 1 ativo quando houver 3 ativos no contexto!\n"
+        "6. FAÇA PERGUNTAS NO FINAL: Sempre termine sua resposta fazendo 1 ou 2 perguntas naturais para continuar a conversa "
+        "(ex: perguntar qual dos 3 ativos chamou mais atenção — Ações, Cripto ou Ouro/Dólar/BDR —, se a pessoa prefere esperar o toque no suporte consolidado ou entrar no rompimento da resistência, ou qual valor pensa em alocar para calcular o lote).\n"
+        "7. USE APENAS OS PREÇOS REAIS fornecidos nos dados do TradingView abaixo. Nunca invente cotações."
     )
 
     bloco_hist = ""
@@ -2846,11 +2940,9 @@ def responder_perguntas_chat(
         # 1. Comando inicial /start ou /ajuda -> conversa como pessoa real
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
             boas_vindas = (
-                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô acompanhando o mercado em tempo real por aqui.\n\n"
-                "Você pode trocar ideia comigo normalmente como se estivesse falando com um colega de mesa: "
-                "me perguntar o que eu acho de qualquer ação ou cripto (tipo <i>\"o que acha da PETR4?\"</i> ou <i>\"como tá o Bitcoin?\"</i>), "
-                "ou pedir pra eu garimpar boas oportunidades de compra pra <b>Swing Trade</b> nos suportes consolidados — e eu já te mando a <b>foto do gráfico</b> com os níveis traçados.\n\n"
-                "Qual mercado você está olhando agora: <b>Ações da B3</b> ou <b>Cripto</b>?"
+                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô monitorando o mercado inteiro em tempo real pra <b>Swing Trade</b> (com base em <b>Suportes e Resistências bem consolidados</b>).\n\n"
+                "Eu opero <b>Swing em Tudo</b>: <b>Ações da B3</b>, <b>Criptomoedas</b>, <b>Ouro (XAUUSD)</b>, <b>Prata</b>, <b>Dólar (USDBRL)</b>, <b>Euro</b> e <b>Big Techs / BDRs (Nvidia, Apple, Tesla, S&amp;P 500)</b>.\n\n"
+                "Você pode me perguntar o que eu acho de qualquer ativo ou pedir pra eu garimpar as <b>3 melhores oportunidades de Swing Trade</b> agora — e eu já te mando a <b>foto do gráfico</b> com os suportes e resistências traçados. Qual ativo ou mercado você quer olhar primeiro?"
             )
             if enviar_telegram_html(boas_vindas, chat_id=chat_id_msg, reply_to_message_id=msg_id):
                 _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, boas_vindas)
@@ -2864,14 +2956,18 @@ def responder_perguntas_chat(
             eh_resposta_ao_bot=eh_reply_ao_bot or conversa_recente_ativa,
         )
 
-        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Swing Trade/Day Trade
+        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Swing Trade/outros ativos
         if not ativo_pedido:
             pedido_rec = identificar_pedido_recomendacao_ranking(texto, bot_username=bot_username)
             if pedido_rec:
                 modalidade_rec, segmento_rec = pedido_rec
                 quer_venda = bool(re.search(r"\b(?:venda|vendido|short|queda)\b", texto.lower()))
+                pediu_outro = bool(re.search(r"\b(?:outr[oa]s?|mais|diferente|al[ée]m)\b", texto.lower()))
+                ultimo_simb_mem = str(sessao_chat.get("ultimo_simbolo") or "").upper()
+                excluir_set = {ultimo_simb_mem} if (pediu_outro and ultimo_simb_mem) else None
+
                 logger.info(
-                    "🏆 Pedido de recomendação no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
+                    "🏆 Pedido de recomendação Multi-Mercado no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
                     chat_id_msg,
                     modalidade_rec,
                     segmento_rec,
@@ -2882,14 +2978,17 @@ def responder_perguntas_chat(
                     segmento=segmento_rec,
                     top_n=3,
                     apenas_compra=not quer_venda,
+                    excluir_simbolos=excluir_set,
                 )
                 resumos_top = [
-                    _resumir_ativo_para_conversa(s, p, ap, st, valor_banca_usuario=valor_banca_user)
-                    for s, p, ap, st in top_oportunidades
+                    f"[{idx_op + 1}º ATIVO OBRIGATÓRIO NA RESPOSTA] "
+                    + _resumir_ativo_para_conversa(s, p, ap, st, valor_banca_usuario=valor_banca_user)
+                    for idx_op, (s, p, ap, st) in enumerate(top_oportunidades)
                 ]
                 contexto_mercado = (
-                    f"Modalidade pedida pelo trader: {modalidade_rec} | Segmento: {segmento_rec}\n"
-                    "Top 3 ativos escaneados agora no TradingView:\n" + "\n".join(resumos_top)
+                    f"Modalidade pedida pelo trader: {modalidade_rec} | Segmento: {segmento_rec} (SWING EM TUDO / MULTI-MERCADO)\n"
+                    "IMPORTANTE: Comente sobre TODOS OS 3 ATIVOS ABAIXO na sua resposta (não fale de apenas 1 ativo!):\n"
+                    + "\n".join(resumos_top)
                 )
                 resposta_html = conversar_como_trader_humano_gemini(
                     pergunta_usuario=texto,
@@ -2916,7 +3015,7 @@ def responder_perguntas_chat(
                 ):
                     _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_html, simb_foco)
                     respondidas += 1
-                    logger.info("✅ Conversa de recomendação com gráfico (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
+                    logger.info("✅ Conversa de recomendação Multi-Mercado com gráfico (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
                 continue
 
             # 4. Continuação de conversa (ex.: usuário perguntou "que vies", "qual suporte", "5 mil", ou chamou o bot)
@@ -3072,12 +3171,16 @@ def responder_perguntas_chat(
 def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "") -> int:
     b3_aberta = pregao_b3_aberto()
     enviados = 0
+    eh_swing_padrao = TIMEFRAME_PADRAO in ("4h", "1d", "1w")
+    mult_padrao = ATR_MULTIPLIER_SWING if eh_swing_padrao else ATR_MULTIPLIER
+    mod_padrao = "SWING TRADE" if eh_swing_padrao else "DAY TRADE"
 
     logger.info(
-        "Iniciando varredura Quant Day Trade 6 Camadas (Timeframe=%s | Pregão B3=%s | ATR=%.1fx | Nota Mín=%d)...",
+        "Iniciando varredura Multi-Mercado %s (Timeframe=%s | Universo=%d ativos: Ações B3 + Cripto + Ouro/Dólar/BDRs | ATR=%.1fx | Nota Mín=%d)...",
+        mod_padrao,
         TIMEFRAME_PADRAO,
-        "ABERTO" if b3_aberta else "FECHADO (somente Cripto 24/7)",
-        ATR_MULTIPLIER,
+        len(WATCHLIST_PADRAO),
+        mult_padrao,
         NOTA_MINIMA_IA,
     )
 
@@ -3113,9 +3216,9 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
             preco_entrada=snap.preco_atual,
             atr=snap.atr,
             direcao=snap.direcao_preliminar,
-            multiplicador_atr=ATR_MULTIPLIER,
+            multiplicador_atr=mult_padrao,
             casas_decimais=snap.casas_decimais,
-            modalidade="DAY TRADE",
+            modalidade=mod_padrao,
             moeda=snap.moeda,
         )
 
