@@ -1145,8 +1145,8 @@ def construir_prompt_auditoria(
         '  "aprovado": boolean,\n'
         '  "nota_confluencia": integer (0 a 100),\n'
         '  "regime_mercado": "TENDENCIA_FORTE" | "TENDENCIA_MODERADA" | "CONSOLIDACAO" | "EXAUSTAO",\n'
-        '  "racional_tecnico": "string em português (2 a 3 frases diretas citando EMA9/21, SMA200, VWMA, RSI, ADX/DI e alinhamento MTF)",\n'
-        '  "alerta_risco": "string curta (1 frase objetiva sobre o Pivot R1/S1, Pullback na EMA 9, Break-Even no Alvo 1 ou gatilho a aguardar)",\n'
+        '  "racional_tecnico": "string em português (2 a 3 frases diretas em linguagem humana e fluida explicando o movimento do gráfico)",\n'
+        '  "alerta_risco": "string curta (1 frase objetiva sobre o Break-Even no Alvo 1 ou gatilho a aguardar)",\n'
         '  "motivo_veto": "string curta caso aprovado=false, ou vazio caso aprovado=true"\n'
         "}"
     )
@@ -1161,21 +1161,18 @@ def gerar_auditoria_quant_fallback(snap: SnapshotIndicadores, plano: PlanoRisco)
     m, c = snap.moeda, snap.casas_decimais
     pos_sma = "acima" if snap.preco_atual >= snap.sma_200 else "abaixo"
     pos_vwma = "acima" if (snap.vwma <= 0 or snap.preco_atual >= snap.vwma) else "abaixo"
-    pos_macd = "positivo" if snap.macd_hist >= 0 else "negativo"
     nota = calcular_score_quant_local(snap, plano.direcao)
 
     if ok_pre and nota >= NOTA_MINIMA_IA:
         regime = "TENDENCIA_FORTE" if snap.adx >= 25 else "TENDENCIA_MODERADA"
         racional = (
-            f"Para {plano.modalidade}, {snap.simbolo} opera a {_fmt_preco(snap.preco_atual, m, c)} ({snap.tipo_setup}), "
-            f"alinhado com EMA 9 ({_fmt_preco(snap.ema_9, m, c)}), EMA 21 ({_fmt_preco(snap.ema_21, m, c)}), {pos_vwma} da VWMA "
-            f"institucional ({_fmt_preco(snap.vwma or snap.ema_21, m, c)}) e {pos_sma} da SMA 200 "
-            f"({_fmt_preco(snap.sma_200, m, c)}). O ADX em {snap.adx:.1f} (DI+ {snap.di_plus:.1f} / DI- {snap.di_minus:.1f}), "
-            f"RSI em {snap.rsi:.1f}, MACD {pos_macd} ({snap.macd_hist:+.4f}) e MTF {snap.tf_superior.upper()} ({snap.tendencia_mtf_superior}) confirmam a direção."
+            f"O gráfico de {snap.intervalo.upper()} da {snap.simbolo} mostra força a {_fmt_preco(snap.preco_atual, m, c)}, "
+            f"trabalhando alinhado com as médias rápidas ({_fmt_preco(snap.ema_9, m, c)} / {_fmt_preco(snap.ema_21, m, c)}), "
+            f"{pos_vwma} do fluxo institucional de volume e {pos_sma} da média longa de 200 períodos, com o gráfico de {snap.tf_superior.upper()} apoiando o movimento."
         )
         alerta = (
             f"Ao atingir o Alvo 1 ({_fmt_preco(plano.alvo_1, m, c)}), realizar 50% da posição e mover o Stop Loss "
-            f"para o Break-Even ({_fmt_preco(plano.entrada, m, c)})."
+            f"para o preço de entrada ({_fmt_preco(plano.entrada, m, c)})."
         )
         return AuditoriaIA(True, nota, regime, racional, alerta, "", "Motor Quant Institucional")
 
@@ -1185,16 +1182,12 @@ def gerar_auditoria_quant_fallback(snap: SnapshotIndicadores, plano: PlanoRisco)
         else "INDEFINIDO"
     )
     racional = (
-        f"No gráfico de {snap.intervalo.upper()} ({plano.modalidade}), {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)} "
-        f"(EMA 9 em {_fmt_preco(snap.ema_9, m, c)}, EMA 21 em {_fmt_preco(snap.ema_21, m, c)}, VWMA em "
-        f"{_fmt_preco(snap.vwma or snap.ema_21, m, c)} e SMA 200 em {_fmt_preco(snap.sma_200, m, c)}), "
-        f"com RSI em {snap.rsi:.1f}, ADX em {snap.adx:.1f} (DI+ {snap.di_plus:.1f} / DI- {snap.di_minus:.1f}) "
-        f"e tendência {snap.tf_superior.upper()} {snap.tendencia_mtf_superior}. "
-        f"Diagnóstico das 6 camadas: {motivo}"
+        f"No gráfico de {snap.intervalo.upper()}, {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)} "
+        f"com média curta em {_fmt_preco(snap.ema_9, m, c)} e média de 21 em {_fmt_preco(snap.ema_21, m, c)}. "
+        f"No momento ainda não há alinhamento limpo para entrada imediata ({motivo})."
     )
     alerta = (
-        f"Proteja seu capital: aguarde alinhamento das médias ou recuo institucional até a região da EMA 9 "
-        f"({_fmt_preco(snap.preco_pullback_ideal or snap.ema_9, m, c)}) com entrada de volume."
+        f"Proteja seu capital: aguarde alinhamento das médias ou recuo até a região de {_fmt_preco(snap.preco_pullback_ideal or snap.ema_9, m, c)} com entrada de volume."
     )
     return AuditoriaIA(False, min(nota, 68), regime, racional, alerta, motivo, "Motor Quant Institucional")
 
@@ -1288,7 +1281,7 @@ def auditar_sinal_com_gemini(
 
 
 # ==============================================================================
-# 6. ATENDIMENTO INTERATIVO NO CHAT + SCANNER DE SWING TRADE & OPORTUNIDADES
+# 6. ATENDIMENTO CONVERSACIONAL HUMANO NO CHAT + SCANNER SWING/DAY TRADE
 # ==============================================================================
 def detectar_modalidade_na_mensagem(texto: str) -> str:
     t = (texto or "").lower()
@@ -1316,9 +1309,6 @@ def extrair_intervalo_da_mensagem(texto: str) -> str:
 
 
 def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") -> Optional[Tuple[str, str]]:
-    """Detecta quando o trader pede recomendações/calls gerais sem especificar um único ativo
-    (ex.: 'quero fazer swing trade, qual ação recomenda?', '/swing', 'qual a melhor cripto pra hoje?').
-    """
     if not texto:
         return None
     t_low = texto.lower().strip()
@@ -1369,7 +1359,6 @@ def identificar_ativo_na_pergunta(
         or bool(REGEX_INTENCAO_PERGUNTA.search(t_low))
     )
 
-    # 1. Procura par cripto explícito (ex.: BTCUSDT, SOLUSDT, PEPEUSDT)
     m_cripto = REGEX_PAR_CRIPTO.search(t_up)
     if m_cripto and tem_intencao:
         simb = m_cripto.group(1)
@@ -1378,7 +1367,6 @@ def identificar_ativo_na_pergunta(
                 return a
         return AtivoMonitorado(simb, "BINANCE", "crypto", "US$", 2, False)
 
-    # 2. Procura ticker padrão B3 (ex.: PETR4, VALE3, KLBN11, HGLG11, NVDC34, SMFT3)
     m_b3 = REGEX_TICKER_B3.search(t_up)
     if m_b3 and tem_intencao:
         simb = m_b3.group(1)
@@ -1387,13 +1375,11 @@ def identificar_ativo_na_pergunta(
                 return a
         return AtivoMonitorado(simb, "BMFBOVESPA", "brazil", "R$", 2, True)
 
-    # 3. Procura nomes/apelidos conhecidos (ex.: "o que acha do bitcoin?", "analisa petrobras", "swing trade em vale")
     if tem_intencao:
         for apelido in sorted(ALIASES_ATIVOS_CHAT.keys(), key=len, reverse=True):
             if re.search(r"(?<!\w)" + re.escape(apelido) + r"(?!\w)", t_low):
                 return ALIASES_ATIVOS_CHAT[apelido]
 
-    # 4. Se usou comando explícito (/analisar AAPL ou /analisar SUI), tenta resolver cripto/ação
     if eh_comando:
         limpo = REGEX_COMANDO_CHAT.sub("", t_up).strip()
         if bot_username:
@@ -1417,35 +1403,44 @@ def _fmt_preco(valor: float, moeda: str, casas: int) -> str:
     return f"{moeda} {s}"
 
 
-def _formatar_linha_pivots(snap: SnapshotIndicadores) -> str:
-    m, c = snap.moeda, snap.casas_decimais
-    s1 = _fmt_preco(snap.pivot_s1, m, c) if snap.pivot_s1 > 0 else "N/D"
-    p = _fmt_preco(snap.pivot_p, m, c) if snap.pivot_p > 0 else "N/D"
-    r1 = _fmt_preco(snap.pivot_r1, m, c) if snap.pivot_r1 > 0 else "N/D"
-    return f"S1 <code>{s1}</code>  |  P <code>{p}</code>  |  R1 <code>{r1}</code>"
-
-
-def _formatar_linha_lote_1pct(plano: PlanoRisco, moeda: str) -> str:
-    cap_fmt = _fmt_preco(plano.capital_referencia, moeda, 0)
-    risco_fmt = _fmt_preco(plano.risco_max_1pct_capital, moeda, 0)
-    exp_fmt = _fmt_preco(plano.exposicao_total_sugerida, moeda, 2)
-    qtd_str = f"{int(plano.quantidade_sugerida_1pct)}" if plano.quantidade_sugerida_1pct == int(plano.quantidade_sugerida_1pct) else f"{plano.quantidade_sugerida_1pct}"
-    unidade = "ações/cotas" if moeda == "R$" else "unid."
-    return (
-        f"Para banca de <code>{cap_fmt}</code> (Risco 1% = <code>{risco_fmt}</code>) 👉 "
-        f"<b>{qtd_str} {unidade}</b> (Exposição: <code>{exp_fmt}</code>)"
-    )
+def _sanitizar_html_telegram(texto: str) -> str:
+    """Garante que o texto conversacional da IA use apenas tags HTML limpas aceitas pelo Telegram
+    (<b> e <i>), sem blocos azuis feios (<code>) e sem Markdown quebrado.
+    """
+    if not texto:
+        return ""
+    s = texto.strip()
+    s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
+    s = re.sub(r"__(.+?)__", r"<b>\1</b>", s)
+    s = re.sub(r"</?code>", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"`([^`]+)`", r"<b>\1</b>", s)
+    marcadores = {
+        "<b>": "[[[B_OPEN]]]",
+        "</b>": "[[[B_CLOSE]]]",
+        "<i>": "[[[I_OPEN]]]",
+        "</i>": "[[[I_CLOSE]]]",
+    }
+    for tag, mk in marcadores.items():
+        s = re.sub(re.escape(tag), mk, s, flags=re.IGNORECASE)
+    s = html.escape(s)
+    for tag, mk in marcadores.items():
+        s = s.replace(mk, tag)
+    for tag_name in ("b", "i"):
+        abertas = s.count(f"<{tag_name}>")
+        fechadas = s.count(f"</{tag_name}>")
+        if abertas > fechadas:
+            s += f"</{tag_name}>" * (abertas - fechadas)
+        elif fechadas > abertas:
+            s = f"<{tag_name}>" * (fechadas - abertas) + s
+    return s
 
 
 def escanear_melhores_oportunidades(
     modalidade: str = "SWING TRADE",
     segmento: str = "TODOS",
     top_n: int = 3,
+    apenas_compra: bool = False,
 ) -> List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]]:
-    """Varre a carteira institucional de Ações B3 e/ou Cripto no timeframe adequado
-    (1D para Swing Trade com Stop 2.0x ATR; 15m para Day Trade com Stop 1.5x ATR),
-    ranqueia pelas 6 Camadas Quant + Força Relativa (Alpha) e retorna os Top N setups.
-    """
     eh_swing = "SWING" in modalidade.upper()
     tf = "1d" if eh_swing else TIMEFRAME_PADRAO
     mult_atr = ATR_MULTIPLIER_SWING if eh_swing else ATR_MULTIPLIER
@@ -1457,7 +1452,6 @@ def escanear_melhores_oportunidades(
     else:
         universo = (*CARTEIRA_SWING_B3[:8], *CARTEIRA_SWING_CRIPTO[:4])
 
-    # Pré-carrega em lote único (Batch API) para evitar HTTP 429 no TradingView
     tf_sup, tf_inf = obter_pares_mtf(tf)
     ativos_lote = tuple(dict.fromkeys([*universo, ATIVO_LIDER_B3, ATIVO_LIDER_CRIPTO]))
     for tf_b in dict.fromkeys([tf, tf_sup, tf_inf]):
@@ -1468,7 +1462,7 @@ def escanear_melhores_oportunidades(
         snap = extrair_dados_tradingview(ativo, tf, enriquecer_mtf=True)
         if not snap:
             continue
-        aprovado_pre, motivo = pre_filtrar_confluencia_quant(snap)
+        aprovado_pre, _ = pre_filtrar_confluencia_quant(snap)
         direcao, status_vies = diagnosticar_direcao_sob_demanda(snap)
         plano = calcular_gestao_risco(
             preco_entrada=snap.preco_atual,
@@ -1479,10 +1473,13 @@ def escanear_melhores_oportunidades(
             modalidade="SWING TRADE" if eh_swing else "DAY TRADE",
             moeda=snap.moeda,
         )
-        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0)
+        bonus_compra = 15 if (eh_swing or apenas_compra) and direcao == "COMPRA" else 0
+        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra
         alpha_favoravel = snap.alpha_vs_lider_pct if direcao == "COMPRA" else -snap.alpha_vs_lider_pct
         nota_rank = snap.score_quant_local + bonus
-        candidatos.append((nota_rank, alpha_favoravel, snap, plano, aprovado_pre, status_vies if not aprovado_pre else "SINAL APROVADO (6 CAMADAS)"))
+        candidatos.append(
+            (nota_rank, alpha_favoravel, snap, plano, aprovado_pre, status_vies if not aprovado_pre else "SINAL APROVADO")
+        )
 
     candidatos.sort(key=lambda x: (x[0], x[1]), reverse=True)
     return [(s, p, ap, st) for _, _, s, p, ap, st in candidatos[:top_n]]
@@ -1492,59 +1489,77 @@ def formatar_painel_recomendacoes_html(
     modalidade: str,
     segmento: str,
     oportunidades: List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]],
+    nome_usuario: str = "",
 ) -> str:
-    agora_str = dt.datetime.now(TZ_BRT).strftime("%d/%m/%Y às %H:%M BRT")
+    """Formata a recomendação de múltiplos ativos como uma conversa humana natural e limpa,
+    sem tabelas poluídas e sempre terminando com uma pergunta para o trader.
+    """
+    saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else "Fala! "
     eh_swing = "SWING" in modalidade.upper()
-    tf_label = "DIÁRIO (1D) + 4H" if eh_swing else f"INTRADIÁRIO ({TIMEFRAME_PADRAO.upper()}) + 1H"
-    mult_atr = ATR_MULTIPLIER_SWING if eh_swing else ATR_MULTIPLIER
-    seg_label = {"B3": "AÇÕES B3", "CRIPTO": "CRIPTOMOEDAS", "TODOS": "B3 & CRIPTO"}.get(segmento, "GERAL")
+    prazo_txt = "no gráfico Diário pra <b>Swing Trade</b>" if eh_swing else f"no gráfico de <b>{TIMEFRAME_PADRAO.upper()}</b> pra <b>Day Trade</b>"
 
     if not oportunidades:
         return (
-            f"<blockquote>📡 <b>RADAR DE OPORTUNIDADES {html.escape(modalidade)}</b></blockquote>\n\n"
-            "⚠️ Não foi possível extrair cotações do TradingView neste instante. Tente novamente em alguns segundos."
+            f"{saudacao}Tentei puxar os gráficos agora no TradingView, mas a conexão oscilou. "
+            "Me manda o nome de algum ativo específico que você está de olho ou tenta de novo em alguns segundos?"
         )
 
-    aprovados_qtd = sum(1 for _, _, ap, _ in oportunidades if ap)
-    if aprovados_qtd > 0:
-        cabecalho_status = (
-            f"✅ <b>{aprovados_qtd} CALL(S) COM CONFLUÊNCIA INSTITUCIONAL ATIVA!</b>\n"
-            f"<i>Selecionados pelo algoritmo de 6 Camadas + Força Relativa (Alpha).</i>"
+    aprovados = [(s, p) for s, p, ap, _ in oportunidades if ap]
+    linhas_ativos: List[str] = []
+
+    for snap, plano, aprovado, status_txt in oportunidades[:3]:
+        m, c = snap.moeda, snap.casas_decimais
+        verbo_dir = "Compra" if plano.direcao == "COMPRA" else "Venda (Short)"
+        emoji_dir = "🟢" if plano.direcao == "COMPRA" else "🔴"
+        if not aprovado:
+            emoji_dir = "🟡"
+
+        if aprovado:
+            comentario = (
+                f"está com tendência bem limpa de <b>{verbo_dir}</b> a <b>{_fmt_preco(plano.entrada, m, c)}</b>, "
+                f"com suporte de fluxo institucional e média curta em {_fmt_preco(snap.ema_9, m, c)}."
+            )
+        elif "CONSOLIDAÇÃO" in status_txt:
+            comentario = (
+                f"está lateralizando perto de <b>{_fmt_preco(plano.entrada, m, c)}</b>. "
+                f"Ainda não deu gatilho limpo; o ideal é esperar sair dessa congestão."
+            )
+        else:
+            comentario = (
+                f"mostra viés de <b>{verbo_dir}</b> a <b>{_fmt_preco(plano.entrada, m, c)}</b>, "
+                f"mas pede paciência para pegar mais perto da média curta ({_fmt_preco(snap.ema_9, m, c)})."
+            )
+
+        linhas_ativos.append(
+            f"{emoji_dir} <b>{html.escape(snap.simbolo)}</b> — {comentario}\n"
+            f"   ↳ Entrada: <b>{_fmt_preco(plano.entrada, m, c)}</b>  ·  Stop: <b>{_fmt_preco(plano.stop_loss, m, c)}</b>  ·  Alvos: <b>{_fmt_preco(plano.alvo_1, m, c)}</b> e <b>{_fmt_preco(plano.alvo_2, m, c)}</b>"
+        )
+
+    bloco_lista = "\n\n".join(linhas_ativos)
+
+    if aprovados:
+        intro = f"{saudacao}Acabei de olhar os gráficos {prazo_txt} e separei o que está mais bonito na tela agora:"
+    else:
+        intro = (
+            f"{saudacao}Dei uma varrida geral nos gráficos {prazo_txt}. "
+            "Sendo bem sincero com você: o mercado está meio travado neste momento e nenhum ativo está 100% perfeito pra entrar de olho fechado. "
+            "Os 3 que estão mais próximos de dar jogo são estes:"
+        )
+
+    tem_venda = any(p.direcao == "VENDA" for _, p, _, _ in oportunidades[:3])
+    if eh_swing and tem_venda:
+        pergunta_final = (
+            "Me diz uma coisa pra eu filtrar melhor pra você: <b>você prefere operar só na ponta de Compra ou também faz Venda (Short)?</b> "
+            "E qual desses ativos você quer que eu abra o gráfico em detalhe?"
         )
     else:
-        cabecalho_status = (
-            "🛡️ <b>MODO PRESERVAÇÃO DE CAPITAL (NENHUM ATIVO 100% ALINHADO AGORA)</b>\n"
-            "<i>Ficar de fora também é posição! Abaixo estão os 3 ativos mais fortes do radar e o gatilho exato para aguardar:</i>"
+        primeiro_simb = html.escape(oportunidades[0][0].simbolo)
+        pergunta_final = (
+            f"Qual desses faz mais sentido pro seu perfil hoje? Se quiser entrar em <b>{primeiro_simb}</b>, "
+            "me fala quanto você pensa em colocar na operação que eu já calculo a quantidade certinha pro seu risco."
         )
 
-    blocos: List[str] = []
-    medalhas = ("🥇", "🥈", "🥉")
-    for idx, (snap, plano, aprovado, status_txt) in enumerate(oportunidades):
-        med = medalhas[idx] if idx < len(medalhas) else "🔹"
-        m, c = snap.moeda, snap.casas_decimais
-        icone_dir = "🟢 COMPRA" if plano.direcao == "COMPRA" else "🔴 VENDA"
-        badge = "✅ <b>CALL APROVADO</b>" if aprovado else f"⏳ <b>{html.escape(status_txt)}</b>"
-        alpha_str = f"{snap.alpha_vs_lider_pct:+.2f}% vs {snap.ativo_lider}" if snap.ativo_lider and snap.vies_ativo_lider != "PROPRIO" else "Ativo Líder"
-
-        blocos.append(
-            f"{med} <b>#{html.escape(snap.simbolo)}</b> ({html.escape(snap.exchange)}) — <b>{icone_dir}</b>  |  {badge}\n"
-            f"• <b>Score Quant:</b> <code>{snap.score_quant_local}/100</code>  |  <b>Alpha:</b> <code>{html.escape(alpha_str)}</code>  |  <b>MTF {html.escape(snap.tf_superior.upper())}:</b> <code>{html.escape(snap.tendencia_mtf_superior)}</code>\n"
-            f"• <b>Jogada Gráfica:</b> <i>{html.escape(snap.tipo_setup)}</i>\n"
-            f"• <b>Entrada Atual:</b> <code>{_fmt_preco(plano.entrada, m, c)}</code>  |  <b>Desconto EMA 9:</b> <code>{_fmt_preco(snap.preco_pullback_ideal, m, c)}</code>\n"
-            f"• <b>Stop Técnico ({mult_atr:.1f}x ATR):</b> <code>{_fmt_preco(plano.stop_loss, m, c)}</code> <i>(-{plano.risco_percentual:.2f}%)</i>\n"
-            f"• <b>Alvo 1 (50% + Stop 0x0):</b> <code>{_fmt_preco(plano.alvo_1, m, c)}</code>  |  <b>Alvo 2:</b> <code>{_fmt_preco(plano.alvo_2, m, c)}</code>  |  <b>Alvo 3:</b> <code>{_fmt_preco(plano.alvo_3, m, c)}</code>\n"
-            f"• <b>Gestão de Lote (1% Risco):</b> {_formatar_linha_lote_1pct(plano, m)}"
-        )
-
-    corpo_cards = "\n\n".join(blocos)
-    return (
-        f"<blockquote>🏆 <b>TOP {len(oportunidades)} RECOMENDAÇÕES — {html.escape(modalidade)} ({html.escape(seg_label)})</b>\n"
-        f"⏱️ <b>Timeframe:</b> {html.escape(tf_label)}  ·  <b>Stop ATR:</b> {mult_atr:.1f}x</blockquote>\n\n"
-        f"{cabecalho_status}\n\n"
-        f"{corpo_cards}\n\n"
-        f"💡 <b>Dica de Mesa Proprietária:</b> Priorize entradas próximas ao <b>Desconto EMA 9</b> e mova o Stop Loss para o <b>Break-Even (0x0)</b> assim que atingir o Alvo 1.\n"
-        f"<i>🕒 {agora_str} · Para ver o raio-x completo de um ativo, envie: <code>/analisar {html.escape(oportunidades[0][0].simbolo)} {'1d' if eh_swing else '15m'}</code></i>"
-    )
+    return f"{intro}\n\n{bloco_lista}\n\n{pergunta_final}"
 
 
 def formatar_resposta_analise_chat_html(
@@ -1552,56 +1567,156 @@ def formatar_resposta_analise_chat_html(
     plano: PlanoRisco,
     auditoria: AuditoriaIA,
     status_vies: str,
+    nome_usuario: str = "",
 ) -> str:
+    """Formata a análise de um ativo específico como um trader humano conversando no grupo,
+    com visual limpo e terminando com uma pergunta natural.
+    """
     m, c = snap.moeda, snap.casas_decimais
-    agora_str = dt.datetime.now(TZ_BRT).strftime("%d/%m/%Y às %H:%M BRT")
-    vwma_val = snap.vwma if snap.vwma > 0 else snap.ema_21
-    lider_str = f"{snap.ativo_lider or snap.simbolo} ({snap.vies_ativo_lider})"
-    alpha_str = f"{snap.alpha_vs_lider_pct:+.2f}%" if snap.vies_ativo_lider != "PROPRIO" else "Líder"
-    mult_usado = ATR_MULTIPLIER_SWING if plano.modalidade == "SWING TRADE" else ATR_MULTIPLIER
+    saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else ""
+    mod_txt = "Swing Trade (Diário)" if plano.modalidade == "SWING TRADE" else f"gráfico de {snap.intervalo.upper()}"
+    verbo_dir = "Compra" if plano.direcao == "COMPRA" else "Venda"
+    emoji = "🟢" if (auditoria.aprovado and plano.direcao == "COMPRA") else ("🔴" if (auditoria.aprovado and plano.direcao == "VENDA") else "🟡")
 
     if auditoria.aprovado:
-        badge_status = (
-            f"🟢 <b>CALL DE {html.escape(plano.modalidade)} APROVADO — COMPRA (LONG)</b>"
-            if plano.direcao == "COMPRA"
-            else f"🔴 <b>CALL DE {html.escape(plano.modalidade)} APROVADO — VENDA (SHORT)</b>"
+        abertura = (
+            f"{saudacao}Olhando <b>{html.escape(snap.simbolo)}</b> agora no {html.escape(mod_txt)} "
+            f"(cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>), o gráfico está bem alinhado pra <b>{verbo_dir}</b>."
         )
-        titulo_niveis = f"🎯 <b>PLANO DE {html.escape(plano.modalidade)} ({plano.direcao} · ATR {mult_usado:.1f}x)</b>"
+    elif "CONSOLIDAÇÃO" in status_vies:
+        abertura = (
+            f"{saudacao}Olhei o gráfico de <b>{html.escape(snap.simbolo)}</b> no {html.escape(mod_txt)} "
+            f"(<b>{_fmt_preco(snap.preco_atual, m, c)}</b>) e, sendo bem franco, ela está <b>andando de lado</b> agora."
+        )
     else:
-        icone_vies = "🟡" if "CONSOLIDAÇÃO" in status_vies else ("🟢" if plano.direcao == "COMPRA" else "🔴")
-        badge_status = f"{icone_vies} <b>{html.escape(status_vies)} — SEM ENTRADA AGORA</b>"
-        titulo_niveis = f"📐 <b>NÍVEIS DE REFERÊNCIA ({plano.modalidade} · {plano.direcao} SE CONFIRMAR)</b>"
+        abertura = (
+            f"{saudacao}Dei uma olhada em <b>{html.escape(snap.simbolo)}</b> no {html.escape(mod_txt)} "
+            f"(<b>{_fmt_preco(snap.preco_atual, m, c)}</b>). Ela até tem uma inclinação de <b>{verbo_dir}</b>, mas ainda pede cautela antes de bater ordem."
+        )
 
-    racional_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.racional_tecnico))
-    alerta_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.alerta_risco))
-    regime_limpo = html.escape(auditoria.regime_mercado.replace("_", " "))
-
-    return (
-        f"<blockquote>🔎 <b>ANÁLISE QUANT ({html.escape(plano.modalidade)})</b>  ·  <code>#{html.escape(snap.simbolo)}</code>  ·  <b>{html.escape(snap.intervalo.upper())}</b></blockquote>\n\n"
-        f"{badge_status}\n"
-        f"🏛️ <b>Bolsa:</b> {html.escape(snap.exchange)}  |  📊 <b>Score Quant:</b> <code>{snap.score_quant_local}/100</code>  |  <b>IA:</b> <code>{auditoria.nota_confluencia}/100</code> ({regime_limpo})\n"
-        f"♟️ <b>Setup Gráfico:</b> <i>{html.escape(snap.tipo_setup)}</i>\n\n"
-        f"🧠 <b>PARECER DO ANALISTA QUANT ({html.escape(auditoria.modelo_utilizado)})</b>\n"
-        f"{racional_limpo}\n\n"
-        f"{titulo_niveis}\n"
-        f"• <b>Preço Atual / Pullback EMA 9:</b> <code>{_fmt_preco(plano.entrada, m, c)}</code> / <code>{_fmt_preco(snap.preco_pullback_ideal, m, c)}</code>\n"
-        f"• <b>Stop Técnico ({mult_usado:.1f}x ATR):</b> <code>{_fmt_preco(plano.stop_loss, m, c)}</code> <i>(-{plano.risco_percentual:.2f}%)</i>\n"
-        f"• <b>Alvo 1 (1:1.5 · 50% + Break-Even 0x0):</b> <code>{_fmt_preco(plano.alvo_1, m, c)}</code>\n"
-        f"• <b>Alvo 2 (1:2.0 · Parcial 30%):</b> <code>{_fmt_preco(plano.alvo_2, m, c)}</code>\n"
-        f"• <b>Alvo 3 (1:3.0 · Runner 20%):</b> <code>{_fmt_preco(plano.alvo_3, m, c)}</code>\n"
-        f"• <b>Horizonte:</b> <i>{html.escape(plano.horizonte_estimado)}</i>\n"
-        f"• <b>Gestão de Lote (1% Risco):</b> {_formatar_linha_lote_1pct(plano, m)}\n\n"
-        f"🧭 <b>CONFLUÊNCIA MULTI-TIMEFRAME &amp; FLUXO INSTITUCIONAL</b>\n"
-        f"• <b>Âncora Macro ({html.escape(snap.tf_superior.upper())}):</b> <code>{html.escape(snap.tendencia_mtf_superior)}</code>  |  <b>Gatilho ({html.escape(snap.tf_inferior.upper())}):</b> <code>{html.escape(snap.confirmacao_mtf_inferior)}</code>\n"
-        f"• <b>Ativo Líder:</b> <code>{html.escape(lider_str)}</code>  |  <b>Alpha vs Líder:</b> <code>{html.escape(alpha_str)}</code>\n"
-        f"• <b>EMA 9 / EMA 21:</b> <code>{_fmt_preco(snap.ema_9, m, c)}</code> / <code>{_fmt_preco(snap.ema_21, m, c)}</code>\n"
-        f"• <b>VWMA (Volume) / SMA 200:</b> <code>{_fmt_preco(vwma_val, m, c)}</code> / <code>{_fmt_preco(snap.sma_200, m, c)}</code>\n"
-        f"• <b>ADX / Dominância:</b> <code>{snap.adx:.1f}</code> (<b>DI+</b> <code>{snap.di_plus:.1f}</code> vs <b>DI-</b> <code>{snap.di_minus:.1f}</code>)\n"
-        f"• <b>RSI (14):</b> <code>{snap.rsi:.1f}</code>  |  <b>MACD Hist:</b> <code>{snap.macd_hist:+.4f}</code>  |  <b>ATR:</b> <code>{_fmt_preco(snap.atr, m, c)}</code>\n"
-        f"• <b>Pivots:</b> {_formatar_linha_pivots(snap)}\n\n"
-        f"⚠️ <b>Atenção:</b> {alerta_limpo}\n"
-        f"<i>🕒 {agora_str} · Análise quantitativa educacional (não é recomendação de investimento).</i>"
+    pos_ema = "acima" if snap.preco_atual >= snap.ema_21 else "abaixo"
+    explicacao = (
+        f"O preço trabalha {pos_ema} da média de 21 períodos ({_fmt_preco(snap.ema_21, m, c)}), "
+        f"com a média curta (EMA 9) passando em <b>{_fmt_preco(snap.ema_9, m, c)}</b> e RSI em {snap.rsi:.0f}. "
     )
+    if not auditoria.aprovado:
+        explicacao += "Entrar exatamente agora tem risco maior de violinada, então o melhor é aguardar confirmação ou pegar no recuo da média."
+    else:
+        explicacao += "O fluxo de volume e o tempo gráfico maior estão jogando a favor do movimento."
+
+    niveis = (
+        f"{emoji} <b>Pontos principais na tela ({verbo_dir}):</b>\n"
+        f"• Entrada: <b>{_fmt_preco(plano.entrada, m, c)}</b> <i>(ou recuo na EMA 9 em {_fmt_preco(snap.preco_pullback_ideal, m, c)})</i>\n"
+        f"• Stop de proteção: <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
+        f"• Alvo 1 (parcial + stop no 0x0): <b>{_fmt_preco(plano.alvo_1, m, c)}</b>\n"
+        f"• Alvo final: <b>{_fmt_preco(plano.alvo_2, m, c)}</b> a <b>{_fmt_preco(plano.alvo_3, m, c)}</b>"
+    )
+
+    pergunta = (
+        f"Você já está posicionado em <b>{html.escape(snap.simbolo)}</b> ou está planejando entrar agora? "
+        "Se quiser, me diz se a ideia é Day Trade ou Swing Trade e com quanto pretende entrar que eu te passo a conta exata do lote."
+    )
+
+    return f"{abertura}\n\n{explicacao}\n\n{niveis}\n\n{pergunta}"
+
+
+def conversar_como_trader_humano_gemini(
+    pergunta_usuario: str,
+    nome_usuario: str,
+    contexto_dados_mercado: str,
+    historico_mensagens_recentes: List[Dict[str, str]],
+    api_key: str = GEMINI_API_KEY,
+) -> Optional[str]:
+    """Usa o Gemini para conversar como um trader humano real no grupo:
+    sem templates engessados, com visual limpo e fazendo perguntas naturais para engajar o usuário.
+    """
+    global _MODELO_VENCEDOR_SESSAO
+    if not api_key:
+        return None
+
+    modelos = descobrir_modelos_gemini_gratuitos(api_key)
+    if not modelos:
+        return None
+
+    system_instruction = (
+        "Você é um Trader Quantitativo Sênior e parceiro de mesa de operações conversando com outros traders em um grupo do Telegram.\n"
+        "REGRAS OBRIGATÓRIAS DE COMPORTAMENTO E DESIGN:\n"
+        "1. FALE COMO UMA PESSOA REAL: Converse de forma natural, amigável, inteligente e direta, como um trader experiente trocando ideia com um amigo. "
+        "NUNCA use cabeçalhos robóticos como 'MODO PRESERVAÇÃO DE CAPITAL', 'PARECER DO ANALISTA', 'CONFLUÊNCIA MULTI-TIMEFRAME' ou tabelas cheias de siglas.\n"
+        "2. DESIGN LIMPO E BONITO: Escreva em 2 a 3 parágrafos curtos e agradáveis de ler no celular. "
+        "Use apenas negrito HTML (<b>...</b>) para destacar o código do ativo e os preços principais, e itálico (<i>...</i>) com moderação. "
+        "NUNCA use a tag <code> (aquelas caixas azuis monoespaçadas) e NUNCA despeje listas de indicadores crus (proibido escrever 'Score Quant 92/100', 'Alpha -0.14%', 'DI+ vs DI-', 'MACD Hist'). "
+        "Traduza a leitura técnica para português humano (ex: 'o papel está forte acima das médias com entrada de volume', 'está andando de lado, melhor não forçar entrada').\n"
+        "3. PREÇOS CLAROS: Quando citar níveis de operação de um ativo, mostre em no máximo 2 ou 3 linhas limpas apenas: Entrada (e o ponto de desconto na EMA 9), Stop Loss e Alvos.\n"
+        "4. PREFERÊNCIA POR COMPRA NO SWING TRADE: Se alguém pedir recomendação de ação ou Swing Trade, priorize comentar oportunidades de COMPRA (ou avise com sinceridade se o mercado estiver ruim/caindo e pergunte se a pessoa também opera vendido ou prefere esperar).\n"
+        "5. FAÇA PERGUNTAS (MUITO IMPORTANTE): Sempre termine sua mensagem fazendo 1 ou 2 perguntas naturais para continuar o papo com a pessoa "
+        "(ex: perguntar se ela já está comprada ou quer entrar, se prefere giro curto de poucos dias ou carregar por semanas, ou perguntar com qual valor pretende operar para você calcular o tamanho do lote ideal).\n"
+        "6. USE APENAS OS PREÇOS REAIS fornecidos nos dados do TradingView abaixo. Nunca invente cotações."
+    )
+
+    bloco_hist = ""
+    if historico_mensagens_recentes:
+        linhas_h = [f"- {m.get('autor', 'Trader')}: {m.get('texto', '')}" for m in historico_mensagens_recentes[-6:]]
+        bloco_hist = "CONTEXTO DAS ÚLTIMAS MENSAGENS DO CHAT:\n" + "\n".join(linhas_h) + "\n\n"
+
+    user_prompt = (
+        f"{bloco_hist}"
+        f"DADOS EM TEMPO REAL DO TRADINGVIEW AGORA:\n{contexto_dados_mercado}\n\n"
+        f"MENSAGEM ATUAL DE {nome_usuario or 'Trader'}: \"{pergunta_usuario}\"\n\n"
+        "Responda diretamente em português, conversando como um trader humano, com visual super limpo (apenas texto fluido e tags <b> e <i> quando necessário) "
+        "e termine fazendo uma pergunta relevante para continuar a conversa:"
+    )
+
+    payload = {
+        "systemInstruction": {"parts": [{"text": system_instruction}]},
+        "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
+        "generationConfig": {
+            "temperature": 0.45,
+            "maxOutputTokens": 900,
+        },
+    }
+
+    for modelo in modelos:
+        url = f"{GEMINI_API_BASE}/{modelo}:generateContent"
+        try:
+            resp = requests.post(
+                url,
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "x-goog-api-key": api_key,
+                },
+                json=payload,
+                timeout=15,
+            )
+            if resp.status_code == 200:
+                body = resp.json()
+                cand0 = (body.get("candidates") or [{}])[0]
+                partes = cand0.get("content", {}).get("parts", [])
+                texto = "".join(p.get("text", "") for p in partes if isinstance(p, dict) and not p.get("thought"))
+                if not texto:
+                    texto = "".join(p.get("text", "") for p in partes if isinstance(p, dict))
+                texto_limpo = _sanitizar_html_telegram(texto)
+                if len(texto_limpo) >= 40:
+                    _MODELO_VENCEDOR_SESSAO = modelo
+                    _MODELOS_DEGRADADOS_SESSAO.discard(modelo)
+                    return texto_limpo
+            elif resp.status_code in (404, 429):
+                _MODELOS_BLOQUEADOS_SESSAO.add(modelo)
+                if _MODELO_VENCEDOR_SESSAO == modelo:
+                    _MODELO_VENCEDOR_SESSAO = None
+            elif resp.status_code in (400, 500, 503):
+                _MODELOS_DEGRADADOS_SESSAO.add(modelo)
+                if _MODELO_VENCEDOR_SESSAO == modelo:
+                    _MODELO_VENCEDOR_SESSAO = None
+            elif resp.status_code in (401, 403):
+                return None
+        except Exception:
+            _MODELOS_DEGRADADOS_SESSAO.add(modelo)
+            if _MODELO_VENCEDOR_SESSAO == modelo:
+                _MODELO_VENCEDOR_SESSAO = None
+
+    return None
 
 
 # ==============================================================================
@@ -1612,42 +1727,21 @@ def formatar_mensagem_sinal_html(
     plano: PlanoRisco,
     auditoria: AuditoriaIA,
 ) -> str:
-    icone_dir = "🟢 <b>COMPRA (LONG)</b>" if plano.direcao == "COMPRA" else "🔴 <b>VENDA (SHORT)</b>"
-    agora_str = dt.datetime.now(TZ_BRT).strftime("%d/%m/%Y às %H:%M BRT")
+    """Design minimalista, limpo e humano para os sinais automáticos do radar."""
+    eh_compra = plano.direcao == "COMPRA"
+    icone_titulo = f"🟢 <b>Oportunidade de Compra · {html.escape(snap.simbolo)}</b> ({html.escape(snap.intervalo.upper())})" if eh_compra else f"🔴 <b>Oportunidade de Venda · {html.escape(snap.simbolo)}</b> ({html.escape(snap.intervalo.upper())})"
     m, c = snap.moeda, snap.casas_decimais
-    vwma_val = snap.vwma if snap.vwma > 0 else snap.ema_21
-    lider_str = f"{snap.ativo_lider or snap.simbolo} ({snap.vies_ativo_lider})"
-    alpha_str = f"{snap.alpha_vs_lider_pct:+.2f}%" if snap.vies_ativo_lider != "PROPRIO" else "Líder"
 
     racional_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.racional_tecnico))
-    alerta_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.alerta_risco))
-    regime_limpo = html.escape(auditoria.regime_mercado.replace("_", " "))
 
     return (
-        f"<blockquote>⚡ <b>RADAR QUANT {html.escape(plano.modalidade)} (6 CAMADAS)</b>  ·  <code>#{html.escape(snap.simbolo)}</code>  ·  <b>{html.escape(snap.intervalo.upper())}</b></blockquote>\n\n"
-        f"{icone_dir}  ·  <i>{html.escape(snap.tipo_setup)}</i>\n"
-        f"🏛️ <b>Bolsa:</b> {html.escape(snap.exchange)}  |  📊 <b>Score Quant:</b> <code>{snap.score_quant_local}/100</code>  |  <b>IA:</b> <code>{auditoria.nota_confluencia}/100</code> ({regime_limpo})\n\n"
-        f"🎯 <b>GESTÃO MATEMÁTICA DE RISCO (ATR {ATR_MULTIPLIER:.1f}x + BREAK-EVEN)</b>\n"
-        f"• <b>Entrada / Desconto EMA 9:</b> <code>{_fmt_preco(plano.entrada, m, c)}</code> / <code>{_fmt_preco(snap.preco_pullback_ideal, m, c)}</code>\n"
-        f"• <b>Stop Loss Técnico:</b> <code>{_fmt_preco(plano.stop_loss, m, c)}</code> <i>(-{plano.risco_percentual:.2f}%)</i>\n"
-        f"• <b>Alvo 1 (1:1.5 · Parcial 50% + Stop no 0x0):</b> <code>{_fmt_preco(plano.alvo_1, m, c)}</code>\n"
-        f"• <b>Alvo 2 (1:2.0 · Parcial 30%):</b> <code>{_fmt_preco(plano.alvo_2, m, c)}</code>\n"
-        f"• <b>Alvo 3 (1:3.0 · Runner 20%):</b> <code>{_fmt_preco(plano.alvo_3, m, c)}</code>\n"
-        f"• <b>Gestão de Lote (1% Risco):</b> {_formatar_linha_lote_1pct(plano, m)}\n"
-        f"• <b>Regra de Proteção:</b> <i>Bateu Alvo 1 ({_fmt_preco(plano.gatilho_breakeven, m, c)}), embolse 50% e traga o Stop para a Entrada ({_fmt_preco(plano.entrada, m, c)}).</i>\n\n"
-        f"🧭 <b>INDICADORES INSTITUCIONAIS &amp; MTF (TRADINGVIEW)</b>\n"
-        f"• <b>MTF ({html.escape(snap.tf_superior.upper())} / {html.escape(snap.intervalo.upper())} / {html.escape(snap.tf_inferior.upper())}):</b> <code>{html.escape(snap.tendencia_mtf_superior)}</code> / <code>{html.escape(plano.direcao)}</code> / <code>{html.escape(snap.confirmacao_mtf_inferior)}</code>\n"
-        f"• <b>Vento de Mercado (Líder):</b> <code>{html.escape(lider_str)}</code>  |  <b>Alpha:</b> <code>{html.escape(alpha_str)}</code>\n"
-        f"• <b>EMA 9 / EMA 21:</b> <code>{_fmt_preco(snap.ema_9, m, c)}</code> / <code>{_fmt_preco(snap.ema_21, m, c)}</code>\n"
-        f"• <b>VWMA (Fluxo) / SMA 200:</b> <code>{_fmt_preco(vwma_val, m, c)}</code> / <code>{_fmt_preco(snap.sma_200, m, c)}</code>\n"
-        f"• <b>ADX / Dominância:</b> <code>{snap.adx:.1f}</code> (<b>DI+</b> <code>{snap.di_plus:.1f}</code> vs <b>DI-</b> <code>{snap.di_minus:.1f}</code>)\n"
-        f"• <b>RSI (14):</b> <code>{snap.rsi:.1f}</code>  |  <b>MACD / Sinal:</b> <code>{snap.macd_line:.4f}</code> / <code>{snap.macd_signal:.4f}</code>\n"
-        f"• <b>Pivots Intradiários:</b> {_formatar_linha_pivots(snap)}\n"
-        f"• <b>ATR (14):</b> <code>{_fmt_preco(snap.atr, m, c)}</code>  |  <b>Volume:</b> <code>{snap.volume:,.0f}</code>\n\n"
-        f"🧠 <b>AUDITORIA DA IA ({html.escape(auditoria.modelo_utilizado)})</b>\n"
+        f"{icone_titulo}\n\n"
         f"{racional_limpo}\n\n"
-        f"⚠️ <b>Ponto de Atenção:</b> {alerta_limpo}\n"
-        f"<i>🕒 {agora_str} · Estudo quantitativo automatizado (não configura recomendação de investimento).</i>"
+        f"🎯 <b>Entrada:</b> <b>{_fmt_preco(plano.entrada, m, c)}</b> <i>(recuo EMA 9: {_fmt_preco(snap.preco_pullback_ideal, m, c)})</i>\n"
+        f"🛑 <b>Stop de proteção:</b> <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
+        f"✅ <b>Alvo 1 (50% + Stop no 0x0):</b> <b>{_fmt_preco(plano.alvo_1, m, c)}</b>\n"
+        f"🚀 <b>Alvo 2:</b> <b>{_fmt_preco(plano.alvo_2, m, c)}</b>  ·  <b>Alvo 3:</b> <b>{_fmt_preco(plano.alvo_3, m, c)}</b>\n\n"
+        f"💬 <i>Alguém acompanhando {html.escape(snap.simbolo)} por aí? Se quiserem que eu calcule o lote ideal pra banca de vocês ou analise outro tempo gráfico, é só responder aqui!</i>"
     )
 
 
@@ -1658,10 +1752,11 @@ def carregar_historico(caminho: Path = HISTORICO_PATH) -> Dict[str, Any]:
             if isinstance(dados, dict):
                 dados.setdefault("sinais", [])
                 dados.setdefault("ultimo_update_id", 0)
+                dados.setdefault("conversas_chat", {})
                 return dados
         except Exception as exc:
             logger.warning("Erro ao ler %s: %s", caminho, exc)
-    return {"sinais": [], "ultimo_update_id": 0}
+    return {"sinais": [], "ultimo_update_id": 0, "conversas_chat": {}}
 
 
 def salvar_historico(dados: Dict[str, Any], caminho: Path = HISTORICO_PATH) -> None:
@@ -1670,10 +1765,21 @@ def salvar_historico(dados: Dict[str, Any], caminho: Path = HISTORICO_PATH) -> N
         s for s in dados.get("sinais", [])
         if isinstance(s, dict) and (agora_ts - float(s.get("ts", 0))) <= 72 * 3600
     ][-400:]
+    conversas_raw = dados.get("conversas_chat")
+    conversas_limpas: Dict[str, Any] = {}
+    if isinstance(conversas_raw, dict):
+        for cid, info_c in list(conversas_raw.items())[-30:]:
+            if isinstance(info_c, dict) and (agora_ts - float(info_c.get("ultimo_ts", 0))) <= 24 * 3600:
+                conversas_limpas[str(cid)] = {
+                    "ultimo_ts": float(info_c.get("ultimo_ts", 0)),
+                    "ultimo_simbolo": str(info_c.get("ultimo_simbolo") or ""),
+                    "mensagens": list(info_c.get("mensagens") or [])[-8:],
+                }
     payload = {
         "atualizado_em": dt.datetime.now(TZ_BRT).isoformat(),
         "ultimo_update_id": int(dados.get("ultimo_update_id") or 0),
         "sinais": sinais_limpos,
+        "conversas_chat": conversas_limpas,
     }
     tmp = caminho.with_suffix(".tmp")
     tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1758,7 +1864,6 @@ def obter_username_bot(token: str = TELEGRAM_BOT_TOKEN) -> str:
     if not token:
         return ""
     try:
-        # Garante que nenhum webhook antigo bloqueie o getUpdates (HTTP 409)
         requests.get(
             f"https://api.telegram.org/bot{token}/deleteWebhook",
             params={"drop_pending_updates": "false"},
@@ -1783,15 +1888,48 @@ def obter_username_bot(token: str = TELEGRAM_BOT_TOKEN) -> str:
     return ""
 
 
+def _registrar_turno_conversa(
+    historico: Dict[str, Any],
+    chat_id: str,
+    nome_usuario: str,
+    texto_usuario: str,
+    resposta_bot: str,
+    simbolo_foco: str = "",
+) -> None:
+    convs = historico.setdefault("conversas_chat", {})
+    sessao = convs.setdefault(str(chat_id), {"ultimo_ts": 0.0, "ultimo_simbolo": "", "mensagens": []})
+    sessao["ultimo_ts"] = dt.datetime.now(dt.timezone.utc).timestamp()
+    if simbolo_foco:
+        sessao["ultimo_simbolo"] = simbolo_foco
+    msgs = sessao.setdefault("mensagens", [])
+    msgs.append({"autor": nome_usuario or "Trader", "texto": texto_usuario[:300]})
+    texto_bot_limpo = re.sub(r"<[^>]+>", "", resposta_bot)
+    msgs.append({"autor": "Analista Quant (Você)", "texto": texto_bot_limpo[:400]})
+    sessao["mensagens"] = msgs[-8:]
+
+
+def _resumir_ativo_para_conversa(snap: SnapshotIndicadores, plano: PlanoRisco, aprovado: bool, status_vies: str) -> str:
+    m, c = snap.moeda, snap.casas_decimais
+    return (
+        f"Ativo: {snap.simbolo} ({snap.exchange} - Gráfico {snap.intervalo.upper()} - {plano.modalidade}) | "
+        f"Preço Atual: {_fmt_preco(snap.preco_atual, m, c)} (Variação: {snap.variacao_pct:+.2f}%) | "
+        f"Status Técnico: {'Setup Aprovado' if aprovado else status_vies} para {plano.direcao} ({snap.tipo_setup}) | "
+        f"Média Curta EMA 9 (ponto de desconto): {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | "
+        f"SMA 200: {_fmt_preco(snap.sma_200, m, c)} | VWMA (fluxo de volume): {_fmt_preco(snap.vwma, m, c)} | "
+        f"RSI: {snap.rsi:.1f} | ADX: {snap.adx:.1f} | Tendência Gráfico Maior ({snap.tf_superior.upper()}): {snap.tendencia_mtf_superior} | "
+        f"Níveis Calculados -> Entrada: {_fmt_preco(plano.entrada, m, c)}, Stop Loss: {_fmt_preco(plano.stop_loss, m, c)} (-{plano.risco_percentual:.1f}%), "
+        f"Alvo 1 (Parcial 50% + Stop no 0x0): {_fmt_preco(plano.alvo_1, m, c)}, Alvo 2: {_fmt_preco(plano.alvo_2, m, c)}, Alvo 3: {_fmt_preco(plano.alvo_3, m, c)} | "
+        f"Sugestão de lote para 1% de risco (banca de {_fmt_preco(plano.capital_referencia, m, 0)}): {plano.quantidade_sugerida_1pct} unidades/ações."
+    )
+
+
 def responder_perguntas_chat(
     historico: Dict[str, Any],
     bot_username: str = "",
     timeout_long_polling: int = 4,
 ) -> int:
-    """Lê novas mensagens enviadas no grupo/chat (getUpdates), identifica:
-    1) Pedidos de recomendação/ranking de Swing Trade ou Day Trade ('quero fazer swing trade, qual ação recomenda?', '/swing')
-    2) Pedidos de análise de um ativo específico ('o que acha de PETR4?', 'vale a pena swing trade em VALE3?')
-    3) Chamados diretos ao robô no grupo ('oi robô', menção @bot ou reply direto)
+    """Conversa no grupo como um trader humano real, analisa gráficos em tempo real,
+    recomenda Swing Trade / Day Trade e faz perguntas para continuar o diálogo.
     """
     if not TELEGRAM_BOT_TOKEN:
         return 0
@@ -1857,6 +1995,8 @@ def responder_perguntas_chat(
         if not chat_id_msg:
             continue
 
+        nome_user = str(remetente.get("first_name") or remetente.get("username") or "Trader").strip()
+
         reply_msg = msg.get("reply_to_message") or {}
         reply_from = reply_msg.get("from") or {}
         eh_reply_ao_bot = bool(reply_from.get("is_bot")) and (
@@ -1868,42 +2008,46 @@ def responder_perguntas_chat(
             or eh_reply_ao_bot
         )
 
+        sessao_chat = (historico.get("conversas_chat") or {}).get(chat_id_msg) or {}
+        conversa_recente_ativa = (agora_ts - float(sessao_chat.get("ultimo_ts") or 0)) <= 900  # 15 min
+        hist_msgs = list(sessao_chat.get("mensagens") or [])
+
         logger.info(
             "📩 Mensagem recebida no chat [%s | user=%s]: '%s'",
             chat_id_msg,
-            remetente.get("first_name") or remetente.get("username") or "anon",
+            nome_user,
             texto[:100],
         )
 
-        # 1. Comando de ajuda
+        # 1. Comando inicial /start ou /ajuda -> conversa como pessoa real
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
-            ajuda_html = (
-                "🤖 <b>Analista Quant Day Trade &amp; Swing Trade (6 Camadas) Ativo!</b>\n\n"
-                "🏆 <b>Pedir Recomendações / Top Oportunidades:</b>\n"
-                "• <code>/swing</code> ou pergunte: <i>\"Quero fazer swing trade, qual ação recomenda?\"</i>\n"
-                "• <code>/oportunidades</code> ou pergunte: <i>\"Qual a melhor cripto pra entrar agora?\"</i>\n\n"
-                "🔎 <b>Analisar um Ativo Específico (Day Trade ou Swing Trade):</b>\n"
-                "• <code>/analisar PETR4 15m</code> ou <code>/analisar VALE3 1d</code>\n"
-                "• Ou pergunte naturalmente: <i>\"O que acha de ITUB4 para swing trade?\"</i>, <i>\"Como está o Bitcoin?\"</i>"
+            boas_vindas = (
+                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô acompanhando o mercado em tempo real por aqui.\n\n"
+                "Você pode trocar ideia comigo normalmente como se estivesse falando com um colega de mesa: "
+                "me perguntar o que eu acho de qualquer ação ou cripto (tipo <i>\"o que acha da PETR4?\"</i> ou <i>\"como tá o Bitcoin?\"</i>), "
+                "ou pedir pra eu garimpar boas oportunidades de compra pra <b>Swing Trade</b> ou <b>Day Trade</b>.\n\n"
+                "Qual mercado você está olhando agora: <b>Ações da B3</b> ou <b>Cripto</b>?"
             )
-            if enviar_telegram_html(ajuda_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+            if enviar_telegram_html(boas_vindas, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, boas_vindas)
                 respondidas += 1
             continue
 
-        # 2. Verifica primeiro se o usuário mencionou um ativo específico
+        # 2. Verifica se o usuário mencionou um ativo específico
         ativo_pedido = identificar_ativo_na_pergunta(
             texto,
             bot_username=bot_username,
-            eh_resposta_ao_bot=eh_reply_ao_bot,
+            eh_resposta_ao_bot=eh_reply_ao_bot or conversa_recente_ativa,
         )
 
-        # 3. Se NÃO mencionou um ativo específico, verifica se pediu recomendação/calls de Swing Trade ou Day Trade
+        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Swing Trade/Day Trade
         if not ativo_pedido:
             pedido_rec = identificar_pedido_recomendacao_ranking(texto, bot_username=bot_username)
             if pedido_rec:
                 modalidade_rec, segmento_rec = pedido_rec
+                quer_venda = bool(re.search(r"\b(?:venda|vendido|short|queda)\b", texto.lower()))
                 logger.info(
-                    "🏆 Pedido de recomendação detectado no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
+                    "🏆 Pedido de recomendação no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
                     chat_id_msg,
                     modalidade_rec,
                     segmento_rec,
@@ -1913,29 +2057,76 @@ def responder_perguntas_chat(
                     modalidade=modalidade_rec,
                     segmento=segmento_rec,
                     top_n=3,
+                    apenas_compra=not quer_venda,
                 )
-                painel_html = formatar_painel_recomendacoes_html(
-                    modalidade=modalidade_rec,
-                    segmento=segmento_rec,
-                    oportunidades=top_oportunidades,
+                resumos_top = [
+                    _resumir_ativo_para_conversa(s, p, ap, st)
+                    for s, p, ap, st in top_oportunidades
+                ]
+                contexto_mercado = (
+                    f"Modalidade pedida pelo trader: {modalidade_rec} | Segmento: {segmento_rec}\n"
+                    "Top 3 ativos escaneados agora no TradingView:\n" + "\n".join(resumos_top)
                 )
-                if enviar_telegram_html(painel_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                resposta_html = conversar_como_trader_humano_gemini(
+                    pergunta_usuario=texto,
+                    nome_usuario=nome_user,
+                    contexto_dados_mercado=contexto_mercado,
+                    historico_mensagens_recentes=hist_msgs,
+                )
+                if not resposta_html:
+                    resposta_html = formatar_painel_recomendacoes_html(
+                        modalidade=modalidade_rec,
+                        segmento=segmento_rec,
+                        oportunidades=top_oportunidades,
+                        nome_usuario=nome_user,
+                    )
+                simb_foco = top_oportunidades[0][0].simbolo if top_oportunidades else ""
+                if enviar_telegram_html(resposta_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                    _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_html, simb_foco)
                     respondidas += 1
-                    logger.info("✅ Painel Top 3 (%s - %s) enviado no chat.", modalidade_rec, segmento_rec)
+                    logger.info("✅ Conversa de recomendação (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
                 continue
 
-            if mencionou_bot:
-                guia_html = (
-                    "👋 <b>Estou na escuta!</b> Como posso ajudar na sua operação agora?\n\n"
-                    "• Para <b>Top 3 Calls de Swing Trade</b>, envie: <code>/swing</code> ou <i>\"qual ação recomenda pra swing trade?\"</i>\n"
-                    "• Para <b>Top 3 Oportunidades de Day Trade</b>, envie: <code>/oportunidades</code>\n"
-                    "• Para <b>Analisar um Gráfico</b>, cite o ativo: <i>\"o que acha de PETR4?\"</i>, <i>\"analisa BTC no 1h\"</i>, <i>\"VALE3\"</i>."
+            # 4. Continuação de conversa (respondeu à pergunta do bot ou chamou o bot no grupo)
+            if mencionou_bot or (conversa_recente_ativa and (eh_reply_ao_bot or "?" in texto or bool(REGEX_INTENCAO_PERGUNTA.search(texto)))):
+                ultimo_simb = str(sessao_chat.get("ultimo_simbolo") or "")
+                contexto_extra = "Conversa livre sobre trading e gestão de risco."
+                if ultimo_simb:
+                    at_ant = identificar_ativo_na_pergunta(ultimo_simb, eh_resposta_ao_bot=True)
+                    if at_ant:
+                        tf_ant = extrair_intervalo_da_mensagem(texto)
+                        snap_ant = extrair_dados_tradingview(at_ant, tf_ant, enriquecer_mtf=True)
+                        if snap_ant:
+                            ap_ant, _ = pre_filtrar_confluencia_quant(snap_ant)
+                            dir_ant, st_ant = diagnosticar_direcao_sob_demanda(snap_ant)
+                            pl_ant = calcular_gestao_risco(
+                                snap_ant.preco_atual,
+                                snap_ant.atr,
+                                dir_ant,
+                                ATR_MULTIPLIER_SWING if tf_ant in ("4h", "1d", "1w") else ATR_MULTIPLIER,
+                                snap_ant.casas_decimais,
+                                "SWING TRADE" if tf_ant in ("4h", "1d", "1w") else "DAY TRADE",
+                                snap_ant.moeda,
+                            )
+                            contexto_extra = _resumir_ativo_para_conversa(snap_ant, pl_ant, ap_ant, st_ant)
+
+                resposta_livre = conversar_como_trader_humano_gemini(
+                    pergunta_usuario=texto,
+                    nome_usuario=nome_user,
+                    contexto_dados_mercado=contexto_extra,
+                    historico_mensagens_recentes=hist_msgs,
                 )
-                if enviar_telegram_html(guia_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                if not resposta_livre:
+                    resposta_livre = (
+                        f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui acompanhando o pregão. "
+                        "Me diz qual ação ou cripto você quer que eu olhe o gráfico agora, ou me fala se está buscando uma oportunidade de <b>Swing Trade</b> ou <b>Day Trade</b>!"
+                    )
+                if enviar_telegram_html(resposta_livre, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                    _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_livre, ultimo_simb)
                     respondidas += 1
             continue
 
-        # 4. Análise de ativo específico (em modo Day Trade ou Swing Trade conforme a pergunta)
+        # 5. Análise conversacional de um ativo específico citado pelo trader
         modalidade_pedido = detectar_modalidade_na_mensagem(texto)
         intervalo_pedido = extrair_intervalo_da_mensagem(texto)
         eh_swing_ativo = modalidade_pedido == "SWING TRADE" or intervalo_pedido in ("4h", "1d", "1w")
@@ -1943,7 +2134,7 @@ def responder_perguntas_chat(
         mod_final = "SWING TRADE" if eh_swing_ativo else "DAY TRADE"
 
         logger.info(
-            "💬 Pergunta detectada no chat (%s): ativo=%s (%s - %s) | texto='%s'",
+            "💬 Pergunta sobre ativo no chat (%s): ativo=%s (%s - %s) | texto='%s'",
             chat_id_msg,
             ativo_pedido.simbolo,
             intervalo_pedido,
@@ -1954,13 +2145,14 @@ def responder_perguntas_chat(
         snap = extrair_dados_tradingview(ativo_pedido, intervalo_pedido, enriquecer_mtf=True)
         if not snap:
             aviso_erro = (
-                f"⚠️ Não consegui localizar dados em tempo real no TradingView para "
-                f"<code>{html.escape(ativo_pedido.simbolo)}</code>. Verifique o código do ticker "
-                f"(ex.: <code>PETR4</code>, <code>VALE3</code>, <code>BTCUSDT</code>, <code>SOLUSDT</code>)."
+                f"Fala, <b>{html.escape(nome_user)}</b>! Tentei puxar o gráfico de <b>{html.escape(ativo_pedido.simbolo)}</b> "
+                "aqui no TradingView, mas não encontrei esse código. Confirma pra mim o ticker certinho "
+                "(tipo <b>PETR4</b>, <b>VALE3</b> ou <b>BTCUSDT</b>)?"
             )
             enviar_telegram_html(aviso_erro, chat_id=chat_id_msg, reply_to_message_id=msg_id)
             continue
 
+        aprovado_pre, _ = pre_filtrar_confluencia_quant(snap)
         direcao_vies, status_vies = diagnosticar_direcao_sob_demanda(snap)
         plano = calcular_gestao_risco(
             preco_entrada=snap.preco_atual,
@@ -1972,14 +2164,27 @@ def responder_perguntas_chat(
             moeda=snap.moeda,
         )
 
-        auditoria = auditar_sinal_com_gemini(snap, plano, pergunta_usuario=texto)
-        if not auditoria:
-            auditoria = gerar_auditoria_quant_fallback(snap, plano)
+        contexto_ativo = _resumir_ativo_para_conversa(snap, plano, aprovado_pre, status_vies)
+        resposta_html = conversar_como_trader_humano_gemini(
+            pergunta_usuario=texto,
+            nome_usuario=nome_user,
+            contexto_dados_mercado=contexto_ativo,
+            historico_mensagens_recentes=hist_msgs,
+        )
+        if not resposta_html:
+            auditoria_fb = gerar_auditoria_quant_fallback(snap, plano)
+            resposta_html = formatar_resposta_analise_chat_html(
+                snap,
+                plano,
+                auditoria_fb,
+                status_vies,
+                nome_usuario=nome_user,
+            )
 
-        resposta_html = formatar_resposta_analise_chat_html(snap, plano, auditoria, status_vies)
         if enviar_telegram_html(resposta_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+            _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_html, snap.simbolo)
             respondidas += 1
-            logger.info("✅ Resposta enviada no chat para %s (%s - %s).", ativo_pedido.simbolo, intervalo_pedido, mod_final)
+            logger.info("✅ Resposta conversacional enviada no chat para %s (%s - %s).", ativo_pedido.simbolo, intervalo_pedido, mod_final)
 
     if mudou_offset:
         salvar_historico(historico)
