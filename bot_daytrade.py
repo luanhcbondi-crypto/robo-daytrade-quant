@@ -46,11 +46,13 @@ TELEGRAM_GROUP_ID = (os.environ.get("TELEGRAM_GROUP_ID") or "").strip()
 GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY") or "").strip().strip('"').strip("'")
 
 HISTORICO_PATH = Path(os.environ.get("HISTORICO_ARQUIVO", "historico.json"))
-TIMEFRAME_PADRAO = (os.environ.get("DAYTRADE_INTERVAL", "15m") or "15m").strip().lower()
+# Timeframe padrão é Diário (1d) para Swing Trade baseado em Suportes e Resistências consolidados
+_ENV_TF = (os.environ.get("SWING_INTERVAL") or os.environ.get("DAYTRADE_INTERVAL") or "1d").strip().lower()
+TIMEFRAME_PADRAO = "1d" if _ENV_TF in ("", "15m") else _ENV_TF
 ATR_MULTIPLIER = float(os.environ.get("ATR_MULTIPLIER", "1.5"))
 ATR_MULTIPLIER_SWING = float(os.environ.get("ATR_MULTIPLIER_SWING", "2.0"))
-NOTA_MINIMA_IA = int(os.environ.get("NOTA_MINIMA_IA", "78"))
-COOLDOWN_SINAL_MINUTOS = int(os.environ.get("COOLDOWN_SINAL_MINUTOS", "180"))
+NOTA_MINIMA_IA = int(os.environ.get("NOTA_MINIMA_IA", "76"))
+COOLDOWN_SINAL_MINUTOS = int(os.environ.get("COOLDOWN_SINAL_MINUTOS", "360"))
 MAX_SINAIS_POR_CICLO = int(os.environ.get("MAX_SINAIS_POR_CICLO", "3"))
 
 TZ_BRT = dt.timezone(dt.timedelta(hours=-3))
@@ -102,6 +104,7 @@ COLUNAS_BATCH_TV: Tuple[str, ...] = (
     "EMA10",
     "EMA20",
     "EMA21",
+    "SMA50",
     "SMA200",
     "EMA200",
     "VWMA",
@@ -118,7 +121,14 @@ COLUNAS_BATCH_TV: Tuple[str, ...] = (
     "Stoch.D",
     "Pivot.M.Classic.Middle",
     "Pivot.M.Classic.R1",
+    "Pivot.M.Classic.R2",
     "Pivot.M.Classic.S1",
+    "Pivot.M.Classic.S2",
+    "Pivot.M.Fibonacci.Middle",
+    "Pivot.M.Fibonacci.R1",
+    "Pivot.M.Fibonacci.R2",
+    "Pivot.M.Fibonacci.S1",
+    "Pivot.M.Fibonacci.S2",
 )
 
 MAPA_INTERVALOS_TV: Dict[str, str] = {
@@ -145,7 +155,7 @@ class AtivoMonitorado:
 ATIVO_LIDER_B3 = AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True)
 ATIVO_LIDER_CRIPTO = AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False)
 
-# Watchlist padrão para varredura automática de Day Trade: Blue Chips B3 + Criptoativos Majors 24/7
+# Watchlist padrão para varredura automática: Blue Chips B3 + Criptoativos Majors 24/7
 WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, True),
     AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, True),
@@ -260,7 +270,7 @@ REGEX_CHAMADO_ROBO = re.compile(r"\b(?:rob[ôo]|bot|analista|ia)\b", flags=re.IG
 REGEX_INTENCAO_PERGUNTA = re.compile(
     r"(?:\?|o\s*que\s+(?:vc\s+|voc[êe]\s+)?acha|oque\s+acha|analis\w*|an[áa]lis\w*|avali\w*|"
     r"como\s+(?:est[áa]|t[áa]|ta)\b|gr[áa]fic\w*|setup|vale\s+a\s+pena|compensa|"
-    r"compr\w*|vend\w*|subi\w*|sobe|cai\w*|alta|baixa|long|short|"
+    r"compr\w*|vend\w*|subi\w*|sobe|cai\w*|alta|baixa|long|short|vi[ée]s|suporte|resist[êe]ncia|"
     r"entrar|entrada|opini\w*|tend[êe]nci\w*|alvo|stop|swing\w*|day\s*trade|sinal|call|hoje|agora)",
     flags=re.IGNORECASE,
 )
@@ -299,7 +309,7 @@ class SnapshotIndicadores:
     adx: float
     recomendacao_tv: str
     direcao_preliminar: str
-    # --- 6 CAMADAS INSTITUCIONAIS + SUPER-SKILLS DE MESA PROPRIETÁRIA ---
+    # --- 6 CAMADAS INSTITUCIONAIS + MAPA DE SUPORTES E RESISTÊNCIAS CONSOLIDADOS ---
     vwma: float = 0.0
     di_plus: float = 20.0
     di_minus: float = 20.0
@@ -310,11 +320,19 @@ class SnapshotIndicadores:
     pivot_p: float = 0.0
     pivot_r1: float = 0.0
     pivot_s1: float = 0.0
+    pivot_r2: float = 0.0
+    pivot_s2: float = 0.0
+    sma_50: float = 0.0
+    suporte_consolidado_1: float = 0.0
+    suporte_consolidado_2: float = 0.0
+    resistencia_consolidada_1: float = 0.0
+    resistencia_consolidada_2: float = 0.0
+    zona_sr_descricao: str = "EM OBSERVAÇÃO"
     variacao_pct: float = 0.0
     alpha_vs_lider_pct: float = 0.0
-    tf_superior: str = "1h"
+    tf_superior: str = "1w"
     tendencia_mtf_superior: str = "NEUTRA"
-    tf_inferior: str = "5m"
+    tf_inferior: str = "4h"
     confirmacao_mtf_inferior: str = "FAVORAVEL"
     ativo_lider: str = ""
     vies_ativo_lider: str = "NEUTRO"
@@ -334,14 +352,14 @@ class PlanoRisco:
     alvo_2: float  # 1:2.0 (Parcial 30%)
     alvo_3: float  # 1:3.0 (Runner 20% com Trailing EMA 9)
     gatilho_breakeven: float = 0.0
-    modalidade: str = "DAY TRADE"
-    horizonte_estimado: str = "Intradiário (encerrar no mesmo pregão)"
+    modalidade: str = "SWING TRADE"
+    horizonte_estimado: str = "3 a 15 dias úteis (Swing Trade de Suporte/Resistência)"
     capital_referencia: float = 10000.0
     risco_max_1pct_capital: float = 100.0
     quantidade_sugerida_1pct: float = 0.0
     exposicao_total_sugerida: float = 0.0
     regra_execucao: str = (
-        "Realizar 50% no Alvo 1 e mover Stop Loss para a Entrada (0x0 Break-Even); "
+        "Realizar 50% no Alvo 1 (1ª Resistência) e mover Stop Loss para a Entrada (0x0 Break-Even); "
         "30% no Alvo 2; 20% final no Alvo 3."
     )
 
@@ -358,7 +376,7 @@ class AuditoriaIA:
 
 
 # ==============================================================================
-# 3. EXTRAÇÃO DE DADOS DO TRADINGVIEW (BATCH + ANTI-429) + MTF + ALPHA
+# 3. EXTRAÇÃO TRADINGVIEW + MAPA DE SUPORTES E RESISTÊNCIAS CONSOLIDADOS
 # ==============================================================================
 def pregao_b3_aberto(agora_utc: Optional[dt.datetime] = None) -> bool:
     agora_brt = (agora_utc or dt.datetime.now(dt.timezone.utc)).astimezone(TZ_BRT)
@@ -380,7 +398,7 @@ def _num(val: Any, default: float = 0.0) -> float:
 
 def obter_pares_mtf(intervalo_operacional: str) -> Tuple[str, str]:
     """Retorna (timeframe_ancora_superior, timeframe_gatilho_inferior) para confirmação fractal."""
-    tf = (intervalo_operacional or "15m").lower().strip()
+    tf = (intervalo_operacional or "1d").lower().strip()
     mapa = {
         "5m": ("15m", "5m"),
         "15m": ("1h", "5m"),
@@ -390,12 +408,12 @@ def obter_pares_mtf(intervalo_operacional: str) -> Tuple[str, str]:
         "1d": ("1w", "4h"),
         "1w": ("1w", "1d"),
     }
-    return mapa.get(tf, ("1h", "5m"))
+    return mapa.get(tf, ("1w", "4h"))
 
 
 def classificar_tipo_setup(snap: SnapshotIndicadores, direcao: str) -> Tuple[str, float]:
-    """Classifica a 'jogada institucional' do gráfico (Pullback de Desconto vs Ignição vs Esticado)."""
-    preco_pullback = round(snap.ema_9, snap.casas_decimais)
+    """Classifica a 'jogada institucional' do gráfico com foco em Suportes e Resistências."""
+    preco_pullback = snap.suporte_consolidado_1 if snap.suporte_consolidado_1 > 0 else round(snap.ema_9, snap.casas_decimais)
     if snap.atr <= 0 or snap.preco_atual <= 0:
         return "INDEFINIDO", preco_pullback
 
@@ -403,23 +421,101 @@ def classificar_tipo_setup(snap: SnapshotIndicadores, direcao: str) -> Tuple[str
     spread_emas_pct = abs(snap.ema_9 - snap.ema_21) / snap.preco_atual
 
     if spread_emas_pct < 0.0010 or (0 < snap.adx < 18.0):
-        return "CONSOLIDAÇÃO LATERAL (AGUARDAR ROMPIMENTO)", preco_pullback
+        return "CONSOLIDAÇÃO ENTRE SUPORTE E RESISTÊNCIA", preco_pullback
 
     if direcao == "COMPRA":
-        if snap.preco_atual >= snap.ema_9 > snap.ema_21 and dist_ema9_atr <= 0.85 and 50.0 <= snap.rsi <= 64.0:
-            return "PULLBACK INSTITUCIONAL NA EMA 9 (DESCONTO IDEAL)", preco_pullback
-        if dist_ema9_atr > 1.75 or snap.rsi > 70.0:
-            return f"PREÇO ESTICADO (AGUARDAR RECUO ATÉ EMA 9 EM {snap.moeda} {preco_pullback:.2f})", preco_pullback
-        return "IGNIÇÃO DE TENDÊNCIA & FLUXO COMPRADOR", preco_pullback
+        if "APOIADO EM SUPORTE" in snap.zona_sr_descricao or (snap.preco_atual >= snap.ema_9 > snap.ema_21 and dist_ema9_atr <= 0.85):
+            return "COMPRA EM SUPORTE CONSOLIDADO / PULLBACK (STOP CURTO)", preco_pullback
+        if dist_ema9_atr > 1.75 or snap.rsi > 70.0 or "TESTANDO TETO" in snap.zona_sr_descricao:
+            return f"PRÓXIMO À RESISTÊNCIA (AGUARDAR RECUO NO SUPORTE {snap.moeda} {preco_pullback:.2f})", preco_pullback
+        return "ROMPIMENTO & FLUXO COMPRADOR A FAVOR", preco_pullback
 
     if direcao == "VENDA":
-        if snap.preco_atual <= snap.ema_9 < snap.ema_21 and dist_ema9_atr <= 0.85 and 36.0 <= snap.rsi <= 50.0:
-            return "PULLBACK VENDEDOR NA EMA 9 (PONTO DE VENDA IDEAL)", preco_pullback
-        if dist_ema9_atr > 1.75 or snap.rsi < 30.0:
-            return f"SOBREVENDA ESTICADA (AGUARDAR REPIQUE ATÉ EMA 9 EM {snap.moeda} {preco_pullback:.2f})", preco_pullback
-        return "IGNIÇÃO DE QUEDA & FLUXO VENDEDOR", preco_pullback
+        if "TESTANDO TETO" in snap.zona_sr_descricao or (snap.preco_atual <= snap.ema_9 < snap.ema_21 and dist_ema9_atr <= 0.85):
+            return "REJEIÇÃO EM RESISTÊNCIA CONSOLIDADA", round(snap.resistencia_consolidada_1 or snap.ema_9, snap.casas_decimais)
+        return "PRESSÃO VENDEDORA ABAIXO DE SUPORTE", preco_pullback
 
-    return "TRANSICÃO DE TENDÊNCIA", preco_pullback
+    return "TRANSIÇÃO ENTRE SUPORTE E RESISTÊNCIA", preco_pullback
+
+
+def _calcular_mapa_sr_consolidado(
+    close: float,
+    atr: float,
+    low: float,
+    high: float,
+    ema_9: float,
+    ema_21: float,
+    sma_50: float,
+    sma_200: float,
+    vwma: float,
+    bb_low: float,
+    bb_up: float,
+    pivot_p: float,
+    pivot_s1: float,
+    pivot_s2: float,
+    pivot_r1: float,
+    pivot_r2: float,
+    fib_s1: float,
+    fib_s2: float,
+    fib_r1: float,
+    fib_r2: float,
+    casas: int,
+) -> Tuple[float, float, float, float, str]:
+    """Calcula zonas de Suporte e Resistência bem consolidadas por confluência de Pivots
+    Clássicos, Fibonacci, Médias Institucionais (21/50/200) e Bandas de Bollinger.
+    """
+    atr_safe = max(atr, close * 0.01, 1e-9)
+
+    cands_sup = sorted(
+        [
+            p for p in (pivot_s1, fib_s1, ema_21, sma_50, sma_200, bb_low, pivot_p, low)
+            if 0 < p <= close * 0.998
+        ],
+        reverse=True,
+    )
+    sup_1 = cands_sup[0] if cands_sup else (close - 1.5 * atr_safe)
+    for p in cands_sup:
+        if (close - p) >= 0.30 * atr_safe:
+            sup_1 = p
+            break
+
+    cands_sup_2 = [p for p in (pivot_s2, fib_s2, bb_low, sma_200, sup_1 - 1.5 * atr_safe) if 0 < p < sup_1 * 0.992]
+    sup_2 = max(cands_sup_2) if cands_sup_2 else (sup_1 - 1.5 * atr_safe)
+
+    cands_res = sorted(
+        [
+            p for p in (pivot_r1, fib_r1, bb_up, sma_50, sma_200, pivot_p, high)
+            if p >= close * 1.002
+        ]
+    )
+    res_1 = cands_res[0] if cands_res else (close + 2.0 * atr_safe)
+    for p in cands_res:
+        if (p - close) >= 0.45 * atr_safe:
+            res_1 = p
+            break
+
+    cands_res_2 = [p for p in (pivot_r2, fib_r2, bb_up, res_1 + 1.5 * atr_safe) if p > res_1 * 1.008]
+    res_2 = min(cands_res_2) if cands_res_2 else (res_1 + 1.5 * atr_safe)
+
+    dist_sup_atr = (close - sup_1) / atr_safe
+    dist_res_atr = (res_1 - close) / atr_safe
+
+    if dist_sup_atr <= 1.15 and close >= sup_1:
+        zona_desc = "APOIADO EM SUPORTE CONSOLIDADO (Assimetria excelente: Stop curto abaixo do suporte e espaço livre até a resistência)"
+    elif pivot_r1 > 0 and close > pivot_r1 and close >= vwma:
+        zona_desc = "ROMPENDO RESISTÊNCIA CONSOLIDADA (Pivot de alta rompido com entrada de volume institucional)"
+    elif dist_res_atr <= 0.75:
+        zona_desc = "TESTANDO TETO DE RESISTÊNCIA CONSOLIDADA (Cuidado ao comprar no teto — aguardar rompimento ou recuo no suporte)"
+    else:
+        zona_desc = "MEIO DE CAMINHO ENTRE SUPORTE E RESISTÊNCIA (Aguardar recuo até o suporte consolidado ou rompimento da resistência)"
+
+    return (
+        round(sup_1, casas),
+        round(sup_2, casas),
+        round(res_1, casas),
+        round(res_2, casas),
+        zona_desc,
+    )
 
 
 def _construir_snapshot_de_indicadores(
@@ -439,6 +535,7 @@ def _construir_snapshot_de_indicadores(
 
     ema_9 = _num(ind.get("EMA9"), _num(ind.get("EMA10"), close))
     ema_21 = _num(ind.get("EMA21"), _num(ind.get("EMA20"), close))
+    sma_50 = _num(ind.get("SMA50"), ema_21)
     sma_200 = _num(ind.get("SMA200"), _num(ind.get("EMA200"), close))
     vwma = _num(ind.get("VWMA"), ema_21)
 
@@ -456,9 +553,16 @@ def _construir_snapshot_de_indicadores(
     stoch_k = _num(ind.get("Stoch.K"), 50.0)
     stoch_d = _num(ind.get("Stoch.D"), 50.0)
 
-    pivot_p = _num(ind.get("Pivot.M.Classic.Middle"), close)
+    pivot_p = _num(ind.get("Pivot.M.Classic.Middle"), _num(ind.get("Pivot.M.Fibonacci.Middle"), close))
     pivot_r1 = _num(ind.get("Pivot.M.Classic.R1"), 0.0)
+    pivot_r2 = _num(ind.get("Pivot.M.Classic.R2"), 0.0)
     pivot_s1 = _num(ind.get("Pivot.M.Classic.S1"), 0.0)
+    pivot_s2 = _num(ind.get("Pivot.M.Classic.S2"), 0.0)
+
+    fib_r1 = _num(ind.get("Pivot.M.Fibonacci.R1"), pivot_r1)
+    fib_r2 = _num(ind.get("Pivot.M.Fibonacci.R2"), pivot_r2)
+    fib_s1 = _num(ind.get("Pivot.M.Fibonacci.S1"), pivot_s1)
+    fib_s2 = _num(ind.get("Pivot.M.Fibonacci.S2"), pivot_s2)
 
     atr_raw = _num(ind.get("ATR"))
     if atr_raw <= 0:
@@ -468,6 +572,30 @@ def _construir_snapshot_de_indicadores(
 
     casas = 4 if (close < 1.0 and ativo.casas_decimais == 2) else ativo.casas_decimais
     tf_sup, tf_inf = obter_pares_mtf(intervalo_str)
+
+    sup_1, sup_2, res_1, res_2, zona_sr = _calcular_mapa_sr_consolidado(
+        close=close,
+        atr=atr_raw,
+        low=low,
+        high=high,
+        ema_9=ema_9,
+        ema_21=ema_21,
+        sma_50=sma_50,
+        sma_200=sma_200,
+        vwma=vwma,
+        bb_low=bb_low,
+        bb_up=bb_up,
+        pivot_p=pivot_p,
+        pivot_s1=pivot_s1,
+        pivot_s2=pivot_s2,
+        pivot_r1=pivot_r1,
+        pivot_r2=pivot_r2,
+        fib_s1=fib_s1,
+        fib_s2=fib_s2,
+        fib_r1=fib_r1,
+        fib_r2=fib_r2,
+        casas=casas,
+    )
 
     return SnapshotIndicadores(
         simbolo=ativo.simbolo,
@@ -502,10 +630,18 @@ def _construir_snapshot_de_indicadores(
         pivot_p=pivot_p,
         pivot_r1=pivot_r1,
         pivot_s1=pivot_s1,
+        pivot_r2=pivot_r2,
+        pivot_s2=pivot_s2,
+        sma_50=sma_50,
+        suporte_consolidado_1=sup_1,
+        suporte_consolidado_2=sup_2,
+        resistencia_consolidada_1=res_1,
+        resistencia_consolidada_2=res_2,
+        zona_sr_descricao=zona_sr,
         variacao_pct=change_pct,
         tf_superior=tf_sup,
         tf_inferior=tf_inf,
-        preco_pullback_ideal=round(ema_9, casas),
+        preco_pullback_ideal=sup_1 if sup_1 > 0 else round(ema_9, casas),
     )
 
 
@@ -517,7 +653,7 @@ def pre_carregar_lote_tradingview(ativos: Tuple[AtivoMonitorado, ...], intervalo
     if not hasattr(requests, "post"):
         return 0
 
-    sufixo = MAPA_SUFIXO_BATCH_TV.get(intervalo_str, "|15")
+    sufixo = MAPA_SUFIXO_BATCH_TV.get(intervalo_str, "")
     colunas_req = [f"{col}{sufixo}" for col in COLUNAS_BATCH_TV]
     por_screener: Dict[str, Dict[str, AtivoMonitorado]] = {}
     agora_mono = time.monotonic()
@@ -577,7 +713,7 @@ def _extrair_snapshot_base(ativo: AtivoMonitorado, intervalo_str: str) -> Option
         if (agora_mono - ts_salvo) <= _CACHE_TTL_SEGUNDOS and snap_salvo is not None:
             return snap_salvo
 
-    tv_interval = MAPA_INTERVALOS_TV.get(intervalo_str, Interval.INTERVAL_15_MINUTES)
+    tv_interval = MAPA_INTERVALOS_TV.get(intervalo_str, Interval.INTERVAL_1_DAY)
     for tentativa in range(2):
         espera = 0.35 - (time.monotonic() - _ULTIMA_REQ_TV_TS)
         if espera > 0:
@@ -914,7 +1050,7 @@ def calcular_gestao_risco(
     direcao: str,
     multiplicador_atr: float = ATR_MULTIPLIER,
     casas_decimais: int = 2,
-    modalidade: str = "DAY TRADE",
+    modalidade: str = "SWING TRADE",
     moeda: str = "R$",
 ) -> PlanoRisco:
     if preco_entrada <= 0 or atr <= 0:
@@ -951,7 +1087,7 @@ def calcular_gestao_risco(
     exposicao_sugerida = round(qtd_sugerida * preco_entrada, 2)
 
     horizonte = (
-        "3 a 15 dias úteis (Swing Trade de Tendência)"
+        "3 a 15 dias úteis (Swing Trade de Suporte/Resistência)"
         if eh_swing
         else "Intradiário (encerrar no mesmo pregão)"
     )
@@ -1064,10 +1200,9 @@ def construir_prompt_auditoria(
     pergunta_usuario: str = "",
 ) -> Tuple[str, str]:
     system_instruction = (
-        "Você é um Quant Trader Sênior e Gestor de Risco Institucional (Day Trade e Swing Trade) com foco em setups de alta taxa de acerto (75%+). "
-        "Sua função é auditar o JSON multi-timeframe extraído do TradingView e VETAR qualquer operação com ruído, "
-        "consolidação lateral, fluxo institucional contrário (VWMA), falta de dominância direcional (DI+ vs DI-), "
-        "resistência/suporte Pivot bloqueando o Alvo 1, ou divergência com o gráfico superior (MTF) e com o ativo líder (BOVA11/BTC). "
+        "Você é um Quant Trader Sênior especialista em SWING TRADE com base em SUPORTES E RESISTÊNCIAS BEM CONSOLIDADOS. "
+        "Sua função é auditar o JSON multi-timeframe extraído do TradingView e VETAR qualquer operação longe de suporte, "
+        "comprando contra resistência forte, em consolidação sem direção ou contra o fluxo institucional (VWMA). "
         "Nunca invente valores fora do JSON fornecido e responda estritamente em JSON válido."
     )
 
@@ -1078,75 +1213,46 @@ def construir_prompt_auditoria(
         "direcao_avaliada": plano.direcao,
         "score_quant_local_6_camadas": snap.score_quant_local,
         "classificacao_setup": snap.tipo_setup,
-        "preco_desconto_pullback_ema9": snap.preco_pullback_ideal,
+        "mapa_suportes_e_resistencias_consolidados": {
+            "posicao_atual_no_canal": snap.zona_sr_descricao,
+            "suporte_consolidado_1": snap.suporte_consolidado_1,
+            "suporte_consolidado_2": snap.suporte_consolidado_2,
+            "resistencia_consolidada_1": snap.resistencia_consolidada_1,
+            "resistencia_consolidada_2": snap.resistencia_consolidada_2,
+        },
         "cotacao": {
             "abertura": round(snap.abertura, snap.casas_decimais),
             "maxima": round(snap.maxima, snap.casas_decimais),
             "minima": round(snap.minima, snap.casas_decimais),
             "fechamento_atual": round(snap.preco_atual, snap.casas_decimais),
             "variacao_periodo_pct": round(snap.variacao_pct, 2),
-            "alpha_forca_relativa_vs_lider_pct": round(snap.alpha_vs_lider_pct, 2),
             "volume": round(snap.volume, 2),
         },
         "indicadores_tendencia_e_fluxo": {
             "ema_9": round(snap.ema_9, snap.casas_decimais),
             "ema_21": round(snap.ema_21, snap.casas_decimais),
+            "sma_50": round(snap.sma_50, snap.casas_decimais),
             "sma_200": round(snap.sma_200, snap.casas_decimais),
             "vwma_institucional": round(snap.vwma, snap.casas_decimais),
             "adx_14": round(snap.adx, 2),
             "di_plus": round(snap.di_plus, 2),
             "di_minus": round(snap.di_minus, 2),
-        },
-        "indicadores_momentum_e_volatilidade": {
             "rsi_14": round(snap.rsi, 2),
-            "stoch_k": round(snap.stoch_k, 2),
-            "stoch_d": round(snap.stoch_d, 2),
-            "macd_line": round(snap.macd_line, 4),
-            "macd_signal": round(snap.macd_signal, 4),
-            "macd_histograma": round(snap.macd_hist, 4),
-            "atr_14": round(snap.atr, snap.casas_decimais),
-            "bollinger_upper": round(snap.bb_upper, snap.casas_decimais),
-            "bollinger_lower": round(snap.bb_lower, snap.casas_decimais),
-        },
-        "mapa_institucional_mtf_e_pivots": {
-            "pivot_suporte_s1": round(snap.pivot_s1, snap.casas_decimais),
-            "pivot_central_p": round(snap.pivot_p, snap.casas_decimais),
-            "pivot_resistencia_r1": round(snap.pivot_r1, snap.casas_decimais),
             f"tendencia_ancora_{snap.tf_superior}": snap.tendencia_mtf_superior,
-            f"gatilho_curto_{snap.tf_inferior}": snap.confirmacao_mtf_inferior,
-            "ativo_lider_mercado": snap.ativo_lider or snap.simbolo,
-            "vies_ativo_lider": snap.vies_ativo_lider,
-            "consenso_tradingview": snap.recomendacao_tv,
         },
         "plano_risco_algoritmico": asdict(plano),
     }
 
-    bloco_pergunta = (
-        f"\nPERGUNTA DO INVESTIDOR NO CHAT: \"{pergunta_usuario.strip()}\"\n"
-        "Responda diretamente à dúvida do investidor dentro do campo 'racional_tecnico', "
-        "explicando com clareza se as 6 camadas institucionais (Médias, VWMA, ADX/DI, MTF, Pivots e Líder) "
-        "autorizam entrada agora (ou entrada por ordem limite no Pullback da EMA 9) ou se é melhor ficar de fora.\n"
-        if pergunta_usuario.strip()
-        else ""
-    )
-
     user_prompt = (
-        "Audite o seguinte JSON de indicadores institucionais em tempo real do TradingView:\n\n"
-        f"{json.dumps(payload_indicadores, ensure_ascii=False, indent=2)}\n"
-        f"{bloco_pergunta}\n"
-        "REGRAS DE AUDITORIA QUANTITATIVA (6 CAMADAS):\n"
-        "1. VETE (aprovado=false) se notar consolidação/lateralização (EMA9 embolada com EMA21, ADX < 18 ou DI+ e DI- sem dominância clara).\n"
-        "2. VETE (aprovado=false) se o preço operar contra o fluxo institucional (abaixo da VWMA na COMPRA ou acima da VWMA na VENDA).\n"
-        "3. VETE (aprovado=false) se houver conflito Multi-Timeframe (tendencia_ancora contrária à operação) ou vento contra forte do ativo líder (BOVA11/BTC).\n"
-        "4. VETE (aprovado=false) se o Pivot R1 (na COMPRA) ou Pivot S1 (na VENDA) estiver bloqueando o caminho antes do Alvo 1, ou se o preço já estiver em exaustão fora das Bandas de Bollinger.\n"
-        "5. APROVE (aprovado=true) somente se houver sinergia limpa entre as 6 camadas e relação risco/retorno favorável com proteção de Break-Even no Alvo 1.\n\n"
+        "Audite o seguinte JSON de Swing Trade baseado em Suportes e Resistências consolidados:\n\n"
+        f"{json.dumps(payload_indicadores, ensure_ascii=False, indent=2)}\n\n"
         "Retorne APENAS um objeto JSON com as chaves exatas:\n"
         "{\n"
         '  "aprovado": boolean,\n'
         '  "nota_confluencia": integer (0 a 100),\n'
         '  "regime_mercado": "TENDENCIA_FORTE" | "TENDENCIA_MODERADA" | "CONSOLIDACAO" | "EXAUSTAO",\n'
-        '  "racional_tecnico": "string em português (2 a 3 frases diretas em linguagem humana e fluida explicando o movimento do gráfico)",\n'
-        '  "alerta_risco": "string curta (1 frase objetiva sobre o Break-Even no Alvo 1 ou gatilho a aguardar)",\n'
+        '  "racional_tecnico": "string em português (2 a 3 frases completas em linguagem humana explicando o suporte consolidado, a resistência e a tendência)",\n'
+        '  "alerta_risco": "string curta (1 frase objetiva sobre o stop abaixo do suporte ou parcial na resistência)",\n'
         '  "motivo_veto": "string curta caso aprovado=false, ou vazio caso aprovado=true"\n'
         "}"
     )
@@ -1154,41 +1260,30 @@ def construir_prompt_auditoria(
 
 
 def gerar_auditoria_quant_fallback(snap: SnapshotIndicadores, plano: PlanoRisco) -> AuditoriaIA:
-    """Motor Quantitativo Local (6 Camadas) — garante auditoria precisa mesmo se a API do Gemini
-    sofrer pico temporário de HTTP 503 nos servidores da Google.
-    """
+    """Motor Quantitativo Local (6 Camadas + Suporte/Resistência)."""
     ok_pre, motivo = pre_filtrar_confluencia_quant(snap)
     m, c = snap.moeda, snap.casas_decimais
-    pos_sma = "acima" if snap.preco_atual >= snap.sma_200 else "abaixo"
-    pos_vwma = "acima" if (snap.vwma <= 0 or snap.preco_atual >= snap.vwma) else "abaixo"
+    sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
+    res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
     nota = calcular_score_quant_local(snap, plano.direcao)
 
     if ok_pre and nota >= NOTA_MINIMA_IA:
         regime = "TENDENCIA_FORTE" if snap.adx >= 25 else "TENDENCIA_MODERADA"
         racional = (
-            f"O gráfico de {snap.intervalo.upper()} da {snap.simbolo} mostra força a {_fmt_preco(snap.preco_atual, m, c)}, "
-            f"trabalhando alinhado com as médias rápidas ({_fmt_preco(snap.ema_9, m, c)} / {_fmt_preco(snap.ema_21, m, c)}), "
-            f"{pos_vwma} do fluxo institucional de volume e {pos_sma} da média longa de 200 períodos, com o gráfico de {snap.tf_superior.upper()} apoiando o movimento."
+            f"No gráfico de {snap.intervalo.upper()}, {snap.simbolo} ({_fmt_preco(snap.preco_atual, m, c)}) "
+            f"respeita o suporte consolidado na região de {sup_1} com fluxo institucional positivo e caminho livre "
+            f"até a resistência consolidada em {res_1}."
         )
-        alerta = (
-            f"Ao atingir o Alvo 1 ({_fmt_preco(plano.alvo_1, m, c)}), realizar 50% da posição e mover o Stop Loss "
-            f"para o preço de entrada ({_fmt_preco(plano.entrada, m, c)})."
-        )
+        alerta = f"Manter Stop de proteção abaixo do suporte ({_fmt_preco(plano.stop_loss, m, c)}) e realizar parcial na resistência em {res_1}."
         return AuditoriaIA(True, nota, regime, racional, alerta, "", "Motor Quant Institucional")
 
-    regime = (
-        "CONSOLIDACAO"
-        if (0 < snap.adx < 18.0 or abs(snap.ema_9 - snap.ema_21) / max(snap.preco_atual, 1e-9) < 0.0012)
-        else "INDEFINIDO"
-    )
+    regime = "CONSOLIDACAO" if (0 < snap.adx < 18.0) else "INDEFINIDO"
     racional = (
-        f"No gráfico de {snap.intervalo.upper()}, {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)} "
-        f"com média curta em {_fmt_preco(snap.ema_9, m, c)} e média de 21 em {_fmt_preco(snap.ema_21, m, c)}. "
-        f"No momento ainda não há alinhamento limpo para entrada imediata ({motivo})."
+        f"No gráfico de {snap.intervalo.upper()}, {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)}, "
+        f"entre o suporte consolidado em {sup_1} e a resistência em {res_1}. "
+        f"No momento é melhor aguardar teste do suporte ou confirmação de rompimento ({motivo})."
     )
-    alerta = (
-        f"Proteja seu capital: aguarde alinhamento das médias ou recuo até a região de {_fmt_preco(snap.preco_pullback_ideal or snap.ema_9, m, c)} com entrada de volume."
-    )
+    alerta = f"Aguardar o preço testar a defesa do suporte em {sup_1} ou romper a resistência em {res_1} com volume."
     return AuditoriaIA(False, min(nota, 68), regime, racional, alerta, motivo, "Motor Quant Institucional")
 
 
@@ -1214,7 +1309,7 @@ def auditar_sinal_com_gemini(
         "contents": [{"role": "user", "parts": [{"text": usr_prompt}]}],
         "generationConfig": {
             "temperature": 0.15,
-            "maxOutputTokens": 1200,
+            "maxOutputTokens": 4096,
             "responseMimeType": "application/json",
         },
     }
@@ -1255,39 +1350,35 @@ def auditar_sinal_com_gemini(
                         modelo_utilizado=modelo,
                     )
                 _MODELOS_DEGRADADOS_SESSAO.add(modelo)
-                logger.warning("Gemini (%s) retornou JSON incompleto; tentando próximo modelo.", modelo)
             elif resp.status_code in (404, 429):
                 _MODELOS_BLOQUEADOS_SESSAO.add(modelo)
                 if _MODELO_VENCEDOR_SESSAO == modelo:
                     _MODELO_VENCEDOR_SESSAO = None
-                logger.warning("Gemini (%s) sem cota/indisponível (HTTP %s); bloqueando modelo na sessão.", modelo, resp.status_code)
             elif resp.status_code in (400, 500, 503):
                 _MODELOS_DEGRADADOS_SESSAO.add(modelo)
                 if _MODELO_VENCEDOR_SESSAO == modelo:
                     _MODELO_VENCEDOR_SESSAO = None
-                logger.warning("Gemini (%s) instável/sobrecarregado (HTTP %s); rebaixando na fila.", modelo, resp.status_code)
             elif resp.status_code in (401, 403):
-                logger.error("GEMINI_API_KEY inválida ou sem permissão (HTTP %s).", resp.status_code)
                 return None
-            else:
-                logger.warning("Gemini (%s) erro HTTP %s; tentando próximo modelo.", modelo, resp.status_code)
-        except Exception as exc:
+        except Exception:
             _MODELOS_DEGRADADOS_SESSAO.add(modelo)
             if _MODELO_VENCEDOR_SESSAO == modelo:
                 _MODELO_VENCEDOR_SESSAO = None
-            logger.warning("Timeout/erro ao consultar Gemini (%s): %s", modelo, str(exc)[:100])
 
     return None
 
 
 # ==============================================================================
-# 6. ATENDIMENTO CONVERSACIONAL HUMANO NO CHAT + SCANNER SWING/DAY TRADE
+# 6. ATENDIMENTO INTERATIVO NO CHAT + SWING TRADE (SUPORTES E RESISTÊNCIAS)
 # ==============================================================================
 def detectar_modalidade_na_mensagem(texto: str) -> str:
+    """Por padrão o robô opera SWING TRADE baseado em Suportes e Resistências consolidados (1D/4H),
+    só mudando para DAY TRADE se o usuário pedir explicitamente day trade ou tempo curto (5m/15m/30m).
+    """
     t = (texto or "").lower()
-    if re.search(r"\b(?:swing\s*trade|swing|m[ée]dio\s*prazo|semanal|carteira|dias|1\s*d|di[áa]rio|4\s*h|h4)\b", t):
-        return "SWING TRADE"
-    return "DAY TRADE"
+    if re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|5\s*m|5\s*min|m5|15\s*m|15\s*min|m15|30\s*m|30\s*min|m30)\b", t):
+        return "DAY TRADE"
+    return "SWING TRADE"
 
 
 def extrair_intervalo_da_mensagem(texto: str) -> str:
@@ -1303,9 +1394,9 @@ def extrair_intervalo_da_mensagem(texto: str) -> str:
     ):
         if re.search(padrao, t):
             return tf
-    if detectar_modalidade_na_mensagem(t) == "SWING TRADE":
-        return "1d"
-    return TIMEFRAME_PADRAO
+    if detectar_modalidade_na_mensagem(t) == "DAY TRADE":
+        return "15m"
+    return "1d"
 
 
 def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") -> Optional[Tuple[str, str]]:
@@ -1319,12 +1410,10 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     if not eh_cmd_rank and not tem_pedido_rec:
         return None
 
-    if re.search(r"\b(?:swing|swingtrade|m[ée]dio\s*prazo|semanal|dias|di[áa]rio|1d)\b", t_low):
-        modalidade = "SWING TRADE"
-    elif re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|15m|5m)\b", t_low):
+    if re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|15m|5m)\b", t_low):
         modalidade = "DAY TRADE"
     else:
-        modalidade = "SWING TRADE" if "recomenda" in t_low or "indica" in t_low else "DAY TRADE"
+        modalidade = "SWING TRADE"
 
     if re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|papel|pap[ée]is)\b", t_low):
         segmento = "B3"
@@ -1435,6 +1524,18 @@ def _sanitizar_html_telegram(texto: str) -> str:
     return s
 
 
+def _resposta_conversa_completa(texto: str, finish_reason: str = "") -> bool:
+    """Garante que o Gemini não cortou a frase no meio (ex.: por MAX_TOKENS de thinking)."""
+    if not texto or len(texto.strip()) < 110:
+        return False
+    if (finish_reason or "").upper() == "MAX_TOKENS":
+        return False
+    sem_tags = re.sub(r"<[^>]+>", "", texto).strip()
+    if not sem_tags:
+        return False
+    return sem_tags[-1] in (".", "?", "!", ")", '"', "'")
+
+
 def escanear_melhores_oportunidades(
     modalidade: str = "SWING TRADE",
     segmento: str = "TODOS",
@@ -1442,7 +1543,7 @@ def escanear_melhores_oportunidades(
     apenas_compra: bool = False,
 ) -> List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]]:
     eh_swing = "SWING" in modalidade.upper()
-    tf = "1d" if eh_swing else TIMEFRAME_PADRAO
+    tf = "1d" if eh_swing else "15m"
     mult_atr = ATR_MULTIPLIER_SWING if eh_swing else ATR_MULTIPLIER
 
     if segmento == "B3":
@@ -1474,7 +1575,8 @@ def escanear_melhores_oportunidades(
             moeda=snap.moeda,
         )
         bonus_compra = 15 if (eh_swing or apenas_compra) and direcao == "COMPRA" else 0
-        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra
+        bonus_sr = 12 if "APOIADO EM SUPORTE" in snap.zona_sr_descricao or "ROMPENDO RESISTÊNCIA" in snap.zona_sr_descricao else 0
+        bonus = (25 if aprovado_pre else 0) + bonus_sr + bonus_compra
         alpha_favoravel = snap.alpha_vs_lider_pct if direcao == "COMPRA" else -snap.alpha_vs_lider_pct
         nota_rank = snap.score_quant_local + bonus
         candidatos.append(
@@ -1491,12 +1593,12 @@ def formatar_painel_recomendacoes_html(
     oportunidades: List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]],
     nome_usuario: str = "",
 ) -> str:
-    """Formata a recomendação de múltiplos ativos como uma conversa humana natural e limpa,
-    sem tabelas poluídas e sempre terminando com uma pergunta para o trader.
+    """Formata a recomendação de Swing Trade com base em Suportes e Resistências consolidados
+    como uma conversa humana natural e limpa, terminando com uma pergunta para o trader.
     """
     saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else "Fala! "
     eh_swing = "SWING" in modalidade.upper()
-    prazo_txt = "no gráfico Diário pra <b>Swing Trade</b>" if eh_swing else f"no gráfico de <b>{TIMEFRAME_PADRAO.upper()}</b> pra <b>Day Trade</b>"
+    prazo_txt = "no gráfico Diário pra <b>Swing Trade</b>" if eh_swing else "no gráfico intradiário pra <b>Day Trade</b>"
 
     if not oportunidades:
         return (
@@ -1509,55 +1611,53 @@ def formatar_painel_recomendacoes_html(
 
     for snap, plano, aprovado, status_txt in oportunidades[:3]:
         m, c = snap.moeda, snap.casas_decimais
-        verbo_dir = "Compra" if plano.direcao == "COMPRA" else "Venda (Short)"
-        emoji_dir = "🟢" if plano.direcao == "COMPRA" else "🔴"
-        if not aprovado:
-            emoji_dir = "🟡"
+        sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
+        res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
+        res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
+        emoji_dir = "🟢" if (aprovado and plano.direcao == "COMPRA") else "🟡"
 
-        if aprovado:
+        if "APOIADO EM SUPORTE" in snap.zona_sr_descricao:
             comentario = (
-                f"está com tendência bem limpa de <b>{verbo_dir}</b> a <b>{_fmt_preco(plano.entrada, m, c)}</b>, "
-                f"com suporte de fluxo institucional e média curta em {_fmt_preco(snap.ema_9, m, c)}."
+                f"cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, está segurando muito bem em cima de um "
+                f"<b>suporte consolidado na faixa de {sup_1}</b>, com caminho livre até a resistência em <b>{res_1}</b>."
             )
-        elif "CONSOLIDAÇÃO" in status_txt:
+        elif "ROMPENDO RESISTÊNCIA" in snap.zona_sr_descricao:
             comentario = (
-                f"está lateralizando perto de <b>{_fmt_preco(plano.entrada, m, c)}</b>. "
-                f"Ainda não deu gatilho limpo; o ideal é esperar sair dessa congestão."
+                f"a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, acabou de romper resistência com entrada de volume, "
+                f"transformando a região de <b>{sup_1}</b> em piso de suporte e mirando o próximo teto em <b>{res_1}</b>."
             )
         else:
             comentario = (
-                f"mostra viés de <b>{verbo_dir}</b> a <b>{_fmt_preco(plano.entrada, m, c)}</b>, "
-                f"mas pede paciência para pegar mais perto da média curta ({_fmt_preco(snap.ema_9, m, c)})."
+                f"está negociando a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, entre o <b>suporte consolidado em {sup_1}</b> "
+                f"e a <b>resistência forte em {res_1}</b>. O melhor ponto de compra é esperar recuar perto do suporte ({sup_1}) ou romper {res_1}."
             )
 
+        stop_sug = _fmt_preco(min(plano.stop_loss, snap.suporte_consolidado_1 * 0.985) if plano.direcao == "COMPRA" else plano.stop_loss, m, c)
         linhas_ativos.append(
             f"{emoji_dir} <b>{html.escape(snap.simbolo)}</b> — {comentario}\n"
-            f"   ↳ Entrada: <b>{_fmt_preco(plano.entrada, m, c)}</b>  ·  Stop: <b>{_fmt_preco(plano.stop_loss, m, c)}</b>  ·  Alvos: <b>{_fmt_preco(plano.alvo_1, m, c)}</b> e <b>{_fmt_preco(plano.alvo_2, m, c)}</b>"
+            f"   ↳ Suporte: <b>{sup_1}</b>  ·  Stop abaixo do suporte: <b>{stop_sug}</b>  ·  Alvos nas resistências: <b>{res_1}</b> e <b>{res_2}</b>"
         )
 
     bloco_lista = "\n\n".join(linhas_ativos)
 
     if aprovados:
-        intro = f"{saudacao}Acabei de olhar os gráficos {prazo_txt} e separei o que está mais bonito na tela agora:"
+        intro = (
+            f"{saudacao}Olhei os gráficos {prazo_txt} mapeando as zonas de <b>suporte e resistência mais consolidadas</b> "
+            "e separei as 3 melhores estruturas agora:"
+        )
     else:
         intro = (
-            f"{saudacao}Dei uma varrida geral nos gráficos {prazo_txt}. "
-            "Sendo bem sincero com você: o mercado está meio travado neste momento e nenhum ativo está 100% perfeito pra entrar de olho fechado. "
-            "Os 3 que estão mais próximos de dar jogo são estes:"
+            f"{saudacao}Mapeei os principais <b>suportes e resistências</b> {prazo_txt}. "
+            "Vários ativos estão no meio do caminho agora, então vale ter paciência pra comprar exatamente na defesa do suporte ou no rompimento confirmado. "
+            "Olha os 3 mais interessantes no radar:"
         )
 
-    tem_venda = any(p.direcao == "VENDA" for _, p, _, _ in oportunidades[:3])
-    if eh_swing and tem_venda:
-        pergunta_final = (
-            "Me diz uma coisa pra eu filtrar melhor pra você: <b>você prefere operar só na ponta de Compra ou também faz Venda (Short)?</b> "
-            "E qual desses ativos você quer que eu abra o gráfico em detalhe?"
-        )
-    else:
-        primeiro_simb = html.escape(oportunidades[0][0].simbolo)
-        pergunta_final = (
-            f"Qual desses faz mais sentido pro seu perfil hoje? Se quiser entrar em <b>{primeiro_simb}</b>, "
-            "me fala quanto você pensa em colocar na operação que eu já calculo a quantidade certinha pro seu risco."
-        )
+    primeiro_simb = html.escape(oportunidades[0][0].simbolo)
+    pergunta_final = (
+        f"Você prefere comprar quando o ativo testa o <b>suporte consolidado</b> (stop mais curtinho) "
+        f"ou prefere entrar no <b>rompimento de resistência</b>? Se quiser focar em <b>{primeiro_simb}</b>, "
+        "me fala quanto pensa em alocar que eu calculo o tamanho certinho da posição."
+    )
 
     return f"{intro}\n\n{bloco_lista}\n\n{pergunta_final}"
 
@@ -1569,55 +1669,59 @@ def formatar_resposta_analise_chat_html(
     status_vies: str,
     nome_usuario: str = "",
 ) -> str:
-    """Formata a análise de um ativo específico como um trader humano conversando no grupo,
-    com visual limpo e terminando com uma pergunta natural.
+    """Formata a análise de um ativo específico focando em Swing Trade por Suportes e Resistências
+    bem consolidados, em tom de conversa humana e terminando com uma pergunta.
     """
     m, c = snap.moeda, snap.casas_decimais
     saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else ""
-    mod_txt = "Swing Trade (Diário)" if plano.modalidade == "SWING TRADE" else f"gráfico de {snap.intervalo.upper()}"
-    verbo_dir = "Compra" if plano.direcao == "COMPRA" else "Venda"
-    emoji = "🟢" if (auditoria.aprovado and plano.direcao == "COMPRA") else ("🔴" if (auditoria.aprovado and plano.direcao == "VENDA") else "🟡")
+    mod_txt = "gráfico Diário (Swing Trade)" if snap.intervalo in ("1d", "1w", "4h") else f"gráfico de {snap.intervalo.upper()}"
+    vies_str = "de <b>alta (comprador)</b>" if snap.preco_atual >= snap.ema_21 else "de <b>correção/baixa</b> no curto prazo"
 
-    if auditoria.aprovado:
-        abertura = (
-            f"{saudacao}Olhando <b>{html.escape(snap.simbolo)}</b> agora no {html.escape(mod_txt)} "
-            f"(cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>), o gráfico está bem alinhado pra <b>{verbo_dir}</b>."
-        )
-    elif "CONSOLIDAÇÃO" in status_vies:
-        abertura = (
-            f"{saudacao}Olhei o gráfico de <b>{html.escape(snap.simbolo)}</b> no {html.escape(mod_txt)} "
-            f"(<b>{_fmt_preco(snap.preco_atual, m, c)}</b>) e, sendo bem franco, ela está <b>andando de lado</b> agora."
-        )
-    else:
-        abertura = (
-            f"{saudacao}Dei uma olhada em <b>{html.escape(snap.simbolo)}</b> no {html.escape(mod_txt)} "
-            f"(<b>{_fmt_preco(snap.preco_atual, m, c)}</b>). Ela até tem uma inclinação de <b>{verbo_dir}</b>, mas ainda pede cautela antes de bater ordem."
-        )
+    sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
+    sup_2 = _fmt_preco(snap.suporte_consolidado_2, m, c)
+    res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
+    res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
 
-    pos_ema = "acima" if snap.preco_atual >= snap.ema_21 else "abaixo"
-    explicacao = (
-        f"O preço trabalha {pos_ema} da média de 21 períodos ({_fmt_preco(snap.ema_21, m, c)}), "
-        f"com a média curta (EMA 9) passando em <b>{_fmt_preco(snap.ema_9, m, c)}</b> e RSI em {snap.rsi:.0f}. "
+    abertura = (
+        f"{saudacao}Olhando a <b>{html.escape(snap.simbolo)}</b> agora no {html.escape(mod_txt)} "
+        f"(cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>), ela está com um viés {vies_str}."
     )
-    if not auditoria.aprovado:
-        explicacao += "Entrar exatamente agora tem risco maior de violinada, então o melhor é aguardar confirmação ou pegar no recuo da média."
-    else:
-        explicacao += "O fluxo de volume e o tempo gráfico maior estão jogando a favor do movimento."
 
+    if "APOIADO EM SUPORTE" in snap.zona_sr_descricao:
+        leitura_sr = (
+            f"O ponto mais importante aqui é que o preço está segurando bem em cima de um <b>suporte consolidado na região de {sup_1}</b> "
+            f"(com um segundo piso estrutural mais abaixo em {sup_2}). Isso dá uma relação risco/retorno muito boa pra Swing Trade, "
+            f"porque o seu stop fica protegido abaixo desse suporte e o caminho fica aberto até a <b>primeira grande resistência em {res_1}</b>."
+        )
+    elif "TESTANDO TETO" in snap.zona_sr_descricao:
+        leitura_sr = (
+            f"Repara que ela está batendo muito perto de uma <b>resistência bem consolidada em {res_1}</b>. "
+            f"Comprar colado em teto de resistência é perigoso porque os vendidos costumam defender essa faixa. "
+            f"O ideal aqui é esperar ela romper <b>{res_1}</b> com força para buscar <b>{res_2}</b>, ou esperar recuar até o <b>suporte consolidado em {sup_1}</b>."
+        )
+    else:
+        leitura_sr = (
+            f"Mapeando os níveis do gráfico, ela tem um <b>suporte muito bem consolidado em {sup_1}</b> (e outro piso mais forte em {sup_2}) "
+            f"e uma <b>resistência importante lá em {res_1}</b> (com alvo maior em {res_2}). "
+            f"Como ela está no meio desse canal, a jogada mais inteligente de Swing Trade é buscar entrada perto da defesa do suporte em <b>{sup_1}</b> "
+            f"ou na confirmação de rompimento acima de <b>{res_1}</b>."
+        )
+
+    stop_abaixo_sup = round(min(plano.stop_loss, snap.suporte_consolidado_1 * 0.985), c) if plano.direcao == "COMPRA" else plano.stop_loss
     niveis = (
-        f"{emoji} <b>Pontos principais na tela ({verbo_dir}):</b>\n"
-        f"• Entrada: <b>{_fmt_preco(plano.entrada, m, c)}</b> <i>(ou recuo na EMA 9 em {_fmt_preco(snap.preco_pullback_ideal, m, c)})</i>\n"
-        f"• Stop de proteção: <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
-        f"• Alvo 1 (parcial + stop no 0x0): <b>{_fmt_preco(plano.alvo_1, m, c)}</b>\n"
-        f"• Alvo final: <b>{_fmt_preco(plano.alvo_2, m, c)}</b> a <b>{_fmt_preco(plano.alvo_3, m, c)}</b>"
+        f"📐 <b>Mapa de Suporte e Resistência ({html.escape(snap.simbolo)}):</b>\n"
+        f"• Suporte consolidado (zona de compra): <b>{sup_1}</b> <i>(suporte 2 em {sup_2})</i>\n"
+        f"• Stop de proteção (abaixo do suporte): <b>{_fmt_preco(stop_abaixo_sup, m, c)}</b>\n"
+        f"• Resistência 1 (1º Alvo / Parcial): <b>{res_1}</b>\n"
+        f"• Resistência 2 (Alvo longo): <b>{res_2}</b>"
     )
 
     pergunta = (
-        f"Você já está posicionado em <b>{html.escape(snap.simbolo)}</b> ou está planejando entrar agora? "
-        "Se quiser, me diz se a ideia é Day Trade ou Swing Trade e com quanto pretende entrar que eu te passo a conta exata do lote."
+        f"Você já está posicionado em <b>{html.escape(snap.simbolo)}</b> ou está esperando ela chegar numa dessas zonas pra entrar? "
+        "Me conta qual é a sua ideia e com quanto pretende operar que eu ajusto o plano junto com você."
     )
 
-    return f"{abertura}\n\n{explicacao}\n\n{niveis}\n\n{pergunta}"
+    return f"{abertura}\n\n{leitura_sr}\n\n{niveis}\n\n{pergunta}"
 
 
 def conversar_como_trader_humano_gemini(
@@ -1627,8 +1731,8 @@ def conversar_como_trader_humano_gemini(
     historico_mensagens_recentes: List[Dict[str, str]],
     api_key: str = GEMINI_API_KEY,
 ) -> Optional[str]:
-    """Usa o Gemini para conversar como um trader humano real no grupo:
-    sem templates engessados, com visual limpo e fazendo perguntas naturais para engajar o usuário.
+    """Usa o Gemini para conversar como um trader humano real especialista em Swing Trade
+    por Suportes e Resistências consolidados, sem cortar frases no meio e sempre fazendo perguntas.
     """
     global _MODELO_VENCEDOR_SESSAO
     if not api_key:
@@ -1639,40 +1743,42 @@ def conversar_como_trader_humano_gemini(
         return None
 
     system_instruction = (
-        "Você é um Trader Quantitativo Sênior e parceiro de mesa de operações conversando com outros traders em um grupo do Telegram.\n"
-        "REGRAS OBRIGATÓRIAS DE COMPORTAMENTO E DESIGN:\n"
-        "1. FALE COMO UMA PESSOA REAL: Converse de forma natural, amigável, inteligente e direta, como um trader experiente trocando ideia com um amigo. "
-        "NUNCA use cabeçalhos robóticos como 'MODO PRESERVAÇÃO DE CAPITAL', 'PARECER DO ANALISTA', 'CONFLUÊNCIA MULTI-TIMEFRAME' ou tabelas cheias de siglas.\n"
-        "2. DESIGN LIMPO E BONITO: Escreva em 2 a 3 parágrafos curtos e agradáveis de ler no celular. "
-        "Use apenas negrito HTML (<b>...</b>) para destacar o código do ativo e os preços principais, e itálico (<i>...</i>) com moderação. "
-        "NUNCA use a tag <code> (aquelas caixas azuis monoespaçadas) e NUNCA despeje listas de indicadores crus (proibido escrever 'Score Quant 92/100', 'Alpha -0.14%', 'DI+ vs DI-', 'MACD Hist'). "
-        "Traduza a leitura técnica para português humano (ex: 'o papel está forte acima das médias com entrada de volume', 'está andando de lado, melhor não forçar entrada').\n"
-        "3. PREÇOS CLAROS: Quando citar níveis de operação de um ativo, mostre em no máximo 2 ou 3 linhas limpas apenas: Entrada (e o ponto de desconto na EMA 9), Stop Loss e Alvos.\n"
-        "4. PREFERÊNCIA POR COMPRA NO SWING TRADE: Se alguém pedir recomendação de ação ou Swing Trade, priorize comentar oportunidades de COMPRA (ou avise com sinceridade se o mercado estiver ruim/caindo e pergunte se a pessoa também opera vendido ou prefere esperar).\n"
-        "5. FAÇA PERGUNTAS (MUITO IMPORTANTE): Sempre termine sua mensagem fazendo 1 ou 2 perguntas naturais para continuar o papo com a pessoa "
-        "(ex: perguntar se ela já está comprada ou quer entrar, se prefere giro curto de poucos dias ou carregar por semanas, ou perguntar com qual valor pretende operar para você calcular o tamanho do lote ideal).\n"
+        "Você é um Trader Sênior especialista em SWING TRADE baseado em SUPORTES E RESISTÊNCIAS BEM CONSOLIDADOS, "
+        "conversando com outros traders em um grupo do Telegram.\n"
+        "REGRAS OBRIGATÓRIAS DE COMPORTAMENTO, ESTRATÉGIA E DESIGN:\n"
+        "1. FALE COMO UMA PESSOA REAL E COMPLETE TODAS AS FRASES: Converse de forma natural, amigável, inteligente e direta. "
+        "NUNCA deixe uma frase pela metade e NUNCA use cabeçalhos robóticos como 'MODO PRESERVAÇÃO DE CAPITAL', 'PARECER DO ANALISTA' ou tabelas poluídas.\n"
+        "2. FOCO EM SUPORTES E RESISTÊNCIAS CONSOLIDADOS (SWING TRADE): Toda a sua leitura deve girar em torno das zonas de Suporte Consolidado e Resistência Consolidada fornecidas nos dados:\n"
+        "   - Explique com clareza qual é o viés atual do ativo (alta, baixa ou lateral), onde fica o principal SUPORTE CONSOLIDADO (o piso onde vale buscar compra com stop protegido logo abaixo) "
+        "e onde ficam as RESISTÊNCIAS CONSOLIDADAS (os tetos onde o preço pode travar, onde fazemos parcial/alvo ou esperamos rompimento).\n"
+        "   - Se o preço estiver no meio do caminho ou colado numa resistência, avise como um amigo experiente para não comprar no topo e indique o preço do suporte consolidado para aguardar recuo ou o preço da resistência para aguardar rompimento.\n"
+        "3. DESIGN LIMPO E BONITO: Escreva em 2 a 3 parágrafos curtos e fluidos. Use apenas negrito HTML (<b>...</b>) para destacar o ativo e os preços de Suporte, Resistência, Stop e Alvos, e itálico (<i>...</i>) com moderação. "
+        "NUNCA use a tag <code> (caixas azuis) e NUNCA despeje siglas cruas ('Score Quant', 'Alpha', 'DI+', 'Stoch.K').\n"
+        "4. RESPONDA DIRETAMENTE A PERGUNTAS CURTAS DE CONTINUAÇÃO: Se o usuário perguntar algo curto como 'que viés?', 'qual suporte?', 'vale entrar?', olhe o contexto das últimas mensagens e responda diretamente de forma completa.\n"
+        "5. FAÇA PERGUNTAS NO FINAL: Sempre termine sua resposta fazendo 1 ou 2 perguntas naturais para continuar a conversa "
+        "(ex: perguntar se a pessoa prefere esperar o toque no suporte consolidado ou entrar no rompimento da resistência, se já está posicionada, ou qual valor pensa em alocar para calcular o lote).\n"
         "6. USE APENAS OS PREÇOS REAIS fornecidos nos dados do TradingView abaixo. Nunca invente cotações."
     )
 
     bloco_hist = ""
     if historico_mensagens_recentes:
         linhas_h = [f"- {m.get('autor', 'Trader')}: {m.get('texto', '')}" for m in historico_mensagens_recentes[-6:]]
-        bloco_hist = "CONTEXTO DAS ÚLTIMAS MENSAGENS DO CHAT:\n" + "\n".join(linhas_h) + "\n\n"
+        bloco_hist = "HISTÓRICO RECENTE DA CONVERSA NO GRUPO:\n" + "\n".join(linhas_h) + "\n\n"
 
     user_prompt = (
         f"{bloco_hist}"
-        f"DADOS EM TEMPO REAL DO TRADINGVIEW AGORA:\n{contexto_dados_mercado}\n\n"
+        f"DADOS EM TEMPO REAL DO TRADINGVIEW (MAPA DE SUPORTES E RESISTÊNCIAS CONSOLIDADOS):\n{contexto_dados_mercado}\n\n"
         f"MENSAGEM ATUAL DE {nome_usuario or 'Trader'}: \"{pergunta_usuario}\"\n\n"
-        "Responda diretamente em português, conversando como um trader humano, com visual super limpo (apenas texto fluido e tags <b> e <i> quando necessário) "
-        "e termine fazendo uma pergunta relevante para continuar a conversa:"
+        "Responda diretamente em português de forma COMPLETA (nunca corte frases no meio), conversando como um trader humano especialista em Swing Trade por Suportes e Resistências, "
+        "com visual limpo (apenas texto fluido e tags <b> e <i>) e termine fazendo uma pergunta para continuar o papo:"
     )
 
     payload = {
         "systemInstruction": {"parts": [{"text": system_instruction}]},
         "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
         "generationConfig": {
-            "temperature": 0.45,
-            "maxOutputTokens": 900,
+            "temperature": 0.4,
+            "maxOutputTokens": 4096,
         },
     }
 
@@ -1687,20 +1793,28 @@ def conversar_como_trader_humano_gemini(
                     "x-goog-api-key": api_key,
                 },
                 json=payload,
-                timeout=15,
+                timeout=18,
             )
             if resp.status_code == 200:
                 body = resp.json()
                 cand0 = (body.get("candidates") or [{}])[0]
+                finish_reason = str(cand0.get("finishReason") or "")
                 partes = cand0.get("content", {}).get("parts", [])
                 texto = "".join(p.get("text", "") for p in partes if isinstance(p, dict) and not p.get("thought"))
                 if not texto:
                     texto = "".join(p.get("text", "") for p in partes if isinstance(p, dict))
                 texto_limpo = _sanitizar_html_telegram(texto)
-                if len(texto_limpo) >= 40:
+                if _resposta_conversa_completa(texto_limpo, finish_reason):
                     _MODELO_VENCEDOR_SESSAO = modelo
                     _MODELOS_DEGRADADOS_SESSAO.discard(modelo)
                     return texto_limpo
+                logger.warning(
+                    "Gemini (%s) retornou resposta truncada/incompleta (finishReason=%s, len=%d); tentando próximo.",
+                    modelo,
+                    finish_reason,
+                    len(texto_limpo),
+                )
+                _MODELOS_DEGRADADOS_SESSAO.add(modelo)
             elif resp.status_code in (404, 429):
                 _MODELOS_BLOQUEADOS_SESSAO.add(modelo)
                 if _MODELO_VENCEDOR_SESSAO == modelo:
@@ -1727,21 +1841,29 @@ def formatar_mensagem_sinal_html(
     plano: PlanoRisco,
     auditoria: AuditoriaIA,
 ) -> str:
-    """Design minimalista, limpo e humano para os sinais automáticos do radar."""
+    """Design minimalista, limpo e humano para os alertas automáticos de Swing Trade em Suporte/Resistência."""
     eh_compra = plano.direcao == "COMPRA"
-    icone_titulo = f"🟢 <b>Oportunidade de Compra · {html.escape(snap.simbolo)}</b> ({html.escape(snap.intervalo.upper())})" if eh_compra else f"🔴 <b>Oportunidade de Venda · {html.escape(snap.simbolo)}</b> ({html.escape(snap.intervalo.upper())})"
     m, c = snap.moeda, snap.casas_decimais
+    sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
+    res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
+    res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
+
+    icone_titulo = (
+        f"🟢 <b>Swing Trade · {html.escape(snap.simbolo)} em Zona de Suporte/Rompimento</b> ({html.escape(snap.intervalo.upper())})"
+        if eh_compra
+        else f"🔴 <b>Swing Trade · {html.escape(snap.simbolo)} em Resistência</b> ({html.escape(snap.intervalo.upper())})"
+    )
 
     racional_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.racional_tecnico))
 
     return (
         f"{icone_titulo}\n\n"
         f"{racional_limpo}\n\n"
-        f"🎯 <b>Entrada:</b> <b>{_fmt_preco(plano.entrada, m, c)}</b> <i>(recuo EMA 9: {_fmt_preco(snap.preco_pullback_ideal, m, c)})</i>\n"
-        f"🛑 <b>Stop de proteção:</b> <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
-        f"✅ <b>Alvo 1 (50% + Stop no 0x0):</b> <b>{_fmt_preco(plano.alvo_1, m, c)}</b>\n"
-        f"🚀 <b>Alvo 2:</b> <b>{_fmt_preco(plano.alvo_2, m, c)}</b>  ·  <b>Alvo 3:</b> <b>{_fmt_preco(plano.alvo_3, m, c)}</b>\n\n"
-        f"💬 <i>Alguém acompanhando {html.escape(snap.simbolo)} por aí? Se quiserem que eu calcule o lote ideal pra banca de vocês ou analise outro tempo gráfico, é só responder aqui!</i>"
+        f"📐 <b>Suporte Consolidado:</b> <b>{sup_1}</b>  ·  <b>Preço Atual:</b> <b>{_fmt_preco(plano.entrada, m, c)}</b>\n"
+        f"🛑 <b>Stop de proteção (abaixo do suporte):</b> <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
+        f"🎯 <b>1º Alvo (Resistência 1 + Stop no 0x0):</b> <b>{res_1}</b>\n"
+        f"🚀 <b>2º Alvo (Resistência 2):</b> <b>{res_2}</b>\n\n"
+        f"💬 <i>Alguém acompanhando {html.escape(snap.simbolo)} pra Swing Trade? Se quiserem avaliar o ponto de entrada ou calcular o lote pra banca de vocês, é só responder aqui!</i>"
     )
 
 
@@ -1910,15 +2032,19 @@ def _registrar_turno_conversa(
 
 def _resumir_ativo_para_conversa(snap: SnapshotIndicadores, plano: PlanoRisco, aprovado: bool, status_vies: str) -> str:
     m, c = snap.moeda, snap.casas_decimais
+    vies_curto = "Alta (Comprador)" if snap.preco_atual >= snap.ema_21 else "Correção / Baixa"
     return (
         f"Ativo: {snap.simbolo} ({snap.exchange} - Gráfico {snap.intervalo.upper()} - {plano.modalidade}) | "
         f"Preço Atual: {_fmt_preco(snap.preco_atual, m, c)} (Variação: {snap.variacao_pct:+.2f}%) | "
-        f"Status Técnico: {'Setup Aprovado' if aprovado else status_vies} para {plano.direcao} ({snap.tipo_setup}) | "
-        f"Média Curta EMA 9 (ponto de desconto): {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | "
-        f"SMA 200: {_fmt_preco(snap.sma_200, m, c)} | VWMA (fluxo de volume): {_fmt_preco(snap.vwma, m, c)} | "
-        f"RSI: {snap.rsi:.1f} | ADX: {snap.adx:.1f} | Tendência Gráfico Maior ({snap.tf_superior.upper()}): {snap.tendencia_mtf_superior} | "
-        f"Níveis Calculados -> Entrada: {_fmt_preco(plano.entrada, m, c)}, Stop Loss: {_fmt_preco(plano.stop_loss, m, c)} (-{plano.risco_percentual:.1f}%), "
-        f"Alvo 1 (Parcial 50% + Stop no 0x0): {_fmt_preco(plano.alvo_1, m, c)}, Alvo 2: {_fmt_preco(plano.alvo_2, m, c)}, Alvo 3: {_fmt_preco(plano.alvo_3, m, c)} | "
+        f"Viés Atual: {vies_curto} ({'Setup Aprovado' if aprovado else status_vies}) | "
+        f"Posição no Canal de Suporte/Resistência: {snap.zona_sr_descricao} | "
+        f"SUPORTE CONSOLIDADO 1 (Principal piso de compra): {_fmt_preco(snap.suporte_consolidado_1, m, c)} | "
+        f"SUPORTE CONSOLIDADO 2 (Fundo estrutural): {_fmt_preco(snap.suporte_consolidado_2, m, c)} | "
+        f"RESISTÊNCIA CONSOLIDADA 1 (1º Teto / Alvo parcial): {_fmt_preco(snap.resistencia_consolidada_1, m, c)} | "
+        f"RESISTÊNCIA CONSOLIDADA 2 (Alvo longo): {_fmt_preco(snap.resistencia_consolidada_2, m, c)} | "
+        f"Média EMA 9: {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | SMA 200: {_fmt_preco(snap.sma_200, m, c)} | "
+        f"RSI: {snap.rsi:.1f} | Tendência Gráfico Maior ({snap.tf_superior.upper()}): {snap.tendencia_mtf_superior} | "
+        f"Stop de Proteção (abaixo do suporte): {_fmt_preco(plano.stop_loss, m, c)} (-{plano.risco_percentual:.1f}%) | "
         f"Sugestão de lote para 1% de risco (banca de {_fmt_preco(plano.capital_referencia, m, 0)}): {plano.quantidade_sugerida_1pct} unidades/ações."
     )
 
@@ -1928,8 +2054,8 @@ def responder_perguntas_chat(
     bot_username: str = "",
     timeout_long_polling: int = 4,
 ) -> int:
-    """Conversa no grupo como um trader humano real, analisa gráficos em tempo real,
-    recomenda Swing Trade / Day Trade e faz perguntas para continuar o diálogo.
+    """Conversa no grupo como um trader humano real especialista em Swing Trade por Suportes e Resistências,
+    responde perguntas de continuação ('que vies', 'qual suporte', '5 mil') e engaja com perguntas.
     """
     if not TELEGRAM_BOT_TOKEN:
         return 0
@@ -2009,7 +2135,7 @@ def responder_perguntas_chat(
         )
 
         sessao_chat = (historico.get("conversas_chat") or {}).get(chat_id_msg) or {}
-        conversa_recente_ativa = (agora_ts - float(sessao_chat.get("ultimo_ts") or 0)) <= 900  # 15 min
+        conversa_recente_ativa = (agora_ts - float(sessao_chat.get("ultimo_ts") or 0)) <= 1200  # 20 min
         hist_msgs = list(sessao_chat.get("mensagens") or [])
 
         logger.info(
@@ -2022,11 +2148,12 @@ def responder_perguntas_chat(
         # 1. Comando inicial /start ou /ajuda -> conversa como pessoa real
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
             boas_vindas = (
-                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô acompanhando o mercado em tempo real por aqui.\n\n"
-                "Você pode trocar ideia comigo normalmente como se estivesse falando com um colega de mesa: "
-                "me perguntar o que eu acho de qualquer ação ou cripto (tipo <i>\"o que acha da PETR4?\"</i> ou <i>\"como tá o Bitcoin?\"</i>), "
-                "ou pedir pra eu garimpar boas oportunidades de compra pra <b>Swing Trade</b> ou <b>Day Trade</b>.\n\n"
-                "Qual mercado você está olhando agora: <b>Ações da B3</b> ou <b>Cripto</b>?"
+                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô acompanhando os gráficos por aqui.\n\n"
+                "Minha especialidade é <b>Swing Trade com base em Suportes e Resistências bem consolidados</b>. "
+                "Pode falar comigo normalmente: me perguntar o que eu acho de qualquer ação ou cripto "
+                "(tipo <i>\"o que acha da PETR4?\"</i> ou <i>\"analisa SOL\"</i>), ou pedir pra eu buscar os ativos que estão "
+                "segurando em suporte forte agora.\n\n"
+                "Qual ativo ou mercado você está olhando hoje: <b>Ações da B3</b> ou <b>Cripto</b>?"
             )
             if enviar_telegram_html(boas_vindas, chat_id=chat_id_msg, reply_to_message_id=msg_id):
                 _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, boas_vindas)
@@ -2040,7 +2167,7 @@ def responder_perguntas_chat(
             eh_resposta_ao_bot=eh_reply_ao_bot or conversa_recente_ativa,
         )
 
-        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Swing Trade/Day Trade
+        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Swing Trade
         if not ativo_pedido:
             pedido_rec = identificar_pedido_recomendacao_ranking(texto, bot_username=bot_username)
             if pedido_rec:
@@ -2065,7 +2192,8 @@ def responder_perguntas_chat(
                 ]
                 contexto_mercado = (
                     f"Modalidade pedida pelo trader: {modalidade_rec} | Segmento: {segmento_rec}\n"
-                    "Top 3 ativos escaneados agora no TradingView:\n" + "\n".join(resumos_top)
+                    "Top 3 ativos escaneados agora no TradingView com seus Suportes e Resistências consolidados:\n"
+                    + "\n".join(resumos_top)
                 )
                 resposta_html = conversar_como_trader_humano_gemini(
                     pergunta_usuario=texto,
@@ -2087,10 +2215,13 @@ def responder_perguntas_chat(
                     logger.info("✅ Conversa de recomendação (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
                 continue
 
-            # 4. Continuação de conversa (respondeu à pergunta do bot ou chamou o bot no grupo)
-            if mencionou_bot or (conversa_recente_ativa and (eh_reply_ao_bot or "?" in texto or bool(REGEX_INTENCAO_PERGUNTA.search(texto)))):
+            # 4. Continuação de conversa (ex.: usuário perguntou "que vies", "qual suporte", "5 mil", ou chamou o bot)
+            if mencionou_bot or conversa_recente_ativa:
                 ultimo_simb = str(sessao_chat.get("ultimo_simbolo") or "")
-                contexto_extra = "Conversa livre sobre trading e gestão de risco."
+                contexto_extra = "Conversa livre sobre Swing Trade por Suportes e Resistências consolidados."
+                snap_ant: Optional[SnapshotIndicadores] = None
+                pl_ant: Optional[PlanoRisco] = None
+                st_ant: str = "EM ANÁLISE"
                 if ultimo_simb:
                     at_ant = identificar_ativo_na_pergunta(ultimo_simb, eh_resposta_ao_bot=True)
                     if at_ant:
@@ -2117,16 +2248,26 @@ def responder_perguntas_chat(
                     historico_mensagens_recentes=hist_msgs,
                 )
                 if not resposta_livre:
-                    resposta_livre = (
-                        f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui acompanhando o pregão. "
-                        "Me diz qual ação ou cripto você quer que eu olhe o gráfico agora, ou me fala se está buscando uma oportunidade de <b>Swing Trade</b> ou <b>Day Trade</b>!"
-                    )
+                    if snap_ant and pl_ant:
+                        aud_ant = gerar_auditoria_quant_fallback(snap_ant, pl_ant)
+                        resposta_livre = formatar_resposta_analise_chat_html(
+                            snap_ant,
+                            pl_ant,
+                            aud_ant,
+                            st_ant,
+                            nome_usuario=nome_user,
+                        )
+                    else:
+                        resposta_livre = (
+                            f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui mapeando os suportes e resistências do mercado. "
+                            "Me diz qual ação ou cripto você quer que eu analise pra <b>Swing Trade</b> agora, ou pede uma recomendação que eu busco as melhores!"
+                        )
                 if enviar_telegram_html(resposta_livre, chat_id=chat_id_msg, reply_to_message_id=msg_id):
                     _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_livre, ultimo_simb)
                     respondidas += 1
             continue
 
-        # 5. Análise conversacional de um ativo específico citado pelo trader
+        # 5. Análise conversacional de um ativo específico citado pelo trader (Swing Trade 1D por padrão)
         modalidade_pedido = detectar_modalidade_na_mensagem(texto)
         intervalo_pedido = extrair_intervalo_da_mensagem(texto)
         eh_swing_ativo = modalidade_pedido == "SWING TRADE" or intervalo_pedido in ("4h", "1d", "1w")
@@ -2197,10 +2338,10 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
     enviados = 0
 
     logger.info(
-        "Iniciando varredura Quant Day Trade 6 Camadas (Timeframe=%s | Pregão B3=%s | ATR=%.1fx | Nota Mín=%d)...",
+        "Iniciando varredura Swing Trade Suporte/Resistência (Timeframe=%s | Pregão B3=%s | ATR=%.1fx | Nota Mín=%d)...",
         TIMEFRAME_PADRAO,
         "ABERTO" if b3_aberta else "FECHADO (somente Cripto 24/7)",
-        ATR_MULTIPLIER,
+        ATR_MULTIPLIER_SWING,
         NOTA_MINIMA_IA,
     )
 
@@ -2235,9 +2376,9 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
             preco_entrada=snap.preco_atual,
             atr=snap.atr,
             direcao=snap.direcao_preliminar,
-            multiplicador_atr=ATR_MULTIPLIER,
+            multiplicador_atr=ATR_MULTIPLIER_SWING if TIMEFRAME_PADRAO in ("4h", "1d", "1w") else ATR_MULTIPLIER,
             casas_decimais=snap.casas_decimais,
-            modalidade="DAY TRADE",
+            modalidade="SWING TRADE" if TIMEFRAME_PADRAO in ("4h", "1d", "1w") else "DAY TRADE",
             moeda=snap.moeda,
         )
 
@@ -2295,7 +2436,7 @@ def executar_ciclo_daytrade() -> int:
     # 1. Responde imediatamente a quaisquer perguntas ou pedidos de Swing Trade pendentes no chat
     responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=2)
 
-    # 2. Executa a varredura automática da Watchlist com as 6 camadas institucionais
+    # 2. Executa a varredura automática da Watchlist com foco em Suportes e Resistências consolidados
     enviados = executar_varredura_sinais(historico, bot_username=bot_username)
 
     # 3. Escuta contínua no chat (padrão automático de 420s = 7 min no GitHub Actions mesmo sem editar o .yml)
