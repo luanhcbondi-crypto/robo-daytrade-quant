@@ -1,5 +1,6 @@
 {
-  "atualizado_em": "2026-11-23T15:21:08.747116-03:00",
+  "atualizado_em": "2026-11-23T15:59:48.141483-03:00",
+  "ultimo_update_id": 211649469,
   "sinais": [
     {
       "chave": "BOVA11::VENDA::15m",
@@ -13,6 +14,21 @@
       "alvo_3": 159.99,
       "nota_ia": 82,
       "ts": 1795458068.747099
+    },
+    {
+      "chave": "PRIO3::VENDA::15m",
+      "simbolo": "PRIO3",
+      "direcao": "VENDA",
+      "intervalo": "15m",
+      "entrada": 58.85,
+      "stop_loss": 59.27,
+      "alvo_1": 58.22,
+      "alvo_2": 58.0,
+      "alvo_3": 57.58,
+      "gatilho_breakeven": 58.22,
+      "score_quant": 100,
+      "nota_ia": 100,
+      "ts": 1795459757.876934
     }
   ]
 }
