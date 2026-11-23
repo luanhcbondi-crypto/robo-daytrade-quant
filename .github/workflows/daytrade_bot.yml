@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Baixar código do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Priorizar rede IPv4 para APIs (TradingView, Gemini e Telegram)
         run: |
@@ -27,7 +27,7 @@ jobs:
           sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1 || true
 
       - name: Configurar Python 3.11 com Cache
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -44,7 +44,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DAYTRADE_INTERVAL: "15m"
           ATR_MULTIPLIER: "1.5"
-          NOTA_MINIMA_IA: "75"
+          NOTA_MINIMA_IA: "78"
           CHAT_LISTEN_SECONDS: "720"
           PYTHONUNBUFFERED: "1"
         run: |
