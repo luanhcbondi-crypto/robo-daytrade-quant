@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-23T18:26:57.978934-03:00",
-  "ultimo_update_id": 211649479,
+  "atualizado_em": "2026-11-23T18:48:02.807134-03:00",
+  "ultimo_update_id": 211649480,
   "sinais": [
     {
       "chave": "BOVA11::VENDA::15m",
@@ -33,7 +33,7 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795469217.978894,
+      "ultimo_ts": 1795470482.80709,
       "ultimo_simbolo": "SOLUSDT",
       "mensagens": [
         {
@@ -59,6 +59,14 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, Peregrino! Cara, com um aporte de US$ 2.000 para um swing trade na SOLUSDT, a oportunidade tá excelente agora que o preço encostou no nosso SUPORTE CONSOLIDADO 1 lá em US$ 69,89 e negocia atualmente em US$ 72,56. Com essa grana, você consegue montar uma mão de mais ou menos 27 unidades, posicionando aquele stop defensivo logo abaixo do nosso piso para proteger o capital. \n\nSe a operação enca"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot /swing"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, meu amigo! Pediu o mapa do swing trade para a SOLUSDT, então vamos direto ao ponto com a nossa leitura de suportes e resistências consolidadas. Atualmente, o ativo negocia a US$ 72,12, mostrando um viés de correção com o preço bem apoiado em cima do nosso principal SUPORTE CONSOLIDADO 1 localizado em US$ 69,89, que já foi testado e respeitado várias vezes no passado. \n\nEssa região é o nosso "
         }
       ]
     }
