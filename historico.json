@@ -1,0 +1,18 @@
+{
+  "atualizado_em": "2026-11-23T15:21:08.747116-03:00",
+  "sinais": [
+    {
+      "chave": "BOVA11::VENDA::15m",
+      "simbolo": "BOVA11",
+      "direcao": "VENDA",
+      "intervalo": "15m",
+      "entrada": 162.03,
+      "stop_loss": 162.71,
+      "alvo_1": 161.01,
+      "alvo_2": 160.67,
+      "alvo_3": 159.99,
+      "nota_ia": 82,
+      "ts": 1795458068.747099
+    }
+  ]
+}
