@@ -1,0 +1,61 @@
+name: Quant Day Trade Bot (TradingView + Gemini Free)
+
+on:
+  schedule:
+    # Executa a cada 15 minutos (24/7 para Cripto; filtra horário de pregão B3 no código)
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: quant-daytrade-bot
+  cancel-in-progress: false
+
+jobs:
+  auditar-e-disparar-sinais:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Priorizar rede IPv4 para APIs (TradingView, Gemini e Telegram)
+        run: |
+          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1 || true
+          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1 || true
+
+      - name: Configurar Python 3.11 com Cache
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Executar Robô Quant Day Trade
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DAYTRADE_INTERVAL: "15m"
+          ATR_MULTIPLIER: "1.5"
+          NOTA_MINIMA_IA: "75"
+          PYTHONUNBUFFERED: "1"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git pull --rebase origin main || true
+          python bot_daytrade.py
+
+          if [ -n "$(git status --porcelain historico.json)" ]; then
+            git add historico.json
+            git commit -m "Atualiza histórico de sinais Day Trade [skip ci]" || true
+            git pull --rebase -X theirs origin main || true
+            git push origin main || true
+          fi
