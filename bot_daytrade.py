@@ -76,9 +76,50 @@ _MODELO_VENCEDOR_SESSAO: Optional[str] = None
 _MODELOS_BLOQUEADOS_SESSAO: Set[str] = set()
 _MODELOS_DEGRADADOS_SESSAO: Set[str] = set()
 
-# Cache curto em memória (por ciclo) para evitar chamadas repetidas ao ativo líder (BOVA11/BTCUSDT) e MTF
+# Cache curto em memória (por ciclo) e Batch Scanner para evitar HTTP 429 no TradingView
 _CACHE_SNAPSHOT_CICLO: Dict[str, Tuple[float, Any]] = {}
-_CACHE_TTL_SEGUNDOS = 75.0
+_CACHE_TTL_SEGUNDOS = 90.0
+_ULTIMA_REQ_TV_TS: float = 0.0
+
+MAPA_SUFIXO_BATCH_TV: Dict[str, str] = {
+    "5m": "|5",
+    "15m": "|15",
+    "30m": "|30",
+    "1h": "|60",
+    "4h": "|240",
+    "1d": "",
+    "1w": "|1W",
+}
+COLUNAS_BATCH_TV: Tuple[str, ...] = (
+    "Recommend.All",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "change",
+    "EMA9",
+    "EMA10",
+    "EMA20",
+    "EMA21",
+    "SMA200",
+    "EMA200",
+    "VWMA",
+    "RSI",
+    "MACD.macd",
+    "MACD.signal",
+    "ADX",
+    "ADX+DI",
+    "ADX-DI",
+    "ATR",
+    "BB.upper",
+    "BB.lower",
+    "Stoch.K",
+    "Stoch.D",
+    "Pivot.M.Classic.Middle",
+    "Pivot.M.Classic.R1",
+    "Pivot.M.Classic.S1",
+)
 
 MAPA_INTERVALOS_TV: Dict[str, str] = {
     "5m": Interval.INTERVAL_5_MINUTES,
@@ -171,6 +212,7 @@ ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "chainlink": AtivoMonitorado("LINKUSDT", "BINANCE", "crypto", "US$", 3, False),
     "sui": AtivoMonitorado("SUIUSDT", "BINANCE", "crypto", "US$", 4, False),
     "petrobras": AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, True),
+    "petro": AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, True),
     "vale": AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, True),
     "itau": AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, True),
     "itaú": AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, True),
@@ -214,18 +256,21 @@ REGEX_COMANDO_RANKING = re.compile(
     r"^/(?:swing|swingtrade|daytrade|oportunidades|recomendacao|recomendar|top|top3|calls|radar)\b",
     flags=re.IGNORECASE,
 )
+REGEX_CHAMADO_ROBO = re.compile(r"\b(?:rob[ôo]|bot|analista|ia)\b", flags=re.IGNORECASE)
 REGEX_INTENCAO_PERGUNTA = re.compile(
-    r"(?:o\s*que\s+(?:vc\s+|voc[êe]\s+)?acha|oque\s+acha|analis[ae]|an[áa]lise|avalia|avaliar|"
-    r"como\s+(?:est[áa]|t[áa]|ta)\b|gr[áa]fico|setup|vale\s+a\s+pena|compra\s+ou\s+venda|"
-    r"entrar\s+em|opini[ãa]o\s+sobre|tend[êe]ncia\s+d[eo]|alvo\s+para|stop\s+para|swing\s*trade)",
+    r"(?:\?|o\s*que\s+(?:vc\s+|voc[êe]\s+)?acha|oque\s+acha|analis\w*|an[áa]lis\w*|avali\w*|"
+    r"como\s+(?:est[áa]|t[áa]|ta)\b|gr[áa]fic\w*|setup|vale\s+a\s+pena|compensa|"
+    r"compr\w*|vend\w*|subi\w*|sobe|cai\w*|alta|baixa|long|short|"
+    r"entrar|entrada|opini\w*|tend[êe]nci\w*|alvo|stop|swing\w*|day\s*trade|sinal|call|hoje|agora)",
     flags=re.IGNORECASE,
 )
 REGEX_PEDIDO_RECOMENDACAO = re.compile(
     r"(?:qual\s+(?:a\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel)|"
     r"quais\s+(?:as\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is)|"
-    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa])\s+(?:um\s+|uma\s+)?(?:call|oportunidade\w*|recomenda[çc][ãa]o|indica[çc][ãa]o|setup|swing\s*trade|day\s*trade)|"
-    r"(?:recomenda\w*|indica\w*|sugere\w*)\s+(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|swing\s*trade|day\s*trade|call)|"
-    r"o\s+que\s+(?:comprar|operar|vender)\s+(?:hoje|agora|nessa\s+semana|no\s+swing|no\s+day))",
+    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae])\s+(?:um\s+|uma\s+|algum\w*\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|swing\s*trade|day\s*trade)|"
+    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|swing\s*trade|day\s*trade|call|hoje|agora)?|"
+    r"o\s+que\s+(?:comprar|operar|vender)\b|"
+    r"^(?:swing\s*trade|day\s*trade|oportunidades|calls|recomenda[çc][ãa]o)\??$)",
     flags=re.IGNORECASE,
 )
 
@@ -313,7 +358,7 @@ class AuditoriaIA:
 
 
 # ==============================================================================
-# 3. EXTRAÇÃO DE DADOS DO TRADINGVIEW + MTF + FORÇA RELATIVA (ALPHA)
+# 3. EXTRAÇÃO DE DADOS DO TRADINGVIEW (BATCH + ANTI-429) + MTF + ALPHA
 # ==============================================================================
 def pregao_b3_aberto(agora_utc: Optional[dt.datetime] = None) -> bool:
     agora_brt = (agora_utc or dt.datetime.now(dt.timezone.utc)).astimezone(TZ_BRT)
@@ -377,7 +422,154 @@ def classificar_tipo_setup(snap: SnapshotIndicadores, direcao: str) -> Tuple[str
     return "TRANSICÃO DE TENDÊNCIA", preco_pullback
 
 
+def _construir_snapshot_de_indicadores(
+    ativo: AtivoMonitorado,
+    intervalo_str: str,
+    ind: Dict[str, Any],
+    rec_tv: str = "NEUTRAL",
+) -> Optional[SnapshotIndicadores]:
+    close = _num(ind.get("close"))
+    if close <= 0:
+        return None
+
+    high = _num(ind.get("high"), close)
+    low = _num(ind.get("low"), close)
+    open_p = _num(ind.get("open"), close)
+    change_pct = _num(ind.get("change"), ((close - open_p) / open_p * 100.0) if open_p > 0 else 0.0)
+
+    ema_9 = _num(ind.get("EMA9"), _num(ind.get("EMA10"), close))
+    ema_21 = _num(ind.get("EMA21"), _num(ind.get("EMA20"), close))
+    sma_200 = _num(ind.get("SMA200"), _num(ind.get("EMA200"), close))
+    vwma = _num(ind.get("VWMA"), ema_21)
+
+    rsi = _num(ind.get("RSI"), 50.0)
+    macd_line = _num(ind.get("MACD.macd"))
+    macd_signal = _num(ind.get("MACD.signal"))
+    macd_hist = macd_line - macd_signal
+    volume = _num(ind.get("volume"))
+    adx = _num(ind.get("ADX"), 20.0)
+    di_plus = _num(ind.get("ADX+DI"), 22.0 if close >= ema_21 else 18.0)
+    di_minus = _num(ind.get("ADX-DI"), 18.0 if close >= ema_21 else 22.0)
+
+    bb_up = _num(ind.get("BB.upper"))
+    bb_low = _num(ind.get("BB.lower"))
+    stoch_k = _num(ind.get("Stoch.K"), 50.0)
+    stoch_d = _num(ind.get("Stoch.D"), 50.0)
+
+    pivot_p = _num(ind.get("Pivot.M.Classic.Middle"), close)
+    pivot_r1 = _num(ind.get("Pivot.M.Classic.R1"), 0.0)
+    pivot_s1 = _num(ind.get("Pivot.M.Classic.S1"), 0.0)
+
+    atr_raw = _num(ind.get("ATR"))
+    if atr_raw <= 0:
+        amplitude_vela = abs(high - low)
+        amplitude_bb = abs(bb_up - bb_low) / 4.0 if (bb_up > bb_low > 0) else 0.0
+        atr_raw = max(amplitude_vela, amplitude_bb, close * 0.005)
+
+    casas = 4 if (close < 1.0 and ativo.casas_decimais == 2) else ativo.casas_decimais
+    tf_sup, tf_inf = obter_pares_mtf(intervalo_str)
+
+    return SnapshotIndicadores(
+        simbolo=ativo.simbolo,
+        exchange=ativo.exchange,
+        screener=ativo.screener,
+        intervalo=intervalo_str,
+        moeda=ativo.moeda,
+        casas_decimais=casas,
+        preco_atual=close,
+        abertura=open_p,
+        maxima=high,
+        minima=low,
+        ema_9=ema_9,
+        ema_21=ema_21,
+        sma_200=sma_200,
+        rsi=rsi,
+        macd_line=macd_line,
+        macd_signal=macd_signal,
+        macd_hist=macd_hist,
+        volume=volume,
+        atr=atr_raw,
+        adx=adx,
+        recomendacao_tv=rec_tv,
+        direcao_preliminar="NEUTRO",
+        vwma=vwma,
+        di_plus=di_plus,
+        di_minus=di_minus,
+        bb_upper=bb_up,
+        bb_lower=bb_low,
+        stoch_k=stoch_k,
+        stoch_d=stoch_d,
+        pivot_p=pivot_p,
+        pivot_r1=pivot_r1,
+        pivot_s1=pivot_s1,
+        variacao_pct=change_pct,
+        tf_superior=tf_sup,
+        tf_inferior=tf_inf,
+        preco_pullback_ideal=round(ema_9, casas),
+    )
+
+
+def pre_carregar_lote_tradingview(ativos: Tuple[AtivoMonitorado, ...], intervalo_str: str) -> int:
+    """Busca todos os ativos do mesmo screener em UMA ÚNICA requisição HTTP ao TradingView,
+    eliminando completamente o erro HTTP 429 (Too Many Requests) na varredura.
+    """
+    global _ULTIMA_REQ_TV_TS
+    if not hasattr(requests, "post"):
+        return 0
+
+    sufixo = MAPA_SUFIXO_BATCH_TV.get(intervalo_str, "|15")
+    colunas_req = [f"{col}{sufixo}" for col in COLUNAS_BATCH_TV]
+    por_screener: Dict[str, Dict[str, AtivoMonitorado]] = {}
+    agora_mono = time.monotonic()
+
+    for a in ativos:
+        chave_cache = f"{a.exchange}:{a.simbolo}:{intervalo_str}"
+        if chave_cache in _CACHE_SNAPSHOT_CICLO and (agora_mono - _CACHE_SNAPSHOT_CICLO[chave_cache][0]) <= _CACHE_TTL_SEGUNDOS:
+            continue
+        por_screener.setdefault(a.screener.lower(), {})[f"{a.exchange.upper()}:{a.simbolo.upper()}"] = a
+
+    carregados = 0
+    for screener, mapa_tickers in por_screener.items():
+        if not mapa_tickers:
+            continue
+        espera = 0.40 - (time.monotonic() - _ULTIMA_REQ_TV_TS)
+        if espera > 0:
+            time.sleep(espera)
+
+        url = f"https://scanner.tradingview.com/{screener}/scan"
+        payload = {
+            "symbols": {"tickers": list(mapa_tickers.keys()), "query": {"types": []}},
+            "columns": colunas_req,
+        }
+        try:
+            _ULTIMA_REQ_TV_TS = time.monotonic()
+            resp = requests.post(url, json=payload, headers={"User-Agent": "Mozilla/5.0"}, timeout=12)
+            if resp.status_code != 200:
+                continue
+            linhas = (resp.json() or {}).get("data") or []
+            ts_agora = time.monotonic()
+            for item in linhas:
+                if not isinstance(item, dict):
+                    continue
+                ticker_full = str(item.get("s") or "").upper()
+                valores = item.get("d") or []
+                ativo_obj = mapa_tickers.get(ticker_full)
+                if not ativo_obj or len(valores) != len(COLUNAS_BATCH_TV):
+                    continue
+                ind_dict = dict(zip(COLUNAS_BATCH_TV, valores))
+                rec_val = _num(ind_dict.get("Recommend.All"), 0.0)
+                rec_str = "STRONG_BUY" if rec_val >= 0.5 else ("BUY" if rec_val >= 0.1 else ("STRONG_SELL" if rec_val <= -0.5 else ("SELL" if rec_val <= -0.1 else "NEUTRAL")))
+                snap = _construir_snapshot_de_indicadores(ativo_obj, intervalo_str, ind_dict, rec_str)
+                if snap:
+                    _CACHE_SNAPSHOT_CICLO[f"{ativo_obj.exchange}:{ativo_obj.simbolo}:{intervalo_str}"] = (ts_agora, snap)
+                    carregados += 1
+        except Exception:
+            continue
+    return carregados
+
+
 def _extrair_snapshot_base(ativo: AtivoMonitorado, intervalo_str: str) -> Optional[SnapshotIndicadores]:
+    global _ULTIMA_REQ_TV_TS
     chave_cache = f"{ativo.exchange}:{ativo.simbolo}:{intervalo_str}"
     agora_mono = time.monotonic()
     if chave_cache in _CACHE_SNAPSHOT_CICLO:
@@ -386,111 +578,45 @@ def _extrair_snapshot_base(ativo: AtivoMonitorado, intervalo_str: str) -> Option
             return snap_salvo
 
     tv_interval = MAPA_INTERVALOS_TV.get(intervalo_str, Interval.INTERVAL_15_MINUTES)
-    try:
-        handler = TA_Handler(
-            symbol=ativo.simbolo,
-            screener=ativo.screener,
-            exchange=ativo.exchange,
-            interval=tv_interval,
-            timeout=12,
-        )
+    for tentativa in range(2):
+        espera = 0.35 - (time.monotonic() - _ULTIMA_REQ_TV_TS)
+        if espera > 0:
+            time.sleep(espera)
         try:
-            handler.add_indicators(["EMA9", "EMA21", "ATR"])
-        except Exception:
-            pass
+            _ULTIMA_REQ_TV_TS = time.monotonic()
+            handler = TA_Handler(
+                symbol=ativo.simbolo,
+                screener=ativo.screener,
+                exchange=ativo.exchange,
+                interval=tv_interval,
+                timeout=12,
+            )
+            try:
+                handler.add_indicators(["EMA9", "EMA21", "ATR"])
+            except Exception:
+                pass
 
-        analise = handler.get_analysis()
-        if not analise or not getattr(analise, "indicators", None):
+            analise = handler.get_analysis()
+            if not analise or not getattr(analise, "indicators", None):
+                return None
+
+            ind: Dict[str, Any] = analise.indicators
+            summary: Dict[str, Any] = getattr(analise, "summary", {}) or {}
+            rec_tv = str(summary.get("RECOMMENDATION") or "NEUTRAL").upper()
+
+            snap = _construir_snapshot_de_indicadores(ativo, intervalo_str, ind, rec_tv)
+            if snap:
+                _CACHE_SNAPSHOT_CICLO[chave_cache] = (time.monotonic(), snap)
+            return snap
+        except Exception as exc:
+            msg_err = str(exc)
+            if "429" in msg_err and tentativa == 0:
+                logger.info("TradingView HTTP 429 em %s; aguardando 2.5s para retentar...", ativo.simbolo)
+                time.sleep(2.5)
+                continue
+            logger.warning("Falha ao extrair TradingView para %s:%s (%s)", ativo.exchange, ativo.simbolo, msg_err[:120])
             return None
-
-        ind: Dict[str, Any] = analise.indicators
-        summary: Dict[str, Any] = getattr(analise, "summary", {}) or {}
-
-        close = _num(ind.get("close"))
-        if close <= 0:
-            return None
-
-        high = _num(ind.get("high"), close)
-        low = _num(ind.get("low"), close)
-        open_p = _num(ind.get("open"), close)
-        change_pct = _num(ind.get("change"), ((close - open_p) / open_p * 100.0) if open_p > 0 else 0.0)
-
-        ema_9 = _num(ind.get("EMA9"), _num(ind.get("EMA10"), close))
-        ema_21 = _num(ind.get("EMA21"), _num(ind.get("EMA20"), close))
-        sma_200 = _num(ind.get("SMA200"), _num(ind.get("EMA200"), close))
-        vwma = _num(ind.get("VWMA"), ema_21)
-
-        rsi = _num(ind.get("RSI"), 50.0)
-        macd_line = _num(ind.get("MACD.macd"))
-        macd_signal = _num(ind.get("MACD.signal"))
-        macd_hist = macd_line - macd_signal
-        volume = _num(ind.get("volume"))
-        adx = _num(ind.get("ADX"), 20.0)
-        di_plus = _num(ind.get("ADX+DI"), 22.0 if close >= ema_21 else 18.0)
-        di_minus = _num(ind.get("ADX-DI"), 18.0 if close >= ema_21 else 22.0)
-
-        bb_up = _num(ind.get("BB.upper"))
-        bb_low = _num(ind.get("BB.lower"))
-        stoch_k = _num(ind.get("Stoch.K"), 50.0)
-        stoch_d = _num(ind.get("Stoch.D"), 50.0)
-
-        pivot_p = _num(ind.get("Pivot.M.Classic.Middle"), close)
-        pivot_r1 = _num(ind.get("Pivot.M.Classic.R1"), 0.0)
-        pivot_s1 = _num(ind.get("Pivot.M.Classic.S1"), 0.0)
-
-        atr_raw = _num(ind.get("ATR"))
-        if atr_raw <= 0:
-            amplitude_vela = abs(high - low)
-            amplitude_bb = abs(bb_up - bb_low) / 4.0 if (bb_up > bb_low > 0) else 0.0
-            atr_raw = max(amplitude_vela, amplitude_bb, close * 0.005)
-
-        rec_tv = str(summary.get("RECOMMENDATION") or "NEUTRAL").upper()
-        casas = 4 if (close < 1.0 and ativo.casas_decimais == 2) else ativo.casas_decimais
-        tf_sup, tf_inf = obter_pares_mtf(intervalo_str)
-
-        snap = SnapshotIndicadores(
-            simbolo=ativo.simbolo,
-            exchange=ativo.exchange,
-            screener=ativo.screener,
-            intervalo=intervalo_str,
-            moeda=ativo.moeda,
-            casas_decimais=casas,
-            preco_atual=close,
-            abertura=open_p,
-            maxima=high,
-            minima=low,
-            ema_9=ema_9,
-            ema_21=ema_21,
-            sma_200=sma_200,
-            rsi=rsi,
-            macd_line=macd_line,
-            macd_signal=macd_signal,
-            macd_hist=macd_hist,
-            volume=volume,
-            atr=atr_raw,
-            adx=adx,
-            recomendacao_tv=rec_tv,
-            direcao_preliminar="NEUTRO",
-            vwma=vwma,
-            di_plus=di_plus,
-            di_minus=di_minus,
-            bb_upper=bb_up,
-            bb_lower=bb_low,
-            stoch_k=stoch_k,
-            stoch_d=stoch_d,
-            pivot_p=pivot_p,
-            pivot_r1=pivot_r1,
-            pivot_s1=pivot_s1,
-            variacao_pct=change_pct,
-            tf_superior=tf_sup,
-            tf_inferior=tf_inf,
-            preco_pullback_ideal=round(ema_9, casas),
-        )
-        _CACHE_SNAPSHOT_CICLO[chave_cache] = (agora_mono, snap)
-        return snap
-    except Exception as exc:
-        logger.warning("Falha ao extrair TradingView para %s:%s (%s)", ativo.exchange, ativo.simbolo, str(exc)[:120])
-        return None
+    return None
 
 
 def _classificar_tendencia_macro(snap_macro: Optional[SnapshotIndicadores]) -> str:
@@ -563,67 +689,55 @@ def calcular_score_quant_local(snap: SnapshotIndicadores, direcao_alvo: str = "N
     risco_r = max(snap.atr * ATR_MULTIPLIER, snap.preco_atual * 0.0025, 1e-9)
 
     if dir_eval == "COMPRA":
-        # 1. Alinhamento de Tendência (EMA 9 > EMA 21 + SMA 200) -> até 25 pts
         if snap.preco_atual > snap.ema_9 > snap.ema_21:
             pontos += 15
         if snap.preco_atual > snap.sma_200:
             pontos += 10
-        # 2. Fluxo Institucional Ponderado por Volume (VWMA) -> até 15 pts
         if snap.vwma <= 0 or snap.preco_atual >= snap.vwma:
             pontos += 15
-        # 3. Força e Dominância Direcional (ADX + DI+ > DI-) -> até 15 pts
         if snap.di_plus >= snap.di_minus:
             pontos += 8
         if snap.adx >= 23.0:
             pontos += 7
         elif snap.adx >= 18.0:
             pontos += 4
-        # 4. Momentum Limpo (MACD + RSI em zona nobre sem sobrecompra extrema) -> até 15 pts
         if snap.macd_line > snap.macd_signal:
             pontos += 8
         if 52.0 <= snap.rsi <= 70.0:
             pontos += 7
         elif 48.0 <= snap.rsi <= 73.0:
             pontos += 3
-        # 5. Alinhamento Multi-Timeframe (MTF Superior + Inferior) -> até 15 pts
         if snap.tendencia_mtf_superior in ("ALTA", "NEUTRA"):
             pontos += 10 if snap.tendencia_mtf_superior == "ALTA" else 6
         if snap.confirmacao_mtf_inferior not in ("EXAUSTAO_ALTA", "CONTRA_COMPRA"):
             pontos += 5
-        # 6. Vento a Favor (Ativo Líder + Caminho Livre até Pivot R1) -> até 15 pts
         if snap.vies_ativo_lider != "BAIXA_FORTE":
             pontos += 8
         if snap.pivot_r1 <= snap.preco_atual or (snap.pivot_r1 - snap.preco_atual) >= (0.60 * risco_r):
             pontos += 7
     else:
-        # 1. Alinhamento de Tendência (EMA 9 < EMA 21 + SMA 200) -> até 25 pts
         if snap.preco_atual < snap.ema_9 < snap.ema_21:
             pontos += 15
         if snap.preco_atual < snap.sma_200:
             pontos += 10
-        # 2. Fluxo Institucional Ponderado por Volume (VWMA) -> até 15 pts
         if snap.vwma <= 0 or snap.preco_atual <= snap.vwma:
             pontos += 15
-        # 3. Força e Dominância Direcional (ADX + DI- > DI+) -> até 15 pts
         if snap.di_minus >= snap.di_plus:
             pontos += 8
         if snap.adx >= 23.0:
             pontos += 7
         elif snap.adx >= 18.0:
             pontos += 4
-        # 4. Momentum Limpo (MACD + RSI) -> até 15 pts
         if snap.macd_line < snap.macd_signal:
             pontos += 8
         if 30.0 <= snap.rsi <= 48.0:
             pontos += 7
         elif 27.0 <= snap.rsi <= 52.0:
             pontos += 3
-        # 5. Alinhamento Multi-Timeframe (MTF Superior + Inferior) -> até 15 pts
         if snap.tendencia_mtf_superior in ("BAIXA", "NEUTRA"):
             pontos += 10 if snap.tendencia_mtf_superior == "BAIXA" else 6
         if snap.confirmacao_mtf_inferior not in ("EXAUSTAO_BAIXA", "CONTRA_VENDA"):
             pontos += 5
-        # 6. Vento a Favor (Ativo Líder + Caminho Livre até Pivot S1) -> até 15 pts
         if snap.vies_ativo_lider != "ALTA_FORTE":
             pontos += 8
         if snap.pivot_s1 <= 0 or snap.pivot_s1 >= snap.preco_atual or (snap.preco_atual - snap.pivot_s1) >= (0.60 * risco_r):
@@ -670,7 +784,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     if snap.atr <= 0 or snap.preco_atual <= 0:
         return False, "ATR ou preço inválido."
 
-    # 1. Filtro Anti-Consolidação (Spread de EMAs + ADX mínimo)
     spread_emas_pct = abs(snap.ema_9 - snap.ema_21) / snap.preco_atual
     if spread_emas_pct < 0.0010:
         return False, f"Consolidação: EMA9 e EMA21 emboladas (spread {spread_emas_pct * 100:.3f}%)."
@@ -678,7 +791,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     if 0 < snap.adx < 18.0:
         return False, f"Consolidação: tendência sem força direcional (ADX {snap.adx:.1f} < 18)."
 
-    # 2. Filtro Anti-Violinada (Distância máxima da EMA 9 pelo ATR)
     dist_ema9_atr = abs(snap.preco_atual - snap.ema_9) / snap.atr
     if dist_ema9_atr > 2.2:
         return False, f"Preço esticado demais em relação à EMA9 ({dist_ema9_atr:.1f}x ATR — risco de violinada)."
@@ -686,7 +798,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     mult_atr = ATR_MULTIPLIER_SWING if snap.intervalo in ("4h", "1d", "1w") else ATR_MULTIPLIER
     risco_r = max(snap.atr * mult_atr, snap.preco_atual * 0.0025)
 
-    # 3. Verificação dos Pilares Primários (EMA 9/21 + SMA 200 + MACD + RSI)
     tendencia_alta = snap.preco_atual > snap.ema_9 and snap.ema_9 > snap.ema_21 and snap.preco_atual > snap.sma_200
     momentum_alta = snap.macd_line > snap.macd_signal and 52.0 <= snap.rsi <= 72.0
 
@@ -694,23 +805,18 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     momentum_baixa = snap.macd_line < snap.macd_signal and 28.0 <= snap.rsi <= 48.0
 
     if tendencia_alta and momentum_alta:
-        # Camada 3: Fluxo Institucional (VWMA)
         if snap.vwma > 0 and snap.preco_atual < snap.vwma:
             return False, f"Fluxo institucional negativo: preço ({snap.preco_atual:.2f}) abaixo da VWMA ({snap.vwma:.2f})."
-        # Camada 5: Dominância Direcional (DI+ vs DI-)
         if snap.di_plus < snap.di_minus:
             return False, f"Sem dominância compradora: DI+ ({snap.di_plus:.1f}) menor que DI- ({snap.di_minus:.1f})."
-        # Camada 4: Envelope de Bollinger e Barreira de Pivot R1
         if snap.bb_upper > 0 and snap.preco_atual > (snap.bb_upper * 1.002) and snap.rsi > 68.0:
             return False, "Exaustão de topo: preço rompendo fora da Banda Superior de Bollinger com RSI alto."
         if snap.pivot_r1 > snap.preco_atual and (snap.pivot_r1 - snap.preco_atual) < (0.55 * risco_r):
             return False, f"Resistência Pivot R1 ({snap.pivot_r1:.2f}) bloqueando o caminho até o Alvo 1."
-        # Camada 1: Multi-Timeframe (Âncora Superior e Gatilho Inferior)
         if snap.tendencia_mtf_superior == "BAIXA":
             return False, f"Conflito Multi-Timeframe: gráfico superior ({snap.tf_superior.upper()}) está em tendência de BAIXA."
         if snap.confirmacao_mtf_inferior in ("EXAUSTAO_ALTA", "CONTRA_COMPRA"):
             return False, f"Gatilho curto ({snap.tf_inferior.upper()}) em exaustão ou perda de força ({snap.confirmacao_mtf_inferior})."
-        # Camada 2: Correlação com Ativo Líder (BOVA11 / BTCUSDT)
         if snap.vies_ativo_lider == "BAIXA_FORTE":
             return False, f"Vento contra do mercado: ativo líder ({snap.ativo_lider}) em queda forte."
 
@@ -720,23 +826,18 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
         return True, f"Confluência institucional de COMPRA confirmada (Score Quant {snap.score_quant_local}/100)."
 
     if tendencia_baixa and momentum_baixa:
-        # Camada 3: Fluxo Institucional (VWMA)
         if snap.vwma > 0 and snap.preco_atual > snap.vwma:
             return False, f"Fluxo institucional comprador: preço ({snap.preco_atual:.2f}) acima da VWMA ({snap.vwma:.2f})."
-        # Camada 5: Dominância Direcional (DI- vs DI+)
         if snap.di_minus < snap.di_plus:
             return False, f"Sem dominância vendedora: DI- ({snap.di_minus:.1f}) menor que DI+ ({snap.di_plus:.1f})."
-        # Camada 4: Envelope de Bollinger e Suporte Pivot S1
         if snap.bb_lower > 0 and snap.preco_atual < (snap.bb_lower * 0.998) and snap.rsi < 32.0:
             return False, "Exaustão de fundo: preço esticado abaixo da Banda Inferior de Bollinger com RSI baixo."
         if 0 < snap.pivot_s1 < snap.preco_atual and (snap.preco_atual - snap.pivot_s1) < (0.55 * risco_r):
             return False, f"Suporte Pivot S1 ({snap.pivot_s1:.2f}) bloqueando o caminho até o Alvo 1."
-        # Camada 1: Multi-Timeframe (Âncora Superior e Gatilho Inferior)
         if snap.tendencia_mtf_superior == "ALTA":
             return False, f"Conflito Multi-Timeframe: gráfico superior ({snap.tf_superior.upper()}) está em tendência de ALTA."
         if snap.confirmacao_mtf_inferior in ("EXAUSTAO_BAIXA", "CONTRA_VENDA"):
             return False, f"Gatilho curto ({snap.tf_inferior.upper()}) em exaustão vendedora ({snap.confirmacao_mtf_inferior})."
-        # Camada 2: Correlação com Ativo Líder (BOVA11 / BTCUSDT)
         if snap.vies_ativo_lider == "ALTA_FORTE":
             return False, f"Vento contra do mercado: ativo líder ({snap.ativo_lider}) em alta forte."
 
@@ -840,9 +941,8 @@ def calcular_gestao_risco(
         alvo_2 = preco_entrada - (2.0 * risco_r)
         alvo_3 = preco_entrada - (3.0 * risco_r)
 
-    # Dimensionamento Institucional de Posição (Regra de Ouro: arriscar no máximo 1% do capital por operação)
     capital_ref = 1000.0 if moeda == "US$" else 10000.0
-    risco_max_1pct = capital_ref * 0.01  # R$ 100 para cada R$ 10.000 (ou US$ 10 para cada US$ 1.000)
+    risco_max_1pct = capital_ref * 0.01
     qtd_bruta = risco_max_1pct / max(risco_r, 1e-9)
     if moeda == "R$" and preco_entrada >= 2.0:
         qtd_sugerida = float(max(1, int(round(qtd_bruta))))
@@ -1218,9 +1318,6 @@ def extrair_intervalo_da_mensagem(texto: str) -> str:
 def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") -> Optional[Tuple[str, str]]:
     """Detecta quando o trader pede recomendações/calls gerais sem especificar um único ativo
     (ex.: 'quero fazer swing trade, qual ação recomenda?', '/swing', 'qual a melhor cripto pra hoje?').
-    Retorna (modalidade, segmento):
-      - modalidade: 'SWING TRADE' | 'DAY TRADE'
-      - segmento: 'B3' | 'CRIPTO' | 'TODOS'
     """
     if not texto:
         return None
@@ -1232,7 +1329,6 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     if not eh_cmd_rank and not tem_pedido_rec:
         return None
 
-    # Determina modalidade (Swing Trade no gráfico Diário vs Day Trade no 15m)
     if re.search(r"\b(?:swing|swingtrade|m[ée]dio\s*prazo|semanal|dias|di[áa]rio|1d)\b", t_low):
         modalidade = "SWING TRADE"
     elif re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|15m|5m)\b", t_low):
@@ -1240,7 +1336,6 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     else:
         modalidade = "SWING TRADE" if "recomenda" in t_low or "indica" in t_low else "DAY TRADE"
 
-    # Determina segmento (Ações B3 vs Cripto vs Todos)
     if re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|papel|pap[ée]is)\b", t_low):
         segmento = "B3"
     elif re.search(r"\b(?:cripto|criptomoeda|criptos|moeda|altcoin|binance)\b", t_low):
@@ -1251,20 +1346,32 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     return modalidade, segmento
 
 
-def identificar_ativo_na_pergunta(texto: str, bot_username: str = "") -> Optional[AtivoMonitorado]:
+def identificar_ativo_na_pergunta(
+    texto: str,
+    bot_username: str = "",
+    eh_resposta_ao_bot: bool = False,
+) -> Optional[AtivoMonitorado]:
     if not texto:
         return None
 
     t_up = texto.upper()
     t_low = texto.lower()
+    qtd_palavras = len(t_low.split())
 
     eh_comando = bool(REGEX_COMANDO_CHAT.search(t_low))
-    mencionou_bot = bool(bot_username and f"@{bot_username.lower()}" in t_low)
-    tem_intencao = eh_comando or mencionou_bot or bool(REGEX_INTENCAO_PERGUNTA.search(t_low))
+    mencionou_bot = bool(bot_username and f"@{bot_username.lower()}" in t_low) or bool(REGEX_CHAMADO_ROBO.search(t_low))
+    tem_intencao = (
+        eh_comando
+        or mencionou_bot
+        or eh_resposta_ao_bot
+        or "?" in texto
+        or qtd_palavras <= 8
+        or bool(REGEX_INTENCAO_PERGUNTA.search(t_low))
+    )
 
     # 1. Procura par cripto explícito (ex.: BTCUSDT, SOLUSDT, PEPEUSDT)
     m_cripto = REGEX_PAR_CRIPTO.search(t_up)
-    if m_cripto and (tem_intencao or len(t_up.split()) <= 4):
+    if m_cripto and tem_intencao:
         simb = m_cripto.group(1)
         for a in (*WATCHLIST_PADRAO, *CARTEIRA_SWING_CRIPTO):
             if a.simbolo == simb:
@@ -1273,7 +1380,7 @@ def identificar_ativo_na_pergunta(texto: str, bot_username: str = "") -> Optiona
 
     # 2. Procura ticker padrão B3 (ex.: PETR4, VALE3, KLBN11, HGLG11, NVDC34, SMFT3)
     m_b3 = REGEX_TICKER_B3.search(t_up)
-    if m_b3 and (tem_intencao or len(t_up.split()) <= 4):
+    if m_b3 and tem_intencao:
         simb = m_b3.group(1)
         for a in (*WATCHLIST_PADRAO, *CARTEIRA_SWING_B3):
             if a.simbolo == simb:
@@ -1281,7 +1388,7 @@ def identificar_ativo_na_pergunta(texto: str, bot_username: str = "") -> Optiona
         return AtivoMonitorado(simb, "BMFBOVESPA", "brazil", "R$", 2, True)
 
     # 3. Procura nomes/apelidos conhecidos (ex.: "o que acha do bitcoin?", "analisa petrobras", "swing trade em vale")
-    if tem_intencao or len(t_low.split()) <= 3:
+    if tem_intencao:
         for apelido in sorted(ALIASES_ATIVOS_CHAT.keys(), key=len, reverse=True):
             if re.search(r"(?<!\w)" + re.escape(apelido) + r"(?!\w)", t_low):
                 return ALIASES_ATIVOS_CHAT[apelido]
@@ -1350,6 +1457,12 @@ def escanear_melhores_oportunidades(
     else:
         universo = (*CARTEIRA_SWING_B3[:8], *CARTEIRA_SWING_CRIPTO[:4])
 
+    # Pré-carrega em lote único (Batch API) para evitar HTTP 429 no TradingView
+    tf_sup, tf_inf = obter_pares_mtf(tf)
+    ativos_lote = tuple(dict.fromkeys([*universo, ATIVO_LIDER_B3, ATIVO_LIDER_CRIPTO]))
+    for tf_b in dict.fromkeys([tf, tf_sup, tf_inf]):
+        pre_carregar_lote_tradingview(ativos_lote, tf_b)
+
     candidatos: List[Tuple[int, float, SnapshotIndicadores, PlanoRisco, bool, str]] = []
     for ativo in universo:
         snap = extrair_dados_tradingview(ativo, tf, enriquecer_mtf=True)
@@ -1366,7 +1479,6 @@ def escanear_melhores_oportunidades(
             modalidade="SWING TRADE" if eh_swing else "DAY TRADE",
             moeda=snap.moeda,
         )
-        # Bônus de ranqueamento para setups aprovados nas 6 camadas e com Pullback na EMA 9
         bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0)
         alpha_favoravel = snap.alpha_vs_lider_pct if direcao == "COMPRA" else -snap.alpha_vs_lider_pct
         nota_rank = snap.score_quant_local + bonus
@@ -1646,31 +1758,57 @@ def obter_username_bot(token: str = TELEGRAM_BOT_TOKEN) -> str:
     if not token:
         return ""
     try:
-        resp = requests.get(f"https://api.telegram.org/bot{token}/getMe", timeout=10)
-        if resp.status_code == 200:
-            return str(resp.json().get("result", {}).get("username") or "").strip()
+        # Garante que nenhum webhook antigo bloqueie o getUpdates (HTTP 409)
+        requests.get(
+            f"https://api.telegram.org/bot{token}/deleteWebhook",
+            params={"drop_pending_updates": "false"},
+            timeout=10,
+        )
     except Exception:
         pass
+    try:
+        resp = requests.get(f"https://api.telegram.org/bot{token}/getMe", timeout=10)
+        if resp.status_code == 200:
+            info = resp.json().get("result", {}) or {}
+            username = str(info.get("username") or "").strip()
+            le_tudo_grupo = bool(info.get("can_read_all_group_messages"))
+            logger.info(
+                "🤖 Bot Telegram conectado: @%s | Lê todas as mensagens de grupo (Privacy OFF): %s",
+                username or "desconhecido",
+                "SIM" if le_tudo_grupo else "NÃO (promova o bot a ADMIN do grupo ou desative /setprivacy no @BotFather!)",
+            )
+            return username
+    except Exception as exc:
+        logger.warning("Aviso ao consultar getMe do Telegram: %s", str(exc)[:100])
     return ""
 
 
-def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") -> int:
+def responder_perguntas_chat(
+    historico: Dict[str, Any],
+    bot_username: str = "",
+    timeout_long_polling: int = 4,
+) -> int:
     """Lê novas mensagens enviadas no grupo/chat (getUpdates), identifica:
     1) Pedidos de recomendação/ranking de Swing Trade ou Day Trade ('quero fazer swing trade, qual ação recomenda?', '/swing')
     2) Pedidos de análise de um ativo específico ('o que acha de PETR4?', 'vale a pena swing trade em VALE3?')
+    3) Chamados diretos ao robô no grupo ('oi robô', menção @bot ou reply direto)
     """
     if not TELEGRAM_BOT_TOKEN:
         return 0
 
     ultimo_id = int(historico.get("ultimo_update_id") or 0)
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates"
-    params: Dict[str, Any] = {"timeout": 2, "allowed_updates": json.dumps(["message"])}
+    params: Dict[str, Any] = {
+        "timeout": max(1, timeout_long_polling),
+        "allowed_updates": json.dumps(["message", "edited_message", "channel_post", "edited_channel_post"]),
+    }
     if ultimo_id > 0:
         params["offset"] = ultimo_id + 1
 
     try:
-        resp = requests.get(url, params=params, timeout=12)
+        resp = requests.get(url, params=params, timeout=max(12, timeout_long_polling + 10))
         if resp.status_code != 200:
+            logger.warning("getUpdates retornou HTTP %s: %s", resp.status_code, resp.text[:150])
             return 0
         updates = resp.json().get("result") or []
     except Exception as exc:
@@ -1693,7 +1831,12 @@ def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") 
             historico["ultimo_update_id"] = ultimo_id
             mudou_offset = True
 
-        msg = upd.get("message")
+        msg = (
+            upd.get("message")
+            or upd.get("edited_message")
+            or upd.get("channel_post")
+            or upd.get("edited_channel_post")
+        )
         if not isinstance(msg, dict):
             continue
         remetente = msg.get("from") or {}
@@ -1701,17 +1844,36 @@ def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") 
             continue
 
         msg_ts = float(msg.get("date") or 0)
-        if msg_ts > 0 and (agora_ts - msg_ts) > 3600:
+        if msg_ts > 0 and (agora_ts - msg_ts) > 7200:
             continue
 
         texto = str(msg.get("text") or msg.get("caption") or "").strip()
         if not texto:
             continue
 
-        chat_id_msg = str((msg.get("chat") or {}).get("id") or "")
+        chat_obj = msg.get("chat") or {}
+        chat_id_msg = str(chat_obj.get("id") or "")
         msg_id = int(msg.get("message_id") or 0)
         if not chat_id_msg:
             continue
+
+        reply_msg = msg.get("reply_to_message") or {}
+        reply_from = reply_msg.get("from") or {}
+        eh_reply_ao_bot = bool(reply_from.get("is_bot")) and (
+            not bot_username or str(reply_from.get("username") or "").lower() == bot_username.lower()
+        )
+        mencionou_bot = (
+            bool(bot_username and f"@{bot_username.lower()}" in texto.lower())
+            or bool(REGEX_CHAMADO_ROBO.search(texto))
+            or eh_reply_ao_bot
+        )
+
+        logger.info(
+            "📩 Mensagem recebida no chat [%s | user=%s]: '%s'",
+            chat_id_msg,
+            remetente.get("first_name") or remetente.get("username") or "anon",
+            texto[:100],
+        )
 
         # 1. Comando de ajuda
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
@@ -1724,11 +1886,16 @@ def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") 
                 "• <code>/analisar PETR4 15m</code> ou <code>/analisar VALE3 1d</code>\n"
                 "• Ou pergunte naturalmente: <i>\"O que acha de ITUB4 para swing trade?\"</i>, <i>\"Como está o Bitcoin?\"</i>"
             )
-            enviar_telegram_html(ajuda_html, chat_id=chat_id_msg, reply_to_message_id=msg_id)
+            if enviar_telegram_html(ajuda_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                respondidas += 1
             continue
 
         # 2. Verifica primeiro se o usuário mencionou um ativo específico
-        ativo_pedido = identificar_ativo_na_pergunta(texto, bot_username=bot_username)
+        ativo_pedido = identificar_ativo_na_pergunta(
+            texto,
+            bot_username=bot_username,
+            eh_resposta_ao_bot=eh_reply_ao_bot,
+        )
 
         # 3. Se NÃO mencionou um ativo específico, verifica se pediu recomendação/calls de Swing Trade ou Day Trade
         if not ativo_pedido:
@@ -1755,6 +1922,17 @@ def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") 
                 if enviar_telegram_html(painel_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
                     respondidas += 1
                     logger.info("✅ Painel Top 3 (%s - %s) enviado no chat.", modalidade_rec, segmento_rec)
+                continue
+
+            if mencionou_bot:
+                guia_html = (
+                    "👋 <b>Estou na escuta!</b> Como posso ajudar na sua operação agora?\n\n"
+                    "• Para <b>Top 3 Calls de Swing Trade</b>, envie: <code>/swing</code> ou <i>\"qual ação recomenda pra swing trade?\"</i>\n"
+                    "• Para <b>Top 3 Oportunidades de Day Trade</b>, envie: <code>/oportunidades</code>\n"
+                    "• Para <b>Analisar um Gráfico</b>, cite o ativo: <i>\"o que acha de PETR4?\"</i>, <i>\"analisa BTC no 1h\"</i>, <i>\"VALE3\"</i>."
+                )
+                if enviar_telegram_html(guia_html, chat_id=chat_id_msg, reply_to_message_id=msg_id):
+                    respondidas += 1
             continue
 
         # 4. Análise de ativo específico (em modo Day Trade ou Swing Trade conforme a pergunta)
@@ -1809,7 +1987,7 @@ def responder_perguntas_chat(historico: Dict[str, Any], bot_username: str = "") 
     return respondidas
 
 
-def executar_varredura_sinais(historico: Dict[str, Any]) -> int:
+def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "") -> int:
     b3_aberta = pregao_b3_aberto()
     enviados = 0
 
@@ -1821,7 +1999,15 @@ def executar_varredura_sinais(historico: Dict[str, Any]) -> int:
         NOTA_MINIMA_IA,
     )
 
-    for ativo in WATCHLIST_PADRAO:
+    ativos_ativos = tuple(a for a in WATCHLIST_PADRAO if not (a.apenas_pregao_b3 and not b3_aberta))
+    tf_sup, tf_inf = obter_pares_mtf(TIMEFRAME_PADRAO)
+    for tf_b in dict.fromkeys([TIMEFRAME_PADRAO, tf_sup, tf_inf]):
+        pre_carregar_lote_tradingview(ativos_ativos, tf_b)
+
+    for idx_ativo, ativo in enumerate(WATCHLIST_PADRAO):
+        if idx_ativo > 0 and idx_ativo % 3 == 0:
+            responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=1)
+
         if enviados >= MAX_SINAIS_POR_CICLO:
             break
         if ativo.apenas_pregao_b3 and not b3_aberta:
@@ -1902,19 +2088,20 @@ def executar_ciclo_daytrade() -> int:
     bot_username = obter_username_bot()
 
     # 1. Responde imediatamente a quaisquer perguntas ou pedidos de Swing Trade pendentes no chat
-    responder_perguntas_chat(historico, bot_username=bot_username)
+    responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=2)
 
     # 2. Executa a varredura automática da Watchlist com as 6 camadas institucionais
-    enviados = executar_varredura_sinais(historico)
+    enviados = executar_varredura_sinais(historico, bot_username=bot_username)
 
-    # 3. Se configurado para escuta contínua no chat durante a janela do GitHub Actions
-    segundos_escuta = int(os.environ.get("CHAT_LISTEN_SECONDS", "0"))
+    # 3. Escuta contínua no chat (padrão automático de 420s = 7 min no GitHub Actions mesmo sem editar o .yml)
+    default_listen = "420" if os.environ.get("GITHUB_ACTIONS") == "true" else "0"
+    segundos_escuta = int(os.environ.get("CHAT_LISTEN_SECONDS", default_listen) or default_listen)
     if segundos_escuta > 0:
-        logger.info("💬 Escuta ativa do chat iniciada por %d segundos (polling a cada 8s)...", segundos_escuta)
+        logger.info("💬 Escuta ativa do grupo iniciada por %d segundos (Long-Polling em tempo real)...", segundos_escuta)
         fim_ts = time.time() + segundos_escuta
         while time.time() < fim_ts:
-            responder_perguntas_chat(historico, bot_username=bot_username)
-            time.sleep(8)
+            responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=10)
+            time.sleep(1)
 
     return enviados
 
