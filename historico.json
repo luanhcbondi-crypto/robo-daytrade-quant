@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-23T18:48:02.807134-03:00",
-  "ultimo_update_id": 211649480,
+  "atualizado_em": "2026-11-24T11:41:52.473354-03:00",
+  "ultimo_update_id": 211649484,
   "sinais": [
     {
       "chave": "BOVA11::VENDA::15m",
@@ -33,25 +33,9 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795470482.80709,
-      "ultimo_simbolo": "SOLUSDT",
+      "ultimo_ts": 1795531312.473216,
+      "ultimo_simbolo": "PRIO3",
       "mensagens": [
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot oque acha de solana"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, Peregrino! Beleza? Cara, olhando a SOLUSDT no gráfico de 15 minutos agora, o ativo tá com um viés"
-        },
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot quais oportunidades para swingtrade?"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, Peregrino! Para o nosso swing trade, a grande oportunidade do momento está na SOLUSDT, que acabou de encostar no nosso SUPORTE CONSOLIDADO 1 em US$ 69,89. O preço atual está em US$ 72,98, mostrando que o ativo segurou muito bem nesse piso e gerou aquela assimetria excelente que a gente gosta, com um stop bem curto e bastante espaço livre para buscar os alvos lá em cima.\n\nOlhando para cima, a"
-        },
         {
           "autor": "PEREGR1NO",
           "texto": "@peregr1nobot quais oportunidades de swingtrade com 2k"
@@ -67,6 +51,22 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, meu amigo! Pediu o mapa do swing trade para a SOLUSDT, então vamos direto ao ponto com a nossa leitura de suportes e resistências consolidadas. Atualmente, o ativo negocia a US$ 72,12, mostrando um viés de correção com o preço bem apoiado em cima do nosso principal SUPORTE CONSOLIDADO 1 localizado em US$ 69,89, que já foi testado e respeitado várias vezes no passado. \n\nEssa região é o nosso "
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "/swing"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Olhei os gráficos no gráfico Diário pra Swing Trade mapeando as zonas de suporte e resistência mais consolidadas e separei as 3 melhores estruturas agora:\n\n🟢 AAPL34 — cotada a R$ 101,50, está segurando muito bem em cima de um suporte consolidado na faixa de R$ 100,63, com caminho livre até a resistência em R$ 102,99.\n   ↳ Suporte: R$ 100,63  ·  Stop abaixo do suporte: R$ 96,36  · "
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot qual ação esta boa para fazer swingtrade hoje com 500 reais?"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Olhei os gráficos no gráfico Diário pra Swing Trade mapeando as zonas de suporte e resistência mais consolidadas e separei as 3 melhores estruturas agora:\n\n🟡 PRIO3 — cotada a R$ 59,58, está segurando muito bem em cima de um suporte consolidado na faixa de R$ 58,22, com caminho livre até a resistência em R$ 61,54.\n   ↳ Suporte: R$ 58,22  ·  Stop abaixo do suporte: R$ 64,52  ·  Alvo"
         }
       ]
     }
