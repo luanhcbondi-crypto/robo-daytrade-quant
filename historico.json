@@ -1,57 +1,12 @@
 {
-  "atualizado_em": "2026-11-24T20:38:41.292419-03:00",
-  "ultimo_update_id": 211649485,
-  "sinais": [
-    {
-      "chave": "BOVA11::VENDA::15m",
-      "simbolo": "BOVA11",
-      "direcao": "VENDA",
-      "intervalo": "15m",
-      "entrada": 162.03,
-      "stop_loss": 162.71,
-      "alvo_1": 161.01,
-      "alvo_2": 160.67,
-      "alvo_3": 159.99,
-      "nota_ia": 82,
-      "ts": 1795458068.747099
-    },
-    {
-      "chave": "PRIO3::VENDA::15m",
-      "simbolo": "PRIO3",
-      "direcao": "VENDA",
-      "intervalo": "15m",
-      "entrada": 58.85,
-      "stop_loss": 59.27,
-      "alvo_1": 58.22,
-      "alvo_2": 58.0,
-      "alvo_3": 57.58,
-      "gatilho_breakeven": 58.22,
-      "score_quant": 100,
-      "nota_ia": 100,
-      "ts": 1795459757.876934
-    }
-  ],
+  "atualizado_em": "2026-11-27T14:31:04.639662-03:00",
+  "ultimo_update_id": 211649488,
+  "sinais": [],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795531312.473216,
-      "ultimo_simbolo": "PRIO3",
+      "ultimo_ts": 1795800664.639532,
+      "ultimo_simbolo": "GGBR4",
       "mensagens": [
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot quais oportunidades de swingtrade com 2k"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, Peregrino! Cara, com um aporte de US$ 2.000 para um swing trade na SOLUSDT, a oportunidade tá excelente agora que o preço encostou no nosso SUPORTE CONSOLIDADO 1 lá em US$ 69,89 e negocia atualmente em US$ 72,56. Com essa grana, você consegue montar uma mão de mais ou menos 27 unidades, posicionando aquele stop defensivo logo abaixo do nosso piso para proteger o capital. \n\nSe a operação enca"
-        },
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot /swing"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, meu amigo! Pediu o mapa do swing trade para a SOLUSDT, então vamos direto ao ponto com a nossa leitura de suportes e resistências consolidadas. Atualmente, o ativo negocia a US$ 72,12, mostrando um viés de correção com o preço bem apoiado em cima do nosso principal SUPORTE CONSOLIDADO 1 localizado em US$ 69,89, que já foi testado e respeitado várias vezes no passado. \n\nEssa região é o nosso "
-        },
         {
           "autor": "PEREGR1NO",
           "texto": "/swing"
@@ -67,6 +22,22 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, PEREGR1NO! Olhei os gráficos no gráfico Diário pra Swing Trade mapeando as zonas de suporte e resistência mais consolidadas e separei as 3 melhores estruturas agora:\n\n🟡 PRIO3 — cotada a R$ 59,58, está segurando muito bem em cima de um suporte consolidado na faixa de R$ 58,22, com caminho livre até a resistência em R$ 61,54.\n   ↳ Suporte: R$ 58,22  ·  Stop abaixo do suporte: R$ 64,52  ·  Alvo"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot quero fazer long em btc"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Que excelente iniciativa querer montar uma posição longa em BTCUSDT, pois quem tem pouco dinheiro não pode ficar comprando no meio do caminho ou correndo atrás de preço esticado. Olhando o gráfico diário agora, o Bitcoin está cotado a US$ 59.739,56, passando por uma fase de correção bem em cima do nosso principal SUPORTE CONSOLIDADO 1 localizado em US$ 58.792,37, que é aquele piso"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "@peregr1nobot qual a melhor opção para fazermos position trade"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Que excelente iniciativa buscar o Position Trade, porque quem tem pouca grana precisa esquecer o day trade e comprar ativos apoiados em pisos sólidos no gráfico diário para segurar por semanas ou meses, sem pagar taxas à toa. Olhei o mapa completo do mercado e separei os três ativos que estão nos melhores pontos agora para montarmos posição sem correria.\n\nO primeiro destaque é a G"
         }
       ]
     }
