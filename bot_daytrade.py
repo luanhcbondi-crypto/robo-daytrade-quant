@@ -49,7 +49,6 @@ TELEGRAM_GROUP_ID = (os.environ.get("TELEGRAM_GROUP_ID") or "").strip()
 GEMINI_API_KEY = (os.environ.get("GEMINI_API_KEY") or "").strip().strip('"').strip("'")
 
 HISTORICO_PATH = Path(os.environ.get("HISTORICO_ARQUIVO", "historico.json"))
-# Timeframe padrão Diário/Semanal (1d/1w) para Position Trade baseado em Suportes e Resistências consolidados
 _ENV_TF = (os.environ.get("POSITION_INTERVAL") or os.environ.get("SWING_INTERVAL") or os.environ.get("DAYTRADE_INTERVAL") or "1d").strip().lower()
 TIMEFRAME_PADRAO = "1d" if _ENV_TF in ("", "15m") else _ENV_TF
 ATR_MULTIPLIER = float(os.environ.get("ATR_MULTIPLIER", "1.5"))
@@ -58,6 +57,9 @@ ATR_MULTIPLIER_POSITION = float(os.environ.get("ATR_MULTIPLIER_POSITION", "2.5")
 NOTA_MINIMA_IA = int(os.environ.get("NOTA_MINIMA_IA", "76"))
 COOLDOWN_SINAL_MINUTOS = int(os.environ.get("COOLDOWN_SINAL_MINUTOS", "360"))
 MAX_SINAIS_POR_CICLO = int(os.environ.get("MAX_SINAIS_POR_CICLO", "3"))
+# Por padrão, o robô SÓ FALA no grupo quando for mencionado (@bot / "robô" / Reply direto ao bot)
+APENAS_QUANDO_MENCIONADO = (os.environ.get("ONLY_WHEN_MENTIONED") or "true").strip().lower() not in ("0", "false", "nao", "não", "no")
+VARREDURA_AUTOMATICA_ATIVA = (os.environ.get("AUTO_SCAN_ENABLED") or "false").strip().lower() in ("1", "true", "sim", "yes")
 
 TZ_BRT = dt.timezone(dt.timedelta(hours=-3))
 
@@ -159,24 +161,23 @@ class AtivoMonitorado:
 ATIVO_LIDER_B3 = AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True)
 ATIVO_LIDER_CRIPTO = AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False)
 
-# Carteira Multi-Mercado de Position Trade ("Position em Tudo" + Acessível p/ Pouca Grana no Fracionário)
 CARTEIRA_SWING_B3: Tuple[AtivoMonitorado, ...] = (
-    AtivoMonitorado("ITSA4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Itaúsa (~R$ 10 no Fracionário ITSA4F)
-    AtivoMonitorado("CMIG4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Cemig (~R$ 11 no Fracionário CMIG4F)
-    AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, False),  # B3 (~R$ 10 no Fracionário B3SA3F)
-    AtivoMonitorado("BBDC4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Bradesco (~R$ 14 no Fracionário BBDC4F)
-    AtivoMonitorado("GGBR4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Gerdau (~R$ 18 no Fracionário GGBR4F)
-    AtivoMonitorado("KLBN11", "BMFBOVESPA", "brazil", "R$", 2, False), # Klabin (~R$ 21 no Fracionário KLBN11F)
-    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, False),  # Banco do Brasil (~R$ 26 no Fracionário BBAS3F)
-    AtivoMonitorado("SANB11", "BMFBOVESPA", "brazil", "R$", 2, False), # Santander (~R$ 28 no Fracionário SANB11F)
-    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Itaú (~R$ 33 no Fracionário ITUB4F)
-    AtivoMonitorado("TAEE11", "BMFBOVESPA", "brazil", "R$", 2, False), # Taesa (~R$ 34 no Fracionário TAEE11F)
-    AtivoMonitorado("BBSE3", "BMFBOVESPA", "brazil", "R$", 2, False),  # BB Seguridade (~R$ 34 no Fracionário BBSE3F)
-    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),  # Petrobras (~R$ 36 no Fracionário PETR4F)
-    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, False),  # PRIO (Fracionário PRIO3F)
-    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),  # WEG (Fracionário WEGE3F)
-    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),  # Vale (Fracionário VALE3F)
-    AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False), # BTG Pactual (Fracionário BPAC11F)
+    AtivoMonitorado("ITSA4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("CMIG4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBDC4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("GGBR4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("KLBN11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("SANB11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("TAEE11", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BBSE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("SBSP3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("RENT3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("SUZB3", "BMFBOVESPA", "brazil", "R$", 2, False),
@@ -217,7 +218,6 @@ CARTEIRA_SWING_GLOBAL_MACRO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False), # ETF S&P 500
 )
 
-# Watchlist Multi-Mercado padrão para varredura automática (Ações + Cripto + Ouro/Dólar/Big Techs)
 WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("ITSA4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
@@ -347,7 +347,7 @@ REGEX_COMANDO_RANKING = re.compile(
     r"^/(?:position|positiontrade|swing|swingtrade|daytrade|oportunidades|recomendacao|recomendar|top|top3|calls|radar|baratas|fracionario)\b",
     flags=re.IGNORECASE,
 )
-REGEX_CHAMADO_ROBO = re.compile(r"\b(?:rob[ôo]|bot|analista|ia)\b", flags=re.IGNORECASE)
+REGEX_CHAMADO_ROBO = re.compile(r"\b(?:rob[ôo]|bot|peregr1nobot|peregrinobot|peregr1no|peregrino)\b", flags=re.IGNORECASE)
 REGEX_INTENCAO_PERGUNTA = re.compile(
     r"(?:\?|o\s*que\s+(?:vc\s+|voc[êe]\s+)?acha|oque\s+acha|analis\w*|an[áa]lis\w*|avali\w*|"
     r"como\s+(?:est[áa]|t[áa]|ta)\b|gr[áa]fic\w*|setup|vale\s+a\s+pena|compensa|"
@@ -3042,13 +3042,60 @@ def _resumir_ativo_para_conversa(
     return resumo
 
 
+def mensagem_mencionou_bot(
+    msg: Dict[str, Any],
+    texto: str,
+    bot_username: str = "",
+) -> Tuple[bool, bool]:
+    """Verifica se a mensagem no grupo mencionou ou respondeu diretamente ao robô:
+    1. Marcação com @username do bot (ex: @peregr1nobot) no texto ou nas entities do Telegram
+    2. Clique em 'Responder' (Reply) diretamente em cima de uma mensagem enviada pelo bot
+    3. Chamado direto pelo nome ('robô', 'bot', 'peregrino') ou comando explícito (/analisar, /swing, /position, /start)
+    4. Conversa privada 1 a 1 com o bot (chat.type == 'private')
+    Retorna (foi_mencionado, eh_reply_ao_bot).
+    """
+    t_low = (texto or "").lower().strip()
+    chat_obj = msg.get("chat") or {}
+    chat_type = str(chat_obj.get("type") or "").lower()
+
+    reply_msg = msg.get("reply_to_message") or {}
+    reply_from = reply_msg.get("from") or {}
+    eh_reply_ao_bot = bool(reply_from.get("is_bot")) and (
+        not bot_username or str(reply_from.get("username") or "").lower() == bot_username.lower()
+    )
+
+    if chat_type == "private":
+        return True, eh_reply_ao_bot
+
+    mencionou_arroba = bool(bot_username and f"@{bot_username.lower()}" in t_low)
+    if not mencionou_arroba and bot_username:
+        for ent in (*(msg.get("entities") or []), *(msg.get("caption_entities") or [])):
+            if isinstance(ent, dict) and ent.get("type") in ("mention", "bot_command"):
+                off = int(ent.get("offset") or 0)
+                length = int(ent.get("length") or 0)
+                trecho = t_low[off : off + length]
+                if bot_username.lower() in trecho:
+                    mencionou_arroba = True
+                    break
+
+    chamou_pelo_nome = bool(REGEX_CHAMADO_ROBO.search(t_low))
+    eh_comando_direto = bool(
+        re.match(r"^/(?:start|ajuda|help)\b", t_low)
+        or REGEX_COMANDO_CHAT.search(t_low)
+        or REGEX_COMANDO_RANKING.search(t_low)
+    )
+
+    foi_mencionado = mencionou_arroba or eh_reply_ao_bot or chamou_pelo_nome or eh_comando_direto
+    return foi_mencionado, eh_reply_ao_bot
+
+
 def responder_perguntas_chat(
     historico: Dict[str, Any],
     bot_username: str = "",
     timeout_long_polling: int = 4,
 ) -> int:
     """Atende diferentes perfis de traders no grupo (Swing, Day Trade, Mini-Índice/Dólar, Contratos,
-    Cripto Long/Short e Position) com mensagens curtas, técnicas (Fibonacci + S/R + VWMA) e gráfico PNG.
+    Cripto Long/Short e Position) APENAS quando o robô é mencionado ou respondido diretamente.
     """
     if not TELEGRAM_BOT_TOKEN:
         return 0
@@ -3116,24 +3163,23 @@ def responder_perguntas_chat(
 
         nome_user = str(remetente.get("first_name") or remetente.get("username") or "Trader").strip()
 
-        reply_msg = msg.get("reply_to_message") or {}
-        reply_from = reply_msg.get("from") or {}
-        eh_reply_ao_bot = bool(reply_from.get("is_bot")) and (
-            not bot_username or str(reply_from.get("username") or "").lower() == bot_username.lower()
-        )
-        mencionou_bot = (
-            bool(bot_username and f"@{bot_username.lower()}" in texto.lower())
-            or bool(REGEX_CHAMADO_ROBO.search(texto))
-            or eh_reply_ao_bot
-        )
+        mencionou_bot, eh_reply_ao_bot = mensagem_mencionou_bot(msg, texto, bot_username=bot_username)
+        if APENAS_QUANDO_MENCIONADO and not mencionou_bot:
+            logger.info(
+                "🤫 Mensagem ignorada no grupo [%s | user=%s] (bot não foi mencionado): '%s'",
+                chat_id_msg,
+                nome_user,
+                texto[:80],
+            )
+            continue
 
         sessao_chat = (historico.get("conversas_chat") or {}).get(chat_id_msg) or {}
-        conversa_recente_ativa = (agora_ts - float(sessao_chat.get("ultimo_ts") or 0)) <= 900  # 15 min
+        conversa_recente_ativa = mencionou_bot or ((agora_ts - float(sessao_chat.get("ultimo_ts") or 0)) <= 900)
         hist_msgs = list(sessao_chat.get("mensagens") or [])
         valor_banca_user = extrair_valor_banca_da_mensagem(texto)
 
         logger.info(
-            "📩 Mensagem recebida no chat [%s | user=%s]: '%s'",
+            "📩 Mensagem para o bot no chat [%s | user=%s]: '%s'",
             chat_id_msg,
             nome_user,
             texto[:100],
@@ -3220,14 +3266,8 @@ def responder_perguntas_chat(
                     logger.info("✅ Top 3 Setups com gráfico (%s - %s) enviados no chat.", modalidade_rec, segmento_rec)
                 continue
 
-            # 4. Continuação de conversa ou mensagem aberta no grupo
-            eh_interacao_grupo = bool(
-                re.search(
-                    r"\b(?:opa|oi|ol[áa]|fala|bom\s+dia|boa\s+tarde|boa\s+noite|ajuda|opera[çc][ãa]o|operar|investir|comprar|grana|reais|conto|mercado|suporte|resist[êe]ncia|vi[ée]s|fibonacci|fib|contrato\w*|long|short)\b",
-                    texto.lower(),
-                )
-            )
-            if mencionou_bot or conversa_recente_ativa or eh_interacao_grupo or "?" in texto:
+            # 4. Continuação de conversa quando o bot foi mencionado ou respondido
+            if mencionou_bot:
                 ultimo_simb = str(sessao_chat.get("ultimo_simbolo") or "")
                 contexto_extra = "Conversa técnica direta sobre setups com Fibonacci, Suporte/Resistência, Fluxo VWMA e Gestão de Risco."
                 snap_ant: Optional[SnapshotIndicadores] = None
@@ -3481,11 +3521,15 @@ def executar_ciclo_daytrade() -> int:
     historico = carregar_historico()
     bot_username = obter_username_bot()
 
-    # 1. Responde imediatamente a quaisquer perguntas pendentes no chat
+    # 1. Responde imediatamente a quaisquer menções/perguntas pendentes no chat
     responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=2)
 
-    # 2. Executa a varredura automática da Watchlist com as 6 camadas institucionais
-    enviados = executar_varredura_sinais(historico, bot_username=bot_username)
+    # 2. Varredura automática só roda se AUTO_SCAN_ENABLED=true (por padrão fica desligada para o bot só falar quando mencionado!)
+    enviados = 0
+    if VARREDURA_AUTOMATICA_ATIVA:
+        enviados = executar_varredura_sinais(historico, bot_username=bot_username)
+    else:
+        logger.info("🤫 Modo 'Só Fala Quando Mencionado' ativo: varredura automática silenciosa (aguardando menções @%s no grupo).", bot_username or "bot")
 
     # 3. Escuta contínua no chat (padrão automático de 420s = 7 min no GitHub Actions)
     default_listen = "420" if os.environ.get("GITHUB_ACTIONS") == "true" else "0"
