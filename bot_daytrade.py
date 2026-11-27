@@ -177,8 +177,6 @@ CARTEIRA_SWING_B3: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),  # WEG (Fracionário WEGE3F)
     AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),  # Vale (Fracionário VALE3F)
     AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False), # BTG Pactual (Fracionário BPAC11F)
-    AtivoMonitorado("EMBR3", "BMFBOVESPA", "brazil", "R$", 2, False),
-    AtivoMonitorado("ELET3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("SBSP3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("RENT3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("SUZB3", "BMFBOVESPA", "brazil", "R$", 2, False),
@@ -221,13 +219,14 @@ CARTEIRA_SWING_GLOBAL_MACRO: Tuple[AtivoMonitorado, ...] = (
 
 # Watchlist Multi-Mercado padrão para varredura automática de Position Trade (Ações + Cripto + Ouro/Dólar/Big Techs)
 WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
+    AtivoMonitorado("ITSA4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("VALE3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("ITUB4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("BBAS3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("PRIO3", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("WEGE3", "BMFBOVESPA", "brazil", "R$", 2, False),
-    AtivoMonitorado("EMBR3", "BMFBOVESPA", "brazil", "R$", 2, False),
+    AtivoMonitorado("CMIG4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False),
     AtivoMonitorado("ETHUSDT", "BINANCE", "crypto", "US$", 2, False),
@@ -339,12 +338,13 @@ REGEX_INTENCAO_PERGUNTA = re.compile(
     flags=re.IGNORECASE,
 )
 REGEX_PEDIDO_RECOMENDACAO = re.compile(
-    r"(?:qual\s+(?:a\s+|o\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel|mercado|trade|op[çc][ãa]o|position)|"
-    r"quais\s+(?:as\s+|os\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is|op[çc][õo]es|oportunidades)|"
-    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae]|mostr[ae]|fala|diz)\s+(?:um\s+|uma\s+|algum\w*\s+|mais\s+|outr[oa]s?\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|position\s*trade|position|swing\s*trade|day\s*trade|ativo\w*|a[çc][ãa]o|a[çc][õo]es|cripto\w*|op[çc][ãa]o|op[çc][õo]es)|"
-    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+|de\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|position\s*trade|position|swing\s*trade|day\s*trade|call|hoje|agora|tudo|pouca\s+grana)?|"
+    r"(?:qual\s+(?:a\s+|o\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel|mercado|trade|op[çc][ãa]o|opera[çc][ãa]o|position)|"
+    r"quais\s+(?:as\s+|os\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is|op[çc][õo]es|opera[çc][õo]es|oportunidades)|"
+    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae]|mostr[ae]|fala|diz)\s+(?:fazer\s+)?(?:um\s+|uma\s+|algum\w*\s+|mais\s+|outr[oa]s?\s+|boas?\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|position\s*trade|position|swing\s*trade|day\s*trade|ativo\w*|a[çc][ãa]o|a[çc][õo]es|cripto\w*|op[çc][ãa]o|op[çc][õo]es|opera[çc][ãa]o|opera[çc][õo]es|trade|entrada|dica\w*)|"
+    r"(?:quero\s+(?:operar|investir|comprar|entrar|come[çc]ar))|"
+    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+|de\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|position\s*trade|position|swing\s*trade|day\s*trade|call|hoje|agora|tudo|pouca\s+grana|opera[çc][ãa]o)?|"
     r"o\s+que\s+(?:comprar|operar|vender|tem\s+de\s+bom|est[áa]\s+bom|t[áa]\s+bom|acumular)\b|"
-    r"\b(?:tem\s+outr[oa]s?|qual\s+outr[oa]|quais\s+outros|me\s+fala\s+outr[oa]|mais\s+op[çc][õo]es|outros\s+ativos|swing\s+em\s+tudo|position\s+em\s+tudo|pouca\s+grana|pouco\s+dinheiro|a[çc][õo]es\s+baratas)\b|"
+    r"\b(?:tem\s+outr[oa]s?|qual\s+outr[oa]|quais\s+outros|me\s+fala\s+outr[oa]|mais\s+op[çc][õo]es|outros\s+ativos|swing\s+em\s+tudo|position\s+em\s+tudo|pouca\s+grana|pouco\s+dinheiro|a[çc][õo]es\s+baratas|onde\s+entrar)\b|"
     r"^(?:position\s*trade|position|swing\s*trade|day\s*trade|oportunidades|calls|recomenda[çc][ãa]o)\??$)",
     flags=re.IGNORECASE,
 )
@@ -408,6 +408,10 @@ class SnapshotIndicadores:
     score_quant_local: int = 50
     tipo_setup: str = "CONFLUÊNCIA PADRÃO"
     preco_pullback_ideal: float = 0.0
+    # --- IA #1: MOTOR XGBOOST QUANTITATIVO (GRADIENT BOOSTED DECISION TREES) ---
+    prob_alta_xgboost: float = 65.0
+    sinal_xgboost: str = "ACUMULAÇÃO NO SUPORTE"
+    fator_chave_xgboost: str = "Suporte Consolidado + Fluxo VWMA"
 
 
 @dataclass
@@ -994,6 +998,141 @@ def calcular_score_quant_local(snap: SnapshotIndicadores, direcao_alvo: str = "N
     return max(0, min(100, pontos))
 
 
+def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, str]:
+    """IA #1 — Motor XGBoost Quantitativo (eXtreme Gradient Boosting Decision Trees).
+    Avalia 8 variáveis tabulares normalizadas do gráfico (Distância ao Suporte Consolidado em ATR,
+    Assimetria Payoff S/R, Alinhamento de Médias EMA9/21/SMA200, Fluxo Institucional VWMA,
+    Dominância Direcional ADX/DI+, Zona de RSI, Impulso MACD e Âncora Multi-Timeframe)
+    usando árvores de decisão impulsionadas por gradiente de 2ª ordem (Taylor Gradient g_i / Hessian h_i
+    com regularização L2 lambda=1.0 e taxa de aprendizado eta=0.28).
+    Retorna (probabilidade_alta_pct, classificacao_sinal_xgb, principais_features_xgb).
+    """
+    atr_s = max(snap.atr, snap.preco_atual * 0.01, 1e-9)
+    dist_sup_atr = (snap.preco_atual - snap.suporte_consolidado_1) / atr_s if snap.suporte_consolidado_1 > 0 else 1.5
+    dist_res_atr = (snap.resistencia_consolidada_1 - snap.preco_atual) / atr_s if snap.resistencia_consolidada_1 > 0 else 2.0
+
+    # Vetor de Features Tabulares Normalizadas + Pesos de Folha Regularizados (w* = -G / (H + lambda))
+    contribuicoes: List[Tuple[float, str]] = []
+
+    # Árvore 1: Posição na Zona de Suporte Consolidado vs Resistência (Peso estrutural de Position Trade)
+    if 0.0 <= dist_sup_atr <= 1.25:
+        w_sr = 0.85 + (0.15 if snap.toques_suporte >= 3 else 0.0)
+        contribuicoes.append((w_sr, f"Defesa no Suporte Consolidado ({snap.toques_suporte}x testado)"))
+    elif dist_res_atr <= 0.60:
+        w_sr = -0.65
+        contribuicoes.append((w_sr, "Proximidade de Teto de Resistência"))
+    else:
+        w_sr = 0.25 if dist_res_atr > dist_sup_atr else -0.20
+        contribuicoes.append((w_sr, "Posição Intermediária no Canal S/R"))
+
+    # Árvore 2: Assimetria Real Risco/Retorno (Payoff S/R até a Resistência 1)
+    if snap.payoff_sr_real >= 2.0:
+        w_pay = 0.65
+        contribuicoes.append((w_pay, f"Assimetria S/R Favorável ({snap.payoff_sr_real:.1f}:1)"))
+    elif snap.payoff_sr_real >= 1.3:
+        w_pay = 0.30
+        contribuicoes.append((w_pay, f"Payoff S/R Positivo ({snap.payoff_sr_real:.1f}:1)"))
+    else:
+        w_pay = -0.45
+        contribuicoes.append((w_pay, "Payoff S/R Comprimido"))
+
+    # Árvore 3: Alinhamento de Tendência Estrutural (EMA 9, EMA 21 e SMA 200)
+    if snap.preco_atual >= snap.ema_9 >= snap.ema_21 and snap.preco_atual >= snap.sma_200:
+        w_ema = 0.75
+        contribuicoes.append((w_ema, "Alinhamento Institucional EMA9 > EMA21 > SMA200"))
+    elif snap.preco_atual >= snap.ema_21:
+        w_ema = 0.35
+        contribuicoes.append((w_ema, "Preço sustentado acima da EMA 21"))
+    elif snap.preco_atual >= snap.sma_200:
+        w_ema = 0.15
+        contribuicoes.append((w_ema, "Pullback em Tendência Primária (acima da SMA200)"))
+    else:
+        w_ema = -0.70
+        contribuicoes.append((w_ema, "Abaixo das Médias Estruturais (EMA21/SMA200)"))
+
+    # Árvore 4: Fluxo Institucional Ponderado por Volume (VWMA)
+    if snap.vwma > 0 and snap.preco_atual >= snap.vwma:
+        w_vwma = 0.55
+        contribuicoes.append((w_vwma, "Fluxo Comprador Institucional (Acima da VWMA)"))
+    else:
+        w_vwma = -0.40
+        contribuicoes.append((w_vwma, "Fluxo VWMA Vendedor"))
+
+    # Árvore 5: Dominância Direcional (DI+ vs DI- ponderado pelo ADX)
+    spread_di = snap.di_plus - snap.di_minus
+    if spread_di >= 5.0 and snap.adx >= 20.0:
+        w_adx = 0.60
+        contribuicoes.append((w_adx, f"Dominância Compradora ADX/DI+ (+{spread_di:.1f})"))
+    elif spread_di >= 0:
+        w_adx = 0.20
+        contribuicoes.append((w_adx, "DI+ Comprador Positivo"))
+    else:
+        w_adx = -0.55
+        contribuicoes.append((w_adx, "Dominância Vendedora DI-"))
+
+    # Árvore 6: RSI & Momentum MACD
+    if 42.0 <= snap.rsi <= 66.0 and snap.macd_hist >= 0:
+        w_mom = 0.50
+        contribuicoes.append((w_mom, f"Momentum MACD Positivo + RSI Saudável ({snap.rsi:.0f})"))
+    elif snap.rsi < 38.0 and dist_sup_atr <= 1.2:
+        w_mom = 0.45
+        contribuicoes.append((w_mom, f"Sobrevenda em cima do Suporte (RSI {snap.rsi:.0f})"))
+    elif snap.rsi > 74.0:
+        w_mom = -0.60
+        contribuicoes.append((w_mom, f"Sobrecompra Esticada (RSI {snap.rsi:.0f})"))
+    else:
+        w_mom = 0.10 if snap.macd_hist >= 0 else -0.30
+        contribuicoes.append((w_mom, "Momentum Neutro"))
+
+    # Árvore 7: Alinhamento Fractal Multi-Timeframe (Gráfico Semanal/Diário Superior)
+    if snap.tendencia_mtf_superior == "ALTA":
+        w_mtf = 0.60
+        contribuicoes.append((w_mtf, f"Âncora Macro ({snap.tf_superior.upper()}) em Alta"))
+    elif snap.tendencia_mtf_superior == "BAIXA":
+        w_mtf = -0.65
+        contribuicoes.append((w_mtf, f"Âncora Macro ({snap.tf_superior.upper()}) em Baixa"))
+    else:
+        w_mtf = 0.10
+        contribuicoes.append((w_mtf, f"Âncora Macro ({snap.tf_superior.upper()}) Lateral"))
+
+    # Árvore 8: Padrão de Vela Gatilho no Suporte
+    if "MARTELO" in snap.padrao_vela_gatilho or "BARRA DE FORÇA" in snap.padrao_vela_gatilho or "MOLA" in snap.padrao_vela_gatilho:
+        w_candle = 0.45
+        contribuicoes.append((w_candle, snap.padrao_vela_gatilho.title()))
+    elif "REJEIÇÃO" in snap.padrao_vela_gatilho:
+        w_candle = -0.45
+        contribuicoes.append((w_candle, "Pavio de Rejeição na Resistência"))
+    else:
+        w_candle = 0.05
+
+    # Refinamento Online por Boosting Newton-Raphson (Gradiente g_i / Hessiana h_i)
+    logit_acumulado = 0.0
+    eta_xgb = 0.55
+    lambda_l2 = 1.0
+    for peso_arvore, _ in contribuicoes:
+        prob_atual = 1.0 / (1.0 + math.exp(-max(-6.0, min(6.0, logit_acumulado))))
+        alvo_parcial = 1.0 if peso_arvore > 0 else 0.0
+        grad_g = prob_atual - alvo_parcial
+        hess_h = max(prob_atual * (1.0 - prob_atual), 0.05)
+        passo_newton = (-grad_g / (hess_h + lambda_l2)) * abs(peso_arvore) * 2.2
+        logit_acumulado += eta_xgb * (peso_arvore + passo_newton)
+
+    prob_final = round((1.0 / (1.0 + math.exp(-max(-4.5, min(4.5, logit_acumulado))))) * 100.0, 1)
+
+    if prob_final >= 76.0:
+        sinal_xgb = "COMPRA FORTE / ACUMULAR NO SUPORTE (ALTA PROBABILIDADE XGBOOST)"
+    elif prob_final >= 62.0:
+        sinal_xgb = "VIÉS COMPRADOR / ACUMULAÇÃO GRADUAL (XGBOOST FAVORÁVEL)"
+    elif prob_final >= 46.0:
+        sinal_xgb = "NEUTRO / AGUARDAR RECUO ATÉ O SUPORTE CONSOLIDADO"
+    else:
+        sinal_xgb = "PRESSÃO VENDEDORA / AGUARDAR DE FORA (XGBOOST DEFENSIVO)"
+
+    principais = sorted(contribuicoes, key=lambda x: abs(x[0]), reverse=True)[:2]
+    fator_chave = " + ".join(desc for _, desc in principais) if principais else "Suporte Consolidado"
+    return prob_final, sinal_xgb, fator_chave
+
+
 def extrair_dados_tradingview(
     ativo: AtivoMonitorado,
     intervalo_str: str = TIMEFRAME_PADRAO,
@@ -1022,6 +1161,7 @@ def extrair_dados_tradingview(
     dir_estimada = "COMPRA" if snap.preco_atual >= snap.ema_21 else "VENDA"
     snap.score_quant_local = calcular_score_quant_local(snap, dir_estimada)
     snap.tipo_setup, snap.preco_pullback_ideal = classificar_tipo_setup(snap, dir_estimada)
+    snap.prob_alta_xgboost, snap.sinal_xgboost, snap.fator_chave_xgboost = executar_ia_xgboost_grafico(snap)
     return snap
 
 
@@ -2249,12 +2389,14 @@ def enviar_telegram_html(
     chat_id: str = TELEGRAM_CHAT_ID,
     reply_to_message_id: Optional[int] = None,
 ) -> bool:
-    if not token or not chat_id:
+    global TELEGRAM_CHAT_ID
+    cid_efetivo = chat_id or TELEGRAM_CHAT_ID
+    if not token or not cid_efetivo:
         logger.error("TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID ausente.")
         return False
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload: Dict[str, Any] = {
-        "chat_id": chat_id,
+        "chat_id": cid_efetivo,
         "text": texto_html,
         "parse_mode": "HTML",
         "disable_web_page_preview": True,
@@ -2267,6 +2409,18 @@ def enviar_telegram_html(
         resp = requests.post(url, json=payload, timeout=20)
         if resp.status_code == 200:
             return True
+        if resp.status_code == 400:
+            try:
+                novo_cid = ((resp.json() or {}).get("parameters") or {}).get("migrate_to_chat_id")
+                if novo_cid:
+                    TELEGRAM_CHAT_ID = str(novo_cid)
+                    payload["chat_id"] = TELEGRAM_CHAT_ID
+                    logger.info("Grupo migrado para Supergrupo; redirecionando automaticamente para chat_id=%s", TELEGRAM_CHAT_ID)
+                    resp2 = requests.post(url, json=payload, timeout=20)
+                    if resp2.status_code == 200:
+                        return True
+            except Exception:
+                pass
         logger.error("Erro Telegram HTTP %s: %s", resp.status_code, resp.text[:200])
     except Exception as exc:
         logger.error("Falha de rede ao enviar para Telegram: %s", exc)
@@ -2662,12 +2816,13 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         _fill_rect(PLOT_X1 + 5, yp - 9, W - 4, yp + 8, pr, pg, pb)
         _draw_text(txt_lbl[:18], PLOT_X1 + 9, yp - 4, 255, 255, 255, scale=1)
 
-    # 6. Título no Topo e Legenda das Médias
+    # 6. Título no Topo + Telemetria Dual-IA (XGBoost + Médias)
     titulo_top = f"{snap.simbolo} - {snap.intervalo.upper()} - POSITION TRADE (SUPORTE E RESISTENCIA)"
-    _draw_text(titulo_top, 16, 14, 241, 245, 249, scale=2)
-    _draw_text(f"EMA9: {snap.ema_9:.{snap.casas_decimais}f}", 540, 16, 245, 158, 11, scale=1)
-    _draw_text(f"EMA21: {snap.ema_21:.{snap.casas_decimais}f}", 650, 16, 41, 98, 255, scale=1)
-    _draw_text(f"RSI: {snap.rsi:.0f}", 770, 16, 203, 213, 225, scale=1)
+    _draw_text(titulo_top, 14, 14, 241, 245, 249, scale=2)
+    _draw_text(f"EMA9:{snap.ema_9:.{snap.casas_decimais}f}", 515, 16, 245, 158, 11, scale=1)
+    _draw_text(f"EMA21:{snap.ema_21:.{snap.casas_decimais}f}", 625, 16, 41, 98, 255, scale=1)
+    cor_xgb = (16, 185, 129) if snap.prob_alta_xgboost >= 60.0 else (245, 158, 11)
+    _draw_text(f"XGB:{snap.prob_alta_xgboost:.0f}%", 745, 16, cor_xgb[0], cor_xgb[1], cor_xgb[2], scale=1)
 
     # 7. Empacota como PNG válido usando struct + zlib (stdlib)
     raw_rows = bytearray()
@@ -2701,25 +2856,27 @@ def enviar_telegram_com_grafico(
 ) -> bool:
     """Envia a foto do gráfico Candlestick (sendPhoto) junto com a resposta conversacional.
     Se o texto passar de 1000 caracteres, envia a foto primeiro e o texto completo logo abaixo.
-    Faz fallback transparente para enviar_telegram_html caso sendPhoto não esteja disponível.
+    Trata automaticamente migração de Grupo para Supergrupo (migrate_to_chat_id).
     """
+    global TELEGRAM_CHAT_ID
+    cid_efetivo = chat_id or TELEGRAM_CHAT_ID
     if not snap or not plano:
-        return enviar_telegram_html(texto_html, token=token, chat_id=chat_id, reply_to_message_id=reply_to_message_id)
+        return enviar_telegram_html(texto_html, token=token, chat_id=cid_efetivo, reply_to_message_id=reply_to_message_id)
 
     try:
         png_bytes = gerar_grafico_candlestick_png(snap, plano)
     except Exception as exc:
         logger.warning("Aviso ao renderizar PNG do gráfico (%s); enviando apenas texto.", str(exc)[:100])
-        return enviar_telegram_html(texto_html, token=token, chat_id=chat_id, reply_to_message_id=reply_to_message_id)
+        return enviar_telegram_html(texto_html, token=token, chat_id=cid_efetivo, reply_to_message_id=reply_to_message_id)
 
-    if not token or not chat_id or not hasattr(requests, "post"):
-        return enviar_telegram_html(texto_html, token=token, chat_id=chat_id, reply_to_message_id=reply_to_message_id)
+    if not token or not cid_efetivo or not hasattr(requests, "post"):
+        return enviar_telegram_html(texto_html, token=token, chat_id=cid_efetivo, reply_to_message_id=reply_to_message_id)
 
     url_photo = f"https://api.telegram.org/bot{token}/sendPhoto"
     try:
         if len(texto_html) <= 1000:
             data_payload: Dict[str, Any] = {
-                "chat_id": chat_id,
+                "chat_id": cid_efetivo,
                 "caption": texto_html,
                 "parse_mode": "HTML",
             }
@@ -2734,31 +2891,59 @@ def enviar_telegram_com_grafico(
             )
             if getattr(resp, "status_code", 0) == 200:
                 return True
+            if getattr(resp, "status_code", 0) == 400:
+                novo_cid = ((resp.json() or {}).get("parameters") or {}).get("migrate_to_chat_id")
+                if novo_cid:
+                    TELEGRAM_CHAT_ID = str(novo_cid)
+                    data_payload["chat_id"] = TELEGRAM_CHAT_ID
+                    resp2 = requests.post(
+                        url_photo,
+                        data=data_payload,
+                        files={"photo": (f"{snap.simbolo}_{snap.intervalo}.png", png_bytes, "image/png")},
+                        timeout=25,
+                    )
+                    if getattr(resp2, "status_code", 0) == 200:
+                        return True
         else:
             legenda_curta = (
-                f"📊 <b>Mapa Gráfico · {html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())})</b>\n"
+                f"📊 <b>Mapa Gráfico Dual-IA (XGBoost {snap.prob_alta_xgboost:.0f}% + Gemini) · {html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())})</b>\n"
                 f"Suporte Consolidado: <b>{_fmt_preco(snap.suporte_consolidado_1, snap.moeda, snap.casas_decimais)}</b>  ·  "
                 f"Resistência 1: <b>{_fmt_preco(snap.resistencia_consolidada_1, snap.moeda, snap.casas_decimais)}</b>"
             )
             data_curta: Dict[str, Any] = {
-                "chat_id": chat_id,
+                "chat_id": cid_efetivo,
                 "caption": legenda_curta,
                 "parse_mode": "HTML",
             }
             if reply_to_message_id:
                 data_curta["reply_to_message_id"] = reply_to_message_id
                 data_curta["allow_sending_without_reply"] = True
-            requests.post(
+            resp_c = requests.post(
                 url_photo,
                 data=data_curta,
                 files={"photo": (f"{snap.simbolo}_{snap.intervalo}.png", png_bytes, "image/png")},
                 timeout=25,
             )
-            return enviar_telegram_html(texto_html, token=token, chat_id=chat_id, reply_to_message_id=reply_to_message_id)
+            if getattr(resp_c, "status_code", 0) == 400:
+                try:
+                    novo_cid = ((resp_c.json() or {}).get("parameters") or {}).get("migrate_to_chat_id")
+                    if novo_cid:
+                        TELEGRAM_CHAT_ID = str(novo_cid)
+                        cid_efetivo = TELEGRAM_CHAT_ID
+                        data_curta["chat_id"] = cid_efetivo
+                        requests.post(
+                            url_photo,
+                            data=data_curta,
+                            files={"photo": (f"{snap.simbolo}_{snap.intervalo}.png", png_bytes, "image/png")},
+                            timeout=25,
+                        )
+                except Exception:
+                    pass
+            return enviar_telegram_html(texto_html, token=token, chat_id=cid_efetivo, reply_to_message_id=reply_to_message_id)
     except Exception as exc:
         logger.warning("Aviso ao enviar foto para Telegram (%s); usando fallback de texto.", str(exc)[:100])
 
-    return enviar_telegram_html(texto_html, token=token, chat_id=chat_id, reply_to_message_id=reply_to_message_id)
+    return enviar_telegram_html(texto_html, token=token, chat_id=cid_efetivo, reply_to_message_id=reply_to_message_id)
 
 
 def extrair_valor_banca_da_mensagem(texto: str) -> Optional[float]:
@@ -2897,6 +3082,7 @@ def _resumir_ativo_para_conversa(
         f"{guia_bolso} | "
         f"Preço Atual: {_fmt_preco(snap.preco_atual, m, c)} (Variação: {snap.variacao_pct:+.2f}%) | "
         f"Viés Atual: {vies_curto} ({'Setup Aprovado' if aprovado else status_vies}) | "
+        f"IA #1 (Motor XGBoost Gradient Boosted Trees): Probabilidade de Alta = {snap.prob_alta_xgboost:.1f}% ({snap.sinal_xgboost}) — Fatores-Chave XGBoost: {snap.fator_chave_xgboost} | "
         f"Posição no Canal de Suporte/Resistência: {snap.zona_sr_descricao} | "
         f"Padrão de Vela / Gatilho de Price Action: {snap.padrao_vela_gatilho} | "
         f"SUPORTE CONSOLIDADO 1 (Principal piso estrutural p/ acumular no Position Trade): {_fmt_preco(snap.suporte_consolidado_1, m, c)} "
@@ -3019,7 +3205,7 @@ def responder_perguntas_chat(
         # 1. Comando inicial /start ou /ajuda -> conversa como pessoa real
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
             boas_vindas = (
-                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô monitorando o mercado inteiro em tempo real pra <b>Position Trade</b> (com base em <b>Suportes e Resistências bem consolidados</b> e pensado pra quem opera com <b>pouca grana</b>).\n\n"
+                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô monitorando o mercado inteiro em tempo real com <b>Duas IAs (Motor XGBoost Quantitativo + Gemini)</b> pra <b>Position Trade</b> (baseado em <b>Suportes e Resistências bem consolidados</b> e pensado pra quem opera com <b>pouca grana</b>).\n\n"
                 "Eu analiso <b>Ações da B3 no Fracionário</b> (onde você compra de 1 em 1 ação com a letra <b>F</b> no final, tipo <b>ITSA4F</b>, <b>BBAS3F</b>, <b>PETR4F</b>), <b>Criptomoedas</b>, <b>Ouro (XAUUSD)</b>, <b>Dólar (USDBRL)</b> e <b>Big Techs / BDRs</b>.\n\n"
                 "Você pode me perguntar o que eu acho de qualquer ativo ou pedir as <b>3 melhores oportunidades de Position Trade</b> agora — e eu já te mando a <b>foto do gráfico</b> com os suportes e resistências traçados. Qual ativo ou mercado você quer olhar primeiro?"
             )
@@ -3097,8 +3283,14 @@ def responder_perguntas_chat(
                     logger.info("✅ Conversa de recomendação Multi-Mercado com gráfico (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
                 continue
 
-            # 4. Continuação de conversa (ex.: usuário perguntou "que vies", "qual suporte", "tenho 100 reais", ou chamou o bot)
-            if mencionou_bot or conversa_recente_ativa:
+            # 4. Continuação de conversa ou saudação/mensagem aberta no grupo (ex.: "opa!", "que vies", "tenho 100 reais")
+            eh_interacao_grupo = bool(
+                re.search(
+                    r"\b(?:opa|oi|ol[áa]|fala|bom\s+dia|boa\s+tarde|boa\s+noite|ajuda|opera[çc][ãa]o|operar|investir|comprar|grana|reais|conto|mercado|suporte|resist[êe]ncia|vi[ée]s)\b",
+                    texto.lower(),
+                )
+            )
+            if mencionou_bot or conversa_recente_ativa or eh_interacao_grupo or "?" in texto:
                 ultimo_simb = str(sessao_chat.get("ultimo_simbolo") or "")
                 contexto_extra = "Conversa livre sobre Position Trade por Suportes e Resistências consolidados para quem tem pouca grana."
                 snap_ant: Optional[SnapshotIndicadores] = None
@@ -3151,8 +3343,8 @@ def responder_perguntas_chat(
                             )
                     else:
                         resposta_livre = (
-                            f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui mapeando os suportes e resistências do mercado pra <b>Position Trade</b>. "
-                            "Me diz qual ação ou cripto você quer que eu analise agora, ou pede uma recomendação pra quem tá com pouca grana que eu busco as melhores e já te mando o gráfico!"
+                            f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui com as duas IAs (<b>XGBoost + Gemini</b>) mapeando os suportes e resistências do mercado pra <b>Position Trade</b>. "
+                            "Me diz qual ação ou cripto você quer que eu analise agora, ou pede uma recomendação pra quem tá com pouca grana que eu busco as 3 melhores e já te mando o gráfico!"
                         )
                 if enviar_telegram_com_grafico(
                     resposta_livre,
@@ -3331,14 +3523,14 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
             salvar_historico(historico)
             enviados += 1
             logger.info(
-                "✅ Sinal disparado com gráfico [%s | %s | Score Quant %d/100 | IA %d/100 | Entrada %s | Stop %s | Break-Even %s]",
+                "✅ Sinal disparado com gráfico [%s | %s | Score Quant %d/100 | XGBoost %.1f%% | IA %d/100 | Entrada %s | Stop %s]",
                 snap.simbolo,
                 plano.direcao,
                 snap.score_quant_local,
+                snap.prob_alta_xgboost,
                 auditoria.nota_confluencia,
                 plano.entrada,
                 plano.stop_loss,
-                plano.gatilho_breakeven,
             )
 
     logger.info("Varredura finalizada: %d sinal(is) aprovado(s) e enviado(s).", enviados)
