@@ -1,7 +1,56 @@
 {
-  "atualizado_em": "2026-11-27T14:31:04.639662-03:00",
-  "ultimo_update_id": 211649488,
-  "sinais": [],
+  "atualizado_em": "2026-11-27T14:45:32.564459-03:00",
+  "ultimo_update_id": 211649490,
+  "sinais": [
+    {
+      "chave": "PETR4::VENDA::1d",
+      "simbolo": "PETR4",
+      "direcao": "VENDA",
+      "intervalo": "1d",
+      "modalidade": "POSITION TRADE",
+      "entrada": 41.63,
+      "stop_loss": 46.17,
+      "alvo_1": 34.81,
+      "alvo_2": 32.54,
+      "alvo_3": 28.0,
+      "gatilho_breakeven": 34.81,
+      "score_quant": 100,
+      "nota_ia": 95,
+      "ts": 1795801325.409931
+    },
+    {
+      "chave": "XAUUSD::VENDA::1d",
+      "simbolo": "XAUUSD",
+      "direcao": "VENDA",
+      "intervalo": "1d",
+      "modalidade": "POSITION TRADE",
+      "entrada": 3635.16,
+      "stop_loss": 3896.75,
+      "alvo_1": 3242.79,
+      "alvo_2": 3112.0,
+      "alvo_3": 2850.42,
+      "gatilho_breakeven": 3242.79,
+      "score_quant": 100,
+      "nota_ia": 92,
+      "ts": 1795801337.935416
+    },
+    {
+      "chave": "NVDC34::VENDA::1d",
+      "simbolo": "NVDC34",
+      "direcao": "VENDA",
+      "intervalo": "1d",
+      "modalidade": "POSITION TRADE",
+      "entrada": 17.21,
+      "stop_loss": 20.56,
+      "alvo_1": 12.18,
+      "alvo_2": 10.51,
+      "alvo_3": 7.16,
+      "gatilho_breakeven": 12.18,
+      "score_quant": 100,
+      "nota_ia": 90,
+      "ts": 1795801341.397975
+    }
+  ],
   "conversas_chat": {
     "-1004412148750": {
       "ultimo_ts": 1795800664.639532,
@@ -38,6 +87,28 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, PEREGR1NO! Que excelente iniciativa buscar o Position Trade, porque quem tem pouca grana precisa esquecer o day trade e comprar ativos apoiados em pisos sólidos no gráfico diário para segurar por semanas ou meses, sem pagar taxas à toa. Olhei o mapa completo do mercado e separei os três ativos que estão nos melhores pontos agora para montarmos posição sem correria.\n\nO primeiro destaque é a G"
+        }
+      ]
+    },
+    "940774738": {
+      "ultimo_ts": 1795801532.564324,
+      "ultimo_simbolo": "GGBR4",
+      "mensagens": [
+        {
+          "autor": "PEREGR1NO",
+          "texto": "/start"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Tudo certo? Tô monitorando o mercado inteiro em tempo real com Duas IAs (Motor XGBoost Quantitativo + Gemini) pra Position Trade (baseado em Suportes e Resistências bem consolidados e pensado pra quem opera com pouca grana).\n\nEu analiso Ações da B3 no Fracionário (onde você compra de 1 em 1 ação com a letra F no final, tipo ITSA4F, BBAS3F, PETR4F), Criptomoedas, Ouro (XAUUSD), Dól"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "3 melhores oportunidades de Position Trade"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Vamos direto ao ponto com o nosso mapa de Position Trade focado em quem tem pouca grana e quer fazer o dinheiro trabalhar a médio e longo prazo sem girar a carteira todo dia. Analisando os três principais ativos do momento, começamos pela GGBR4 na B3, que está cotada a R$ 26,53 e apresenta um viés de alta com excelente probabilidade pelo nosso motor XGBoost. Como o foco aqui é o m"
         }
       ]
     }
