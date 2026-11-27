@@ -217,7 +217,7 @@ CARTEIRA_SWING_GLOBAL_MACRO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False), # ETF S&P 500
 )
 
-# Watchlist Multi-Mercado padrão para varredura automática de Position Trade (Ações + Cripto + Ouro/Dólar/Big Techs)
+# Watchlist Multi-Mercado padrão para varredura automática (Ações + Cripto + Ouro/Dólar/Big Techs)
 WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("ITSA4", "BMFBOVESPA", "brazil", "R$", 2, False),
     AtivoMonitorado("PETR4", "BMFBOVESPA", "brazil", "R$", 2, False),
@@ -242,7 +242,7 @@ WATCHLIST_PADRAO: Tuple[AtivoMonitorado, ...] = (
     AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
 )
 
-# Mapa de apelidos e nomes populares para consultas no chat ("o que acha do bitcoin?", "analisa petrobras")
+# Mapa de apelidos e nomes populares para consultas no chat (inclui Mini-Índice WIN e Mini-Dólar WDO)
 ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "bitcoin": AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False),
     "btc": AtivoMonitorado("BTCUSDT", "BINANCE", "crypto", "US$", 2, False),
@@ -287,8 +287,18 @@ ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "btg": AtivoMonitorado("BPAC11", "BMFBOVESPA", "brazil", "R$", 2, True),
     "santander": AtivoMonitorado("SANB11", "BMFBOVESPA", "brazil", "R$", 2, True),
     "b3": AtivoMonitorado("B3SA3", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "ibovespa": AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True),
-    "ibov": AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, True),
+    "ibovespa": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "ibov": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "mini indice": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "mini índice": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "mini-indice": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "mini-índice": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "indice futuro": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "índice futuro": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "win": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "winfut": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "ind": AtivoMonitorado("IBOV", "BMFBOVESPA", "brazil", "pts", 0, False),
+    "bova11": AtivoMonitorado("BOVA11", "BMFBOVESPA", "brazil", "R$", 2, False),
     "nvidia": AtivoMonitorado("NVDC34", "BMFBOVESPA", "brazil", "R$", 2, False),
     "apple": AtivoMonitorado("AAPL34", "BMFBOVESPA", "brazil", "R$", 2, False),
     "tesla": AtivoMonitorado("TSLA34", "BMFBOVESPA", "brazil", "R$", 2, False),
@@ -301,6 +311,14 @@ ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "ivvb11": AtivoMonitorado("IVVB11", "BMFBOVESPA", "brazil", "R$", 2, False),
     "dolar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
     "dólar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "mini dolar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "mini dólar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "mini-dolar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "mini-dólar": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "dolar futuro": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "dólar futuro": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "wdo": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
+    "wdofut": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
     "usdbrl": AtivoMonitorado("USDBRL", "FX_IDC", "forex", "R$", 4, False),
     "euro": AtivoMonitorado("EURUSD", "FX_IDC", "forex", "US$", 4, False),
     "eurusd": AtivoMonitorado("EURUSD", "FX_IDC", "forex", "US$", 4, False),
@@ -321,7 +339,7 @@ ALIASES_ATIVOS_CHAT: Dict[str, AtivoMonitorado] = {
     "ltc": AtivoMonitorado("LTCUSDT", "BINANCE", "crypto", "US$", 2, False),
 }
 
-# Aceita também código com 'F' no final (Mercado Fracionário B3 para quem tem pouca grana: PETR4F, ITSA4F, WEGE3F)
+# Aceita também código com 'F' no final (Mercado Fracionário B3: PETR4F, ITSA4F, WEGE3F)
 REGEX_TICKER_B3 = re.compile(r"\b([A-Z]{4}(?:3|4|5|6|11|31|32|33|34|35|39))F?\b")
 REGEX_PAR_CRIPTO = re.compile(r"\b([A-Z0-9]{2,10}USDT)\b")
 REGEX_COMANDO_CHAT = re.compile(r"^/(?:analisar|analise|grafico|ativo|sinal|avaliar)\b", flags=re.IGNORECASE)
@@ -340,9 +358,9 @@ REGEX_INTENCAO_PERGUNTA = re.compile(
 REGEX_PEDIDO_RECOMENDACAO = re.compile(
     r"(?:qual\s+(?:a\s+|o\s+)?(?:melhor\s+)?(?:a[çc][ãa]o|ativo|cripto\w*|moeda|papel|mercado|trade|op[çc][ãa]o|opera[çc][ãa]o|position)|"
     r"quais\s+(?:as\s+|os\s+)?(?:melhores\s+)?(?:a[çc][õo]es|ativos|cripto\w*|moedas|pap[ée]is|op[çc][õo]es|opera[çc][õo]es|oportunidades)|"
-    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae]|mostr[ae]|fala|diz)\s+(?:fazer\s+)?(?:um\s+|uma\s+|algum\w*\s+|mais\s+|outr[oa]s?\s+|boas?\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|position\s*trade|position|swing\s*trade|day\s*trade|ativo\w*|a[çc][ãa]o|a[çc][õo]es|cripto\w*|op[çc][ãa]o|op[çc][õo]es|opera[çc][ãa]o|opera[çc][õo]es|trade|entrada|dica\w*)|"
+    r"(?:quero|fazer|busco|procuro|tem|algum\w*|melhor(?:es)?|d[áa]\s+um|me\s+d[áa]|mand[ae]|mostr[ae]|fala|diz)\s+(?:fazer\s+)?(?:um\s+|uma\s+|algum\w*\s+|mais\s+|outr[oa]s?\s+|boas?\s+)?(?:call\w*|oportunidade\w*|recomenda[çc]\w*|indica[çc]\w*|setup\w*|sinal|sinais|position\s*trade|position|swing\s*trade|day\s*trade|ativo\w*|a[çc][ãa]o|a[çc][õo]es|cripto\w*|op[çc][ãa]o|op[çc][õo]es|opera[çc][ãa]o|opera[çc][õo]es|trade|entrada|dica\w*|long|short)|"
     r"(?:quero\s+(?:operar|investir|comprar|entrar|come[çc]ar))|"
-    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+|de\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|position\s*trade|position|swing\s*trade|day\s*trade|call|hoje|agora|tudo|pouca\s+grana|opera[çc][ãa]o)?|"
+    r"(?:recomenda\w*|indica\w*|sugere\w*)\s*(?:um\s+|uma\s+|algum\w*\s+|boas?\s+|bons?\s+|algo\s+|pra\s+|de\s+)?(?:a[çc][ãa]o|a[çc][õo]es|ativo\w*|cripto\w*|moeda\w*|papel|position\s*trade|position|swing\s*trade|day\s*trade|call|hoje|agora|tudo|pouca\s+grana|opera[çc][ãa]o|long|short)?|"
     r"o\s+que\s+(?:comprar|operar|vender|tem\s+de\s+bom|est[áa]\s+bom|t[áa]\s+bom|acumular)\b|"
     r"\b(?:tem\s+outr[oa]s?|qual\s+outr[oa]|quais\s+outros|me\s+fala\s+outr[oa]|mais\s+op[çc][õo]es|outros\s+ativos|swing\s+em\s+tudo|position\s+em\s+tudo|pouca\s+grana|pouco\s+dinheiro|a[çc][õo]es\s+baratas|onde\s+entrar)\b|"
     r"^(?:position\s*trade|position|swing\s*trade|day\s*trade|oportunidades|calls|recomenda[çc][ãa]o)\??$)",
@@ -374,7 +392,7 @@ class SnapshotIndicadores:
     adx: float
     recomendacao_tv: str
     direcao_preliminar: str
-    # --- 6 CAMADAS INSTITUCIONAIS + SUPER-SKILLS DE MESA PROPRIETÁRIA ---
+    # --- 6 CAMADAS INSTITUCIONAIS + FIBONACCI + SUPORTE/RESISTÊNCIA ---
     vwma: float = 0.0
     di_plus: float = 20.0
     di_minus: float = 20.0
@@ -397,6 +415,12 @@ class SnapshotIndicadores:
     toques_resistencia: int = 2
     padrao_vela_gatilho: str = "NEUTRO"
     payoff_sr_real: float = 1.8
+    # --- NÍVEIS DE RETRAÇÃO E EXTENSÃO DE FIBONACCI (GOLDEN POCKET 61.8% & ALVO 161.8%) ---
+    fib_382: float = 0.0
+    fib_500: float = 0.0
+    fib_618: float = 0.0
+    fib_ext_1618: float = 0.0
+    perna_fib_direcao: str = "ALTA"
     variacao_pct: float = 0.0
     alpha_vs_lider_pct: float = 0.0
     tf_superior: str = "1w"
@@ -408,10 +432,10 @@ class SnapshotIndicadores:
     score_quant_local: int = 50
     tipo_setup: str = "CONFLUÊNCIA PADRÃO"
     preco_pullback_ideal: float = 0.0
-    # --- IA #1: MOTOR XGBOOST QUANTITATIVO (GRADIENT BOOSTED DECISION TREES) ---
+    # --- MOTOR QUANTITATIVO INTERNO (GRADIENT BOOSTED TREES — INVISÍVEL NO CHAT) ---
     prob_alta_xgboost: float = 65.0
     sinal_xgboost: str = "ACUMULAÇÃO NO SUPORTE"
-    fator_chave_xgboost: str = "Suporte Consolidado + Fluxo VWMA"
+    fator_chave_xgboost: str = "Suporte Consolidado + Fibonacci 61.8%"
 
 
 @dataclass
@@ -541,7 +565,6 @@ def _calcular_mapa_sr_consolidado(
     """
     atr_safe = max(atr, close * 0.01, 1e-9)
 
-    # Candidatos a suporte abaixo do preço atual
     cands_sup = sorted(
         [
             p for p in (pivot_s1, fib_s1, ema_21, sma_50, sma_200, bb_low, pivot_p, low)
@@ -550,7 +573,6 @@ def _calcular_mapa_sr_consolidado(
         reverse=True,
     )
     sup_1 = cands_sup[0] if cands_sup else (close - 1.5 * atr_safe)
-    # Se o suporte 1 estiver colado demais no preço (< 0.25 ATR), pega o próximo degrau consolidado
     for p in cands_sup:
         if (close - p) >= 0.30 * atr_safe:
             sup_1 = p
@@ -559,7 +581,6 @@ def _calcular_mapa_sr_consolidado(
     cands_sup_2 = [p for p in (pivot_s2, fib_s2, bb_low, sma_200, sup_1 - 1.5 * atr_safe) if 0 < p < sup_1 * 0.992]
     sup_2 = max(cands_sup_2) if cands_sup_2 else (sup_1 - 1.5 * atr_safe)
 
-    # Candidatos a resistência acima do preço atual
     cands_res = sorted(
         [
             p for p in (pivot_r1, fib_r1, bb_up, sma_50, sma_200, pivot_p, high)
@@ -675,10 +696,26 @@ def _construir_snapshot_de_indicadores(
         casas=casas,
     )
 
-    # Cálculo da Assimetria Real Risco/Retorno (Payoff S/R) e Padrão de Vela Gatilho
+    # Cálculo da Assimetria Real Risco/Retorno (Payoff S/R), Retrações/Extensões de Fibonacci e Padrão de Vela
     risco_ate_stop_sup = max(close - (sup_1 - 0.5 * atr_raw), atr_raw * 0.8, 1e-9)
     retorno_ate_res1 = max(res_1 - close, 0.0)
     payoff_sr = round(retorno_ate_res1 / risco_ate_stop_sup, 2)
+
+    fundo_swing = min(p for p in (sup_1, bb_low, low) if p > 0)
+    topo_swing = max(p for p in (res_1, bb_up, high) if p > 0)
+    amp_fib = max(topo_swing - fundo_swing, atr_raw * 2.0, close * 0.015)
+    if close >= ema_21:
+        perna_fib = "ALTA"
+        f_382 = round(topo_swing - 0.382 * amp_fib, casas)
+        f_500 = round(topo_swing - 0.500 * amp_fib, casas)
+        f_618 = round(topo_swing - 0.618 * amp_fib, casas)
+        f_ext_1618 = round(fundo_swing + 1.618 * amp_fib, casas)
+    else:
+        perna_fib = "BAIXA"
+        f_382 = round(fundo_swing + 0.382 * amp_fib, casas)
+        f_500 = round(fundo_swing + 0.500 * amp_fib, casas)
+        f_618 = round(fundo_swing + 0.618 * amp_fib, casas)
+        f_ext_1618 = round(max(0.01, topo_swing - 1.618 * amp_fib), casas)
 
     amp_vela = max(high - low, 1e-9)
     pavio_inf = (min(open_p, close) - low) / amp_vela
@@ -742,6 +779,11 @@ def _construir_snapshot_de_indicadores(
         toques_resistencia=3 if "TESTANDO TETO" in zona_sr else 2,
         padrao_vela_gatilho=padrao_vela,
         payoff_sr_real=payoff_sr,
+        fib_382=f_382,
+        fib_500=f_500,
+        fib_618=f_618,
+        fib_ext_1618=f_ext_1618,
+        perna_fib_direcao=perna_fib,
         variacao_pct=change_pct,
         tf_superior=tf_sup,
         tf_inferior=tf_inf,
@@ -929,67 +971,55 @@ def calcular_score_quant_local(snap: SnapshotIndicadores, direcao_alvo: str = "N
     risco_r = max(snap.atr * ATR_MULTIPLIER, snap.preco_atual * 0.0025, 1e-9)
 
     if dir_eval == "COMPRA":
-        # 1. Alinhamento de Tendência (EMA 9 > EMA 21 + SMA 200) -> até 25 pts
         if snap.preco_atual > snap.ema_9 > snap.ema_21:
             pontos += 15
         if snap.preco_atual > snap.sma_200:
             pontos += 10
-        # 2. Fluxo Institucional Ponderado por Volume (VWMA) -> até 15 pts
         if snap.vwma <= 0 or snap.preco_atual >= snap.vwma:
             pontos += 15
-        # 3. Força e Dominância Direcional (ADX + DI+ > DI-) -> até 15 pts
         if snap.di_plus >= snap.di_minus:
             pontos += 8
         if snap.adx >= 23.0:
             pontos += 7
         elif snap.adx >= 18.0:
             pontos += 4
-        # 4. Momentum Limpo (MACD + RSI em zona nobre sem sobrecompra extrema) -> até 15 pts
         if snap.macd_line > snap.macd_signal:
             pontos += 8
         if 52.0 <= snap.rsi <= 70.0:
             pontos += 7
         elif 48.0 <= snap.rsi <= 73.0:
             pontos += 3
-        # 5. Alinhamento Multi-Timeframe (MTF Superior + Inferior) -> até 15 pts
         if snap.tendencia_mtf_superior in ("ALTA", "NEUTRA"):
             pontos += 10 if snap.tendencia_mtf_superior == "ALTA" else 6
         if snap.confirmacao_mtf_inferior not in ("EXAUSTAO_ALTA", "CONTRA_COMPRA"):
             pontos += 5
-        # 6. Vento a Favor (Ativo Líder + Caminho Livre até Pivot R1) -> até 15 pts
         if snap.vies_ativo_lider != "BAIXA_FORTE":
             pontos += 8
         if snap.pivot_r1 <= snap.preco_atual or (snap.pivot_r1 - snap.preco_atual) >= (0.60 * risco_r):
             pontos += 7
     else:
-        # 1. Alinhamento de Tendência (EMA 9 < EMA 21 + SMA 200) -> até 25 pts
         if snap.preco_atual < snap.ema_9 < snap.ema_21:
             pontos += 15
         if snap.preco_atual < snap.sma_200:
             pontos += 10
-        # 2. Fluxo Institucional Ponderado por Volume (VWMA) -> até 15 pts
         if snap.vwma <= 0 or snap.preco_atual <= snap.vwma:
             pontos += 15
-        # 3. Força e Dominância Direcional (ADX + DI- > DI+) -> até 15 pts
         if snap.di_minus >= snap.di_plus:
             pontos += 8
         if snap.adx >= 23.0:
             pontos += 7
         elif snap.adx >= 18.0:
             pontos += 4
-        # 4. Momentum Limpo (MACD + RSI) -> até 15 pts
         if snap.macd_line < snap.macd_signal:
             pontos += 8
         if 30.0 <= snap.rsi <= 48.0:
             pontos += 7
         elif 27.0 <= snap.rsi <= 52.0:
             pontos += 3
-        # 5. Alinhamento Multi-Timeframe (MTF Superior + Inferior) -> até 15 pts
         if snap.tendencia_mtf_superior in ("BAIXA", "NEUTRA"):
             pontos += 10 if snap.tendencia_mtf_superior == "BAIXA" else 6
         if snap.confirmacao_mtf_inferior not in ("EXAUSTAO_BAIXA", "CONTRA_VENDA"):
             pontos += 5
-        # 6. Vento a Favor (Ativo Líder + Caminho Livre até Pivot S1) -> até 15 pts
         if snap.vies_ativo_lider != "ALTA_FORTE":
             pontos += 8
         if snap.pivot_s1 <= 0 or snap.pivot_s1 >= snap.preco_atual or (snap.preco_atual - snap.pivot_s1) >= (0.60 * risco_r):
@@ -999,22 +1029,17 @@ def calcular_score_quant_local(snap: SnapshotIndicadores, direcao_alvo: str = "N
 
 
 def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, str]:
-    """IA #1 — Motor XGBoost Quantitativo (eXtreme Gradient Boosting Decision Trees).
-    Avalia 8 variáveis tabulares normalizadas do gráfico (Distância ao Suporte Consolidado em ATR,
-    Assimetria Payoff S/R, Alinhamento de Médias EMA9/21/SMA200, Fluxo Institucional VWMA,
-    Dominância Direcional ADX/DI+, Zona de RSI, Impulso MACD e Âncora Multi-Timeframe)
-    usando árvores de decisão impulsionadas por gradiente de 2ª ordem (Taylor Gradient g_i / Hessian h_i
-    com regularização L2 lambda=1.0 e taxa de aprendizado eta=0.28).
-    Retorna (probabilidade_alta_pct, classificacao_sinal_xgb, principais_features_xgb).
+    """Motor Quantitativo Local (Gradient Boosted Decision Trees — executa localmente na CPU, sem precisar de API).
+    Avalia 8 variáveis tabulares normalizadas do gráfico (Suporte Consolidado, Fibonacci, Payoff S/R,
+    Alinhamento EMA9/21/SMA200, Fluxo VWMA, ADX/DI+, RSI/MACD e Multi-Timeframe) usando árvores
+    impulsionadas por gradiente de 2ª ordem (Newton-Raphson com regularização L2).
     """
     atr_s = max(snap.atr, snap.preco_atual * 0.01, 1e-9)
     dist_sup_atr = (snap.preco_atual - snap.suporte_consolidado_1) / atr_s if snap.suporte_consolidado_1 > 0 else 1.5
     dist_res_atr = (snap.resistencia_consolidada_1 - snap.preco_atual) / atr_s if snap.resistencia_consolidada_1 > 0 else 2.0
 
-    # Vetor de Features Tabulares Normalizadas + Pesos de Folha Regularizados (w* = -G / (H + lambda))
     contribuicoes: List[Tuple[float, str]] = []
 
-    # Árvore 1: Posição na Zona de Suporte Consolidado vs Resistência (Peso estrutural de Position Trade)
     if 0.0 <= dist_sup_atr <= 1.25:
         w_sr = 0.85 + (0.15 if snap.toques_suporte >= 3 else 0.0)
         contribuicoes.append((w_sr, f"Defesa no Suporte Consolidado ({snap.toques_suporte}x testado)"))
@@ -1025,7 +1050,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_sr = 0.25 if dist_res_atr > dist_sup_atr else -0.20
         contribuicoes.append((w_sr, "Posição Intermediária no Canal S/R"))
 
-    # Árvore 2: Assimetria Real Risco/Retorno (Payoff S/R até a Resistência 1)
     if snap.payoff_sr_real >= 2.0:
         w_pay = 0.65
         contribuicoes.append((w_pay, f"Assimetria S/R Favorável ({snap.payoff_sr_real:.1f}:1)"))
@@ -1036,7 +1060,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_pay = -0.45
         contribuicoes.append((w_pay, "Payoff S/R Comprimido"))
 
-    # Árvore 3: Alinhamento de Tendência Estrutural (EMA 9, EMA 21 e SMA 200)
     if snap.preco_atual >= snap.ema_9 >= snap.ema_21 and snap.preco_atual >= snap.sma_200:
         w_ema = 0.75
         contribuicoes.append((w_ema, "Alinhamento Institucional EMA9 > EMA21 > SMA200"))
@@ -1050,7 +1073,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_ema = -0.70
         contribuicoes.append((w_ema, "Abaixo das Médias Estruturais (EMA21/SMA200)"))
 
-    # Árvore 4: Fluxo Institucional Ponderado por Volume (VWMA)
     if snap.vwma > 0 and snap.preco_atual >= snap.vwma:
         w_vwma = 0.55
         contribuicoes.append((w_vwma, "Fluxo Comprador Institucional (Acima da VWMA)"))
@@ -1058,7 +1080,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_vwma = -0.40
         contribuicoes.append((w_vwma, "Fluxo VWMA Vendedor"))
 
-    # Árvore 5: Dominância Direcional (DI+ vs DI- ponderado pelo ADX)
     spread_di = snap.di_plus - snap.di_minus
     if spread_di >= 5.0 and snap.adx >= 20.0:
         w_adx = 0.60
@@ -1070,7 +1091,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_adx = -0.55
         contribuicoes.append((w_adx, "Dominância Vendedora DI-"))
 
-    # Árvore 6: RSI & Momentum MACD
     if 42.0 <= snap.rsi <= 66.0 and snap.macd_hist >= 0:
         w_mom = 0.50
         contribuicoes.append((w_mom, f"Momentum MACD Positivo + RSI Saudável ({snap.rsi:.0f})"))
@@ -1084,7 +1104,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_mom = 0.10 if snap.macd_hist >= 0 else -0.30
         contribuicoes.append((w_mom, "Momentum Neutro"))
 
-    # Árvore 7: Alinhamento Fractal Multi-Timeframe (Gráfico Semanal/Diário Superior)
     if snap.tendencia_mtf_superior == "ALTA":
         w_mtf = 0.60
         contribuicoes.append((w_mtf, f"Âncora Macro ({snap.tf_superior.upper()}) em Alta"))
@@ -1095,7 +1114,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
         w_mtf = 0.10
         contribuicoes.append((w_mtf, f"Âncora Macro ({snap.tf_superior.upper()}) Lateral"))
 
-    # Árvore 8: Padrão de Vela Gatilho no Suporte
     if "MARTELO" in snap.padrao_vela_gatilho or "BARRA DE FORÇA" in snap.padrao_vela_gatilho or "MOLA" in snap.padrao_vela_gatilho:
         w_candle = 0.45
         contribuicoes.append((w_candle, snap.padrao_vela_gatilho.title()))
@@ -1105,7 +1123,6 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
     else:
         w_candle = 0.05
 
-    # Refinamento Online por Boosting Newton-Raphson (Gradiente g_i / Hessiana h_i)
     logit_acumulado = 0.0
     eta_xgb = 0.55
     lambda_l2 = 1.0
@@ -1120,16 +1137,16 @@ def executar_ia_xgboost_grafico(snap: SnapshotIndicadores) -> Tuple[float, str, 
     prob_final = round((1.0 / (1.0 + math.exp(-max(-4.5, min(4.5, logit_acumulado))))) * 100.0, 1)
 
     if prob_final >= 76.0:
-        sinal_xgb = "COMPRA FORTE / ACUMULAR NO SUPORTE (ALTA PROBABILIDADE XGBOOST)"
+        sinal_xgb = "COMPRA FORTE / CONFLUÊNCIA DE ALTA PROBABILIDADE"
     elif prob_final >= 62.0:
-        sinal_xgb = "VIÉS COMPRADOR / ACUMULAÇÃO GRADUAL (XGBOOST FAVORÁVEL)"
+        sinal_xgb = "VIÉS COMPRADOR / PULLBACK FAVORÁVEL"
     elif prob_final >= 46.0:
-        sinal_xgb = "NEUTRO / AGUARDAR RECUO ATÉ O SUPORTE CONSOLIDADO"
+        sinal_xgb = "NEUTRO / AGUARDAR RETRAÇÃO DE FIBONACCI OU SUPORTE"
     else:
-        sinal_xgb = "PRESSÃO VENDEDORA / AGUARDAR DE FORA (XGBOOST DEFENSIVO)"
+        sinal_xgb = "PRESSÃO VENDEDORA / SHORT OU AGUARDAR DE FORA"
 
     principais = sorted(contribuicoes, key=lambda x: abs(x[0]), reverse=True)[:2]
-    fator_chave = " + ".join(desc for _, desc in principais) if principais else "Suporte Consolidado"
+    fator_chave = " + ".join(desc for _, desc in principais) if principais else "Suporte Consolidado + Fibonacci 61.8%"
     return prob_final, sinal_xgb, fator_chave
 
 
@@ -1172,7 +1189,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     if snap.atr <= 0 or snap.preco_atual <= 0:
         return False, "ATR ou preço inválido."
 
-    # 1. Filtro Anti-Consolidação (Spread de EMAs + ADX mínimo)
     spread_emas_pct = abs(snap.ema_9 - snap.ema_21) / snap.preco_atual
     if spread_emas_pct < 0.0010:
         return False, f"Consolidação: EMA9 e EMA21 emboladas (spread {spread_emas_pct * 100:.3f}%)."
@@ -1180,7 +1196,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     if 0 < snap.adx < 18.0:
         return False, f"Consolidação: tendência sem força direcional (ADX {snap.adx:.1f} < 18)."
 
-    # 2. Filtro Anti-Violinada (Distância máxima da EMA 9 pelo ATR)
     dist_ema9_atr = abs(snap.preco_atual - snap.ema_9) / snap.atr
     if dist_ema9_atr > 2.2:
         return False, f"Preço esticado demais em relação à EMA9 ({dist_ema9_atr:.1f}x ATR — risco de violinada)."
@@ -1188,7 +1203,6 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     mult_atr = ATR_MULTIPLIER_SWING if snap.intervalo in ("4h", "1d", "1w") else ATR_MULTIPLIER
     risco_r = max(snap.atr * mult_atr, snap.preco_atual * 0.0025)
 
-    # 3. Verificação dos Pilares Primários (EMA 9/21 + SMA 200 + MACD + RSI)
     tendencia_alta = snap.preco_atual > snap.ema_9 and snap.ema_9 > snap.ema_21 and snap.preco_atual > snap.sma_200
     momentum_alta = snap.macd_line > snap.macd_signal and 52.0 <= snap.rsi <= 72.0
 
@@ -1196,23 +1210,18 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
     momentum_baixa = snap.macd_line < snap.macd_signal and 28.0 <= snap.rsi <= 48.0
 
     if tendencia_alta and momentum_alta:
-        # Camada 3: Fluxo Institucional (VWMA)
         if snap.vwma > 0 and snap.preco_atual < snap.vwma:
             return False, f"Fluxo institucional negativo: preço ({snap.preco_atual:.2f}) abaixo da VWMA ({snap.vwma:.2f})."
-        # Camada 5: Dominância Direcional (DI+ vs DI-)
         if snap.di_plus < snap.di_minus:
             return False, f"Sem dominância compradora: DI+ ({snap.di_plus:.1f}) menor que DI- ({snap.di_minus:.1f})."
-        # Camada 4: Envelope de Bollinger e Barreira de Pivot R1
         if snap.bb_upper > 0 and snap.preco_atual > (snap.bb_upper * 1.002) and snap.rsi > 68.0:
             return False, "Exaustão de topo: preço rompendo fora da Banda Superior de Bollinger com RSI alto."
         if snap.pivot_r1 > snap.preco_atual and (snap.pivot_r1 - snap.preco_atual) < (0.55 * risco_r):
             return False, f"Resistência Pivot R1 ({snap.pivot_r1:.2f}) bloqueando o caminho até o Alvo 1."
-        # Camada 1: Multi-Timeframe (Âncora Superior e Gatilho Inferior)
         if snap.tendencia_mtf_superior == "BAIXA":
             return False, f"Conflito Multi-Timeframe: gráfico superior ({snap.tf_superior.upper()}) está em tendência de BAIXA."
         if snap.confirmacao_mtf_inferior in ("EXAUSTAO_ALTA", "CONTRA_COMPRA"):
             return False, f"Gatilho curto ({snap.tf_inferior.upper()}) em exaustão ou perda de força ({snap.confirmacao_mtf_inferior})."
-        # Camada 2: Correlação com Ativo Líder (BOVA11 / BTCUSDT)
         if snap.vies_ativo_lider == "BAIXA_FORTE":
             return False, f"Vento contra do mercado: ativo líder ({snap.ativo_lider}) em queda forte."
 
@@ -1222,23 +1231,18 @@ def pre_filtrar_confluencia_quant(snap: SnapshotIndicadores) -> Tuple[bool, str]
         return True, f"Confluência institucional de COMPRA confirmada (Score Quant {snap.score_quant_local}/100)."
 
     if tendencia_baixa and momentum_baixa:
-        # Camada 3: Fluxo Institucional (VWMA)
         if snap.vwma > 0 and snap.preco_atual > snap.vwma:
             return False, f"Fluxo institucional comprador: preço ({snap.preco_atual:.2f}) acima da VWMA ({snap.vwma:.2f})."
-        # Camada 5: Dominância Direcional (DI- vs DI+)
         if snap.di_minus < snap.di_plus:
             return False, f"Sem dominância vendedora: DI- ({snap.di_minus:.1f}) menor que DI+ ({snap.di_plus:.1f})."
-        # Camada 4: Envelope de Bollinger e Suporte Pivot S1
         if snap.bb_lower > 0 and snap.preco_atual < (snap.bb_lower * 0.998) and snap.rsi < 32.0:
             return False, "Exaustão de fundo: preço esticado abaixo da Banda Inferior de Bollinger com RSI baixo."
         if 0 < snap.pivot_s1 < snap.preco_atual and (snap.preco_atual - snap.pivot_s1) < (0.55 * risco_r):
             return False, f"Suporte Pivot S1 ({snap.pivot_s1:.2f}) bloqueando o caminho até o Alvo 1."
-        # Camada 1: Multi-Timeframe (Âncora Superior e Gatilho Inferior)
         if snap.tendencia_mtf_superior == "ALTA":
             return False, f"Conflito Multi-Timeframe: gráfico superior ({snap.tf_superior.upper()}) está em tendência de ALTA."
         if snap.confirmacao_mtf_inferior in ("EXAUSTAO_BAIXA", "CONTRA_VENDA"):
             return False, f"Gatilho curto ({snap.tf_inferior.upper()}) em exaustão vendedora ({snap.confirmacao_mtf_inferior})."
-        # Camada 2: Correlação com Ativo Líder (BOVA11 / BTCUSDT)
         if snap.vies_ativo_lider == "ALTA_FORTE":
             return False, f"Vento contra do mercado: ativo líder ({snap.ativo_lider}) em alta forte."
 
@@ -1343,7 +1347,6 @@ def calcular_gestao_risco(
         alvo_2 = preco_entrada - (2.0 * risco_r)
         alvo_3 = preco_entrada - (3.0 * risco_r)
 
-    # Dimensionamento Institucional de Posição
     capital_ref = 1000.0 if moeda == "US$" else 10000.0
     risco_max_1pct = capital_ref * 0.01
     qtd_bruta = risco_max_1pct / max(risco_r, 1e-9)
@@ -1354,13 +1357,13 @@ def calcular_gestao_risco(
     exposicao_sugerida = round(qtd_sugerida * preco_entrada, 2)
 
     if eh_position:
-        horizonte = "Semanas a Meses (Position Trade em Suporte Consolidado — ideal p/ multiplicar pouca grana)"
+        horizonte = "Semanas a Meses (Position Trade em Suporte Consolidado + Fibonacci)"
         mod_label = "POSITION TRADE"
     elif eh_swing:
-        horizonte = "3 a 15 dias úteis (Swing Trade de Tendência)"
+        horizonte = "3 a 15 dias úteis (Swing Trade de Tendência & Fibonacci)"
         mod_label = "SWING TRADE"
     else:
-        horizonte = "Intradiário (encerrar no mesmo pregão)"
+        horizonte = "Intradiário (Day Trade / Contratos — encerrar no pregão)"
         mod_label = "DAY TRADE"
 
     alvo_1_round = round(alvo_1, casas_decimais)
@@ -1471,7 +1474,7 @@ def construir_prompt_auditoria(
     pergunta_usuario: str = "",
 ) -> Tuple[str, str]:
     system_instruction = (
-        "Você é um Quant Trader Sênior e Gestor de Risco Institucional (Position Trade, Swing Trade e Day Trade) com foco em setups de alta taxa de acerto (75%+). "
+        "Você é um Quant Trader Sênior e Gestor de Risco Institucional (Day Trade e Swing Trade) com foco em setups de alta taxa de acerto (75%+). "
         "Sua função é auditar o JSON multi-timeframe extraído do TradingView e VETAR qualquer operação com ruído, "
         "consolidação lateral, fluxo institucional contrário (VWMA), falta de dominância direcional (DI+ vs DI-), "
         "resistência/suporte Pivot bloqueando o Alvo 1, ou divergência com o gráfico superior (MTF) e com o ativo líder (BOVA11/BTC). "
@@ -1486,6 +1489,12 @@ def construir_prompt_auditoria(
         "score_quant_local_6_camadas": snap.score_quant_local,
         "classificacao_setup": snap.tipo_setup,
         "preco_desconto_pullback_ema9": snap.preco_pullback_ideal,
+        "fibonacci": {
+            "fib_382": snap.fib_382,
+            "fib_500": snap.fib_500,
+            "fib_618_golden_pocket": snap.fib_618,
+            "fib_ext_1618": snap.fib_ext_1618,
+        },
         "cotacao": {
             "abertura": round(snap.abertura, snap.casas_decimais),
             "maxima": round(snap.maxima, snap.casas_decimais),
@@ -1531,8 +1540,8 @@ def construir_prompt_auditoria(
     bloco_pergunta = (
         f"\nPERGUNTA DO INVESTIDOR NO CHAT: \"{pergunta_usuario.strip()}\"\n"
         "Responda diretamente à dúvida do investidor dentro do campo 'racional_tecnico', "
-        "explicando com clareza se as 6 camadas institucionais (Médias, VWMA, ADX/DI, MTF, Pivots e Líder) "
-        "autorizam entrada agora (ou entrada por ordem limite no Pullback da EMA 9) ou se é melhor ficar de fora.\n"
+        "explicando com clareza se as 6 camadas institucionais (Médias, Fibonacci, VWMA, ADX/DI, MTF e Pivots) "
+        "autorizam entrada agora ou se é melhor aguardar pullback.\n"
         if pergunta_usuario.strip()
         else ""
     )
@@ -1552,8 +1561,8 @@ def construir_prompt_auditoria(
         '  "aprovado": boolean,\n'
         '  "nota_confluencia": integer (0 a 100),\n'
         '  "regime_mercado": "TENDENCIA_FORTE" | "TENDENCIA_MODERADA" | "CONSOLIDACAO" | "EXAUSTAO",\n'
-        '  "racional_tecnico": "string em português (2 a 3 frases diretas citando EMA9/21, SMA200, VWMA, RSI, ADX/DI e alinhamento MTF)",\n'
-        '  "alerta_risco": "string curta (1 frase objetiva sobre o Pivot R1/S1, Pullback na EMA 9, Break-Even no Alvo 1 ou gatilho a aguardar)",\n'
+        '  "racional_tecnico": "string em português (2 frases curtas e diretas citando Fibonacci, EMA9/21, VWMA e RSI)",\n'
+        '  "alerta_risco": "string curta (1 frase objetiva sobre o Break-Even no Alvo 1 ou gatilho a aguardar)",\n'
         '  "motivo_veto": "string curta caso aprovado=false, ou vazio caso aprovado=true"\n'
         "}"
     )
@@ -1561,28 +1570,21 @@ def construir_prompt_auditoria(
 
 
 def gerar_auditoria_quant_fallback(snap: SnapshotIndicadores, plano: PlanoRisco) -> AuditoriaIA:
-    """Motor Quantitativo Local (6 Camadas) — garante auditoria precisa mesmo se a API do Gemini
-    sofrer pico temporário de HTTP 503 nos servidores da Google.
-    """
+    """Motor Quantitativo Local (6 Camadas) — garante auditoria precisa mesmo sem resposta da API externa."""
     ok_pre, motivo = pre_filtrar_confluencia_quant(snap)
     m, c = snap.moeda, snap.casas_decimais
-    pos_sma = "acima" if snap.preco_atual >= snap.sma_200 else "abaixo"
     pos_vwma = "acima" if (snap.vwma <= 0 or snap.preco_atual >= snap.vwma) else "abaixo"
-    pos_macd = "positivo" if snap.macd_hist >= 0 else "negativo"
     nota = calcular_score_quant_local(snap, plano.direcao)
 
     if ok_pre and nota >= NOTA_MINIMA_IA:
         regime = "TENDENCIA_FORTE" if snap.adx >= 25 else "TENDENCIA_MODERADA"
         racional = (
-            f"Para {plano.modalidade}, {snap.simbolo} opera a {_fmt_preco(snap.preco_atual, m, c)} ({snap.tipo_setup}), "
-            f"alinhado com EMA 9 ({_fmt_preco(snap.ema_9, m, c)}), EMA 21 ({_fmt_preco(snap.ema_21, m, c)}), {pos_vwma} da VWMA "
-            f"institucional ({_fmt_preco(snap.vwma or snap.ema_21, m, c)}) e {pos_sma} da SMA 200 "
-            f"({_fmt_preco(snap.sma_200, m, c)}). O ADX em {snap.adx:.1f} (DI+ {snap.di_plus:.1f} / DI- {snap.di_minus:.1f}), "
-            f"RSI em {snap.rsi:.1f}, MACD {pos_macd} ({snap.macd_hist:+.4f}) e MTF {snap.tf_superior.upper()} ({snap.tendencia_mtf_superior}) confirmam a direção."
+            f"{snap.simbolo} a {_fmt_preco(snap.preco_atual, m, c)} ({snap.tipo_setup}), "
+            f"alinhado com EMA 9 ({_fmt_preco(snap.ema_9, m, c)}), EMA 21 ({_fmt_preco(snap.ema_21, m, c)}), "
+            f"{pos_vwma} da VWMA ({_fmt_preco(snap.vwma or snap.ema_21, m, c)}) e Fibonacci 61.8% em {_fmt_preco(snap.fib_618, m, c)}."
         )
         alerta = (
-            f"Ao atingir o Alvo 1 ({_fmt_preco(plano.alvo_1, m, c)}), realizar 50% da posição e mover o Stop Loss "
-            f"para o Break-Even ({_fmt_preco(plano.entrada, m, c)})."
+            f"Parcial de 50% no Alvo 1 ({_fmt_preco(plano.alvo_1, m, c)}) com Stop no Break-Even ({_fmt_preco(plano.entrada, m, c)})."
         )
         return AuditoriaIA(True, nota, regime, racional, alerta, "", "Motor Quant Institucional")
 
@@ -1592,16 +1594,12 @@ def gerar_auditoria_quant_fallback(snap: SnapshotIndicadores, plano: PlanoRisco)
         else "INDEFINIDO"
     )
     racional = (
-        f"No gráfico de {snap.intervalo.upper()} ({plano.modalidade}), {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)} "
-        f"(EMA 9 em {_fmt_preco(snap.ema_9, m, c)}, EMA 21 em {_fmt_preco(snap.ema_21, m, c)}, VWMA em "
-        f"{_fmt_preco(snap.vwma or snap.ema_21, m, c)} e SMA 200 em {_fmt_preco(snap.sma_200, m, c)}), "
-        f"com RSI em {snap.rsi:.1f}, ADX em {snap.adx:.1f} (DI+ {snap.di_plus:.1f} / DI- {snap.di_minus:.1f}) "
-        f"e tendência {snap.tf_superior.upper()} {snap.tendencia_mtf_superior}. "
-        f"Diagnóstico das 6 camadas: {motivo}"
+        f"No {snap.intervalo.upper()}, {snap.simbolo} negocia a {_fmt_preco(snap.preco_atual, m, c)} "
+        f"(EMA 9: {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | Fib 61.8%: {_fmt_preco(snap.fib_618, m, c)}). "
+        f"Diagnóstico: {motivo}"
     )
     alerta = (
-        f"Proteja seu capital: aguarde alinhamento das médias ou recuo institucional até a região da EMA 9 "
-        f"({_fmt_preco(snap.preco_pullback_ideal or snap.ema_9, m, c)}) com entrada de volume."
+        f"Aguardar pullback na zona de Fibonacci 61.8% ({_fmt_preco(snap.fib_618, m, c)}) / Suporte ({_fmt_preco(snap.suporte_consolidado_1, m, c)})."
     )
     return AuditoriaIA(False, min(nota, 68), regime, racional, alerta, motivo, "Motor Quant Institucional")
 
@@ -1695,32 +1693,32 @@ def auditar_sinal_com_gemini(
 
 
 # ==============================================================================
-# 6. ATENDIMENTO INTERATIVO NO CHAT + POSITION TRADE (SUPORTES E POUCA GRANA)
+# 6. ATENDIMENTO INTERATIVO MULTI-PERFIL (FIBONACCI, SUPORTE/RESISTÊNCIA, ZERO TEXTÃO)
 # ==============================================================================
 def _codigo_execucao_pouca_grana(snap: SnapshotIndicadores) -> str:
-    """Retorna o código exato para quem tem pouca grana operar sem precisar comprar lote padrão de 100 ações
-    (ex.: PETR4F, ITSA4F, BBAS3F no Mercado Fracionário da B3, ou fração de Cripto/BDR).
-    """
     simb = snap.simbolo.upper()
     if snap.screener == "brazil":
-        if simb in {"BOVA11", "IVVB11", "SMAL11", "HASH11"} or simb.endswith(("34", "35", "39")):
-            return f"{simb} (já negocia de 1 em 1 unidade)"
-        return f"{simb}F (Mercado Fracionário B3 — compra de 1 a 99 ações)"
-    if snap.screener == "crypto":
-        return f"{simb} (compra fracionada a partir de R$ 20 / US$ 5)"
-    return f"{simb} (fração / micro-lote)"
+        if simb in {"BOVA11", "IVVB11", "SMAL11", "HASH11", "IBOV"} or simb.endswith(("34", "35", "39")):
+            return simb
+        return f"{simb} / {simb}F"
+    return simb
 
 
 def detectar_modalidade_na_mensagem(texto: str) -> str:
-    """Por padrão o robô opera POSITION TRADE baseado em Suportes e Resistências consolidados (1D/1W)
-    pensado para quem tem pouca grana acumular e multiplicar capital sem giro curto.
+    """Identifica o perfil operacional do trader na mensagem:
+    - DAY TRADE (Intradiário, Scalping, Mini-Índice WIN, Mini-Dólar WDO, Contratos, 5m/15m/30m)
+    - POSITION TRADE (Longo prazo, Semanal 1W, Acumulação, Position)
+    - SWING TRADE (Padrão versátil para traders em geral: Ações, Cripto Long/Short, Ouro, Forex)
     """
     t = (texto or "").lower()
-    if re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|5\s*m|5\s*min|m5|15\s*m|15\s*min|m15|30\s*m|30\s*min|m30)\b", t):
+    if re.search(
+        r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp\w*|mini\s*[íi]ndice|mini\s*d[óo]lar|winfut|wdofut|\bwin\b|\bwdo\b|contrato\w*|5\s*m|5\s*min|m5|15\s*m|15\s*min|m15|30\s*m|30\s*min|m30)\b",
+        t,
+    ):
         return "DAY TRADE"
-    if re.search(r"(?:/swing\b|\bswing\s*trade\b|\bswingtrade\b)", t):
-        return "SWING TRADE"
-    return "POSITION TRADE"
+    if re.search(r"(?:/position\b|\bposition\s*trade\b|\bpositiontrade\b|\bposition\b|\blongo\s+prazo\b|\bacumular\b|\b1\s*w\b|\bsemanal\b|\bpouca\s+grana\b|\bfracion[áa]rio\b)", t):
+        return "POSITION TRADE"
+    return "SWING TRADE"
 
 
 def extrair_intervalo_da_mensagem(texto: str) -> str:
@@ -1742,10 +1740,10 @@ def extrair_intervalo_da_mensagem(texto: str) -> str:
 
 
 def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") -> Optional[Tuple[str, str]]:
-    """Detecta quando o trader pede recomendações/calls gerais sem especificar um único ativo
-    (ex.: 'quero fazer position trade, qual ação recomenda?', '/position', 'tenho pouca grana, o que comprar?').
+    """Detecta quando o trader pede oportunidades/setups gerais (Swing Trade, Day Trade, Position,
+    Mini-Índice/Contratos, Cripto Long/Short ou Ações).
     Retorna (modalidade, segmento):
-      - modalidade: 'POSITION TRADE' | 'SWING TRADE' | 'DAY TRADE'
+      - modalidade: 'SWING TRADE' | 'DAY TRADE' | 'POSITION TRADE'
       - segmento: 'B3' | 'CRIPTO' | 'GLOBAL' | 'TODOS'
     """
     if not texto:
@@ -1758,20 +1756,15 @@ def identificar_pedido_recomendacao_ranking(texto: str, bot_username: str = "") 
     if not eh_cmd_rank and not tem_pedido_rec:
         return None
 
-    if re.search(r"\b(?:day\s*trade|daytrade|intradi[áa]rio|scalp|15m|5m)\b", t_low):
-        modalidade = "DAY TRADE"
-    elif re.search(r"(?:/swing\b|\bswing\s*trade\b|\bswingtrade\b)", t_low) and "position" not in t_low:
-        modalidade = "SWING TRADE"
-    else:
-        modalidade = "POSITION TRADE"
+    modalidade = detectar_modalidade_na_mensagem(t_low)
 
     if re.search(r"\b(?:tudo|todos|geral|multi|qualquer\s+mercado)\b", t_low):
         segmento = "TODOS"
-    elif re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|papel|pap[ée]is|barat[oa]s?|fracion[áa]rio)\b", t_low):
+    elif re.search(r"\b(?:a[çc][ãa]o|a[çc][õo]es|b3|bolsa|ibov|mini\s*[íi]ndice|\bwin\b|papel|pap[ée]is|barat[oa]s?|fracion[áa]rio)\b", t_low):
         segmento = "B3"
-    elif re.search(r"\b(?:cripto|criptomoeda|criptos|moeda|altcoin|binance)\b", t_low):
+    elif re.search(r"\b(?:cripto|criptomoeda|criptos|moeda|altcoin|binance|long|short|futuros)\b", t_low):
         segmento = "CRIPTO"
-    elif re.search(r"\b(?:global|bdr\w*|commodit\w*|forex|c[âa]mbio|big\s*tech\w*|exterior|internacional)\b", t_low):
+    elif re.search(r"\b(?:global|bdr\w*|commodit\w*|forex|c[âa]mbio|mini\s*d[óo]lar|\bwdo\b|big\s*tech\w*|exterior|internacional)\b", t_low):
         segmento = "GLOBAL"
     else:
         segmento = "TODOS"
@@ -1802,7 +1795,6 @@ def identificar_ativo_na_pergunta(
         or bool(REGEX_INTENCAO_PERGUNTA.search(t_low))
     )
 
-    # 1. Procura par cripto explícito (ex.: BTCUSDT, SOLUSDT, PEPEUSDT)
     m_cripto = REGEX_PAR_CRIPTO.search(t_up)
     if m_cripto and tem_intencao:
         simb = m_cripto.group(1)
@@ -1811,7 +1803,6 @@ def identificar_ativo_na_pergunta(
                 return a
         return AtivoMonitorado(simb, "BINANCE", "crypto", "US$", 2, False)
 
-    # 2. Procura ticker padrão B3 (ex.: PETR4,PETR4F, VALE3, KLBN11, HGLG11, NVDC34, ITSA4F)
     m_b3 = REGEX_TICKER_B3.search(t_up)
     if m_b3 and tem_intencao:
         simb = m_b3.group(1)
@@ -1820,20 +1811,18 @@ def identificar_ativo_na_pergunta(
                 return a
         return AtivoMonitorado(simb, "BMFBOVESPA", "brazil", "R$", 2, True)
 
-    # 3. Procura nomes/apelidos conhecidos (ex.: "o que acha do bitcoin?", "analisa petrobras", "position em vale")
     if tem_intencao:
         for apelido in sorted(ALIASES_ATIVOS_CHAT.keys(), key=len, reverse=True):
             if re.search(r"(?<!\w)" + re.escape(apelido) + r"(?!\w)", t_low):
                 return ALIASES_ATIVOS_CHAT[apelido]
 
-    # 4. Se usou comando explícito (/analisar AAPL ou /analisar SUI), tenta resolver cripto/ação
     if eh_comando:
         limpo = REGEX_COMANDO_CHAT.sub("", t_up).strip()
         if bot_username:
             limpo = re.sub(rf"@{re.escape(bot_username.upper())}\b", "", limpo).strip()
         tokens = [
             tok for tok in re.findall(r"[A-Z0-9]{2,10}", limpo)
-            if tok not in {"5M", "15M", "30M", "1H", "4H", "1D", "1W", "SWING", "POSITION"}
+            if tok not in {"5M", "15M", "30M", "1H", "4H", "1D", "1W", "SWING"}
         ]
         if tokens:
             tk = tokens[0]
@@ -1847,23 +1836,24 @@ def identificar_ativo_na_pergunta(
 
 def _fmt_preco(valor: float, moeda: str, casas: int) -> str:
     s = f"{valor:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    if (moeda or "").strip().lower() == "pts":
+        return f"{s} pts"
     return f"{moeda} {s}"
 
 
 def _sanitizar_html_telegram(texto: str) -> str:
-    """Garante que o texto conversacional da IA use apenas tags HTML limpas aceitas pelo Telegram
-    (<b> e <i>), sem blocos azuis feios (<code>) e sem Markdown quebrado.
+    """Garante que o texto conversacional use apenas tags HTML limpas aceitas pelo Telegram
+    (<b> e <i>), sem blocos azuis (<code>) e sem mencionar nomes internos de IA (XGBoost/Gemini).
     """
     if not texto:
         return ""
     s = texto.strip()
-    # Converte eventual markdown **negrito** para <b>negrito</b>
+    s = re.sub(r"\s*(?:pelo|no|com|via|segundo)?\s*(?:o\s+)?(?:nosso\s+)?(?:motor\s+)?xgboost\b", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"\b(?:a\s+intelig[êe]ncia\s+artificial|nosso\s+algoritmo\s+de\s+ia|a\s+nossa\s+ia)\b", "a leitura técnica", s, flags=re.IGNORECASE)
     s = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s)
     s = re.sub(r"__(.+?)__", r"<b>\1</b>", s)
-    # Remove crases e blocos code para manter visual limpo de conversa humana
     s = re.sub(r"</?code>", "", s, flags=re.IGNORECASE)
     s = re.sub(r"`([^`]+)`", r"<b>\1</b>", s)
-    # Protege tags permitidas (<b>, </b>, <i>, </i>), escapa o resto e restaura
     marcadores = {
         "<b>": "[[[B_OPEN]]]",
         "</b>": "[[[B_CLOSE]]]",
@@ -1875,7 +1865,6 @@ def _sanitizar_html_telegram(texto: str) -> str:
     s = html.escape(s)
     for tag, mk in marcadores.items():
         s = s.replace(mk, tag)
-    # Balanceia tags caso a IA tenha esquecido de fechar alguma
     for tag_name in ("b", "i"):
         abertas = s.count(f"<{tag_name}>")
         fechadas = s.count(f"</{tag_name}>")
@@ -1887,19 +1876,19 @@ def _sanitizar_html_telegram(texto: str) -> str:
 
 
 def escanear_melhores_oportunidades(
-    modalidade: str = "POSITION TRADE",
+    modalidade: str = "SWING TRADE",
     segmento: str = "TODOS",
     top_n: int = 3,
     apenas_compra: bool = False,
     excluir_simbolos: Optional[Set[str]] = None,
 ) -> List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]]:
-    """Varre a carteira Multi-Mercado ("Position em Tudo": Ações B3 acessíveis no Fracionário, Criptomoedas,
-    Ouro/Prata, Dólar/Forex e BDRs Globais) priorizando Suportes Consolidados e acessibilidade para pouca grana.
+    """Varre a carteira Multi-Mercado (Ações B3, Criptomoedas Long/Short, Ouro/Prata, Dólar e BDRs)
+    priorizando confluência de Fibonacci, Suportes Consolidados e Fluxo VWMA.
     """
     mod_up = modalidade.upper()
     eh_position = "POSITION" in mod_up
     eh_swing = "SWING" in mod_up or eh_position
-    tf = "1d" if eh_swing else TIMEFRAME_PADRAO
+    tf = "1d" if eh_swing else "15m"
     mult_atr = ATR_MULTIPLIER_POSITION if eh_position else (ATR_MULTIPLIER_SWING if eh_swing else ATR_MULTIPLIER)
     mod_label = "POSITION TRADE" if eh_position else ("SWING TRADE" if eh_swing else "DAY TRADE")
     ignorados = {s.upper() for s in (excluir_simbolos or set()) if s}
@@ -1940,12 +1929,10 @@ def escanear_melhores_oportunidades(
             modalidade=mod_label,
             moeda=snap.moeda,
         )
-        # Bônus para ativos apoiados em Suporte Consolidado + acessibilidade para quem tem pouca grana
         bonus_sr = 14 if "APOIADO EM SUPORTE" in snap.zona_sr_descricao else (10 if "ROMPENDO RESISTÊNCIA" in snap.zona_sr_descricao else 0)
         bonus_compra = 15 if (eh_swing or apenas_compra) and direcao == "COMPRA" else 0
-        bonus_pouca_grana = 5 if (ativo.screener == "brazil" and snap.preco_atual <= 40.0) else 0
         penalidade_repetido = -35 if ativo.simbolo.upper() in ignorados else 0
-        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra + bonus_sr + bonus_pouca_grana + penalidade_repetido
+        bonus = (25 if aprovado_pre else 0) + (8 if "PULLBACK" in snap.tipo_setup else 0) + bonus_compra + bonus_sr + penalidade_repetido
         alpha_favoravel = snap.alpha_vs_lider_pct if direcao == "COMPRA" else -snap.alpha_vs_lider_pct
         nota_rank = snap.score_quant_local + bonus
 
@@ -1962,7 +1949,6 @@ def escanear_melhores_oportunidades(
 
     candidatos.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
-    # Se o usuário pediu "TODOS" ("Position em Tudo"), garante pelo menos 1 Ação B3, 1 Cripto e 1 Global/Macro/BDR no Top 3
     if segmento == "TODOS" and top_n >= 3 and len(candidatos) >= 3:
         selecionados: List[Tuple[int, float, str, SnapshotIndicadores, PlanoRisco, bool, str]] = []
         simbolos_ja_pegos: Set[str] = set()
@@ -1985,8 +1971,8 @@ def escanear_melhores_oportunidades(
 
 
 def _resposta_conversa_completa(texto: str, finish_reason: str = "") -> bool:
-    """Garante que o Gemini não cortou a frase no meio (ex.: por MAX_TOKENS de thinking)."""
-    if not texto or len(texto.strip()) < 110:
+    """Garante que a resposta esteja completa (sem frase cortada no meio) e concisa (sem textão)."""
+    if not texto or len(texto.strip()) < 75:
         return False
     if (finish_reason or "").upper() == "MAX_TOKENS":
         return False
@@ -2002,78 +1988,59 @@ def formatar_painel_recomendacoes_html(
     oportunidades: List[Tuple[SnapshotIndicadores, PlanoRisco, bool, str]],
     nome_usuario: str = "",
 ) -> str:
-    """Formata a recomendação de Position Trade (pensada para quem tem pouca grana acumular em Suportes Consolidados
-    via Mercado Fracionário TickerF ou Cripto fracionada) como uma conversa humana natural e limpa.
+    """Formata o Top 3 setups de forma curta, direta e profissional (com Fibonacci, Suporte/Resistência,
+    Gatilho, Stop e Alvos), sem textão e adaptada para Swing, Day Trade, Contratos, Cripto (Long/Short) e Position.
     """
-    saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else "Fala! "
+    saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else ""
     mod_up = modalidade.upper()
-    if "POSITION" in mod_up:
-        prazo_txt = "pra <b>Position Trade</b> (comprar em suporte forte e carregar sem pressa, ideal pra quem tá com pouca grana)"
-    elif "SWING" in mod_up:
-        prazo_txt = "no gráfico Diário pra <b>Swing Trade</b>"
-    else:
-        prazo_txt = "no gráfico intradiário pra <b>Day Trade</b>"
 
     if not oportunidades:
         return (
-            f"{saudacao}Tentei puxar os gráficos agora no TradingView, mas a conexão oscilou. "
-            "Me manda o nome de algum ativo específico que você está de olho ou tenta de novo em alguns segundos?"
+            f"{saudacao}Oscilação rápida no feed do TradingView. "
+            "Me manda o ticker do ativo que você quer operar agora?"
         )
 
-    aprovados = [(s, p) for s, p, ap, _ in oportunidades if ap]
     linhas_ativos: List[str] = []
-
-    for snap, plano, aprovado, status_txt in oportunidades[:3]:
+    for snap, plano, aprovado, _ in oportunidades[:3]:
         m, c = snap.moeda, snap.casas_decimais
+        eh_compra = plano.direcao == "COMPRA"
+        tag_op = "LONG / COMPRA" if (snap.screener == "crypto" and eh_compra) else (
+            "SHORT / VENDA" if (snap.screener == "crypto" and not eh_compra) else plano.direcao
+        )
+        emoji_dir = "🟢" if eh_compra else "🔴"
         sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
         res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
         res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
-        emoji_dir = "🟢" if (aprovado and plano.direcao == "COMPRA") else "🟡"
-        cod_frac = html.escape(_codigo_execucao_pouca_grana(snap))
+        fib_618 = _fmt_preco(snap.fib_618, m, c)
+        stop_sug = _fmt_preco(
+            min(plano.stop_loss, snap.suporte_consolidado_1 * 0.985) if eh_compra else plano.stop_loss,
+            m,
+            c,
+        )
 
         if "APOIADO EM SUPORTE" in snap.zona_sr_descricao:
-            comentario = (
-                f"cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, está segurando muito bem em cima de um "
-                f"<b>suporte estrutural consolidado em {sup_1}</b>, com caminho aberto até a resistência em <b>{res_1}</b>."
-            )
+            status_curto = f"Defesa no Suporte + Fib 61.8% ({fib_618})"
         elif "ROMPENDO RESISTÊNCIA" in snap.zona_sr_descricao:
-            comentario = (
-                f"a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, acabou de romper teto estrutural com volume, "
-                f"transformando a região de <b>{sup_1}</b> em piso de suporte e mirando <b>{res_1}</b>."
-            )
+            status_curto = f"Rompimento com fluxo VWMA acima de {sup_1}"
+        elif "TESTANDO TETO" in snap.zona_sr_descricao:
+            status_curto = f"Testando resistência em {res_1} (aguardar pullback em {fib_618})"
         else:
-            comentario = (
-                f"está negociando a <b>{_fmt_preco(snap.preco_atual, m, c)}</b>, entre o <b>suporte consolidado em {sup_1}</b> "
-                f"e a <b>resistência grande em {res_1}</b>. Pra quem tem pouca grana, o ouro é acumular perto do suporte ({sup_1})."
-            )
+            status_curto = f"Pullback técnico (Fib 61.8% em {fib_618} | EMA 21 em {_fmt_preco(snap.ema_21, m, c)})"
 
-        stop_sug = _fmt_preco(min(plano.stop_loss, snap.suporte_consolidado_1 * 0.980) if plano.direcao == "COMPRA" else plano.stop_loss, m, c)
         linhas_ativos.append(
-            f"{emoji_dir} <b>{html.escape(snap.simbolo)}</b> <i>({cod_frac})</i> — {comentario}\n"
-            f"   ↳ Suporte: <b>{sup_1}</b>  ·  Stop estrutural: <b>{stop_sug}</b>  ·  Alvos nas resistências: <b>{res_1}</b> e <b>{res_2}</b>"
+            f"{emoji_dir} <b>{html.escape(snap.simbolo)}</b> ({tag_op} · <b>{_fmt_preco(snap.preco_atual, m, c)}</b>)\n"
+            f"   • Setup: {status_curto} | Payoff <b>{snap.payoff_sr_real:.1f}:1</b>\n"
+            f"   • Suporte/Entrada: <b>{sup_1}</b> · Stop: <b>{stop_sug}</b> · Alvos: <b>{res_1}</b> / <b>{res_2}</b>"
         )
 
     bloco_lista = "\n\n".join(linhas_ativos)
-
-    if aprovados:
-        intro = (
-            f"{saudacao}Mapeei os gráficos {prazo_txt} buscando as zonas de <b>suporte e resistência mais consolidadas</b> "
-            "e separei as 3 melhores estruturas que cabem em qualquer bolso agora:"
-        )
-    else:
-        intro = (
-            f"{saudacao}Olhei os principais <b>suportes e resistências</b> {prazo_txt}. "
-            "Pra quem opera com pouca grana no Position Trade, o segredo é não ter pressa e comprar aos poucos na defesa do suporte consolidado. "
-            "Olha os 3 gráficos mais interessantes do radar:"
-        )
-
     primeiro_simb = html.escape(oportunidades[0][0].simbolo)
-    pergunta_final = (
-        f"Qual desses 3 chamou mais a sua atenção? Se quiser montar posição em <b>{primeiro_simb}</b>, "
-        "me fala quanto você tem disponível pra colocar (mesmo que seja R$ 50, R$ 100, R$ 200 ou R$ 500) que eu calculo quantas ações no Fracionário dá pra pegar!"
-    )
 
-    return f"{intro}\n\n{bloco_lista}\n\n{pergunta_final}"
+    return (
+        f"{saudacao}🎯 <b>Top 3 Setups Técnicos · {html.escape(mod_up)}</b> (Confluência Fibonacci + S/R + Fluxo VWMA):\n\n"
+        f"{bloco_lista}\n\n"
+        f"Qual desses 3 setups você quer detalhar ou calcular o tamanho de lote/contratos agora (ex: <b>{primeiro_simb}</b>)?"
+    )
 
 
 def formatar_resposta_analise_chat_html(
@@ -2083,67 +2050,53 @@ def formatar_resposta_analise_chat_html(
     status_vies: str,
     nome_usuario: str = "",
 ) -> str:
-    """Formata a análise de um ativo específico focando em Position Trade por Suportes e Resistências
-    bem consolidados e orientando como entrar com pouca grana (Mercado Fracionário TickerF).
+    """Formata a análise técnica completa de um ativo de forma curta, cirúrgica e profissional
+    (Fibonacci 38.2%/50%/61.8%, Suporte/Resistência, Médias, Gatilho, Stop e Alvos), sem textão.
     """
     m, c = snap.moeda, snap.casas_decimais
     saudacao = f"Fala, <b>{html.escape(nome_usuario)}</b>! " if nome_usuario else ""
-    mod_txt = "Position Trade (Gráfico Diário/Semanal)" if snap.intervalo in ("1d", "1w", "4h") else f"gráfico de {snap.intervalo.upper()}"
-    vies_str = "de <b>alta (comprador)</b>" if snap.preco_atual >= snap.ema_21 else "de <b>correção/recuo</b> no momento"
+    eh_compra = plano.direcao == "COMPRA"
+    operacao_txt = "COMPRA (LONG)" if eh_compra else "VENDA (SHORT)"
+    emoji_op = "🟢" if eh_compra else "🔴"
 
     sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
     sup_2 = _fmt_preco(snap.suporte_consolidado_2, m, c)
     res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
     res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
-    cod_frac = html.escape(_codigo_execucao_pouca_grana(snap))
+    f50 = _fmt_preco(snap.fib_500, m, c)
+    f618 = _fmt_preco(snap.fib_618, m, c)
+    f1618 = _fmt_preco(snap.fib_ext_1618, m, c)
+    stop_ref = round(min(plano.stop_loss, snap.suporte_consolidado_1 * 0.985), c) if eh_compra else plano.stop_loss
 
-    abertura = (
-        f"{saudacao}Olhando a <b>{html.escape(snap.simbolo)}</b> agora pra <b>{html.escape(mod_txt)}</b> "
-        f"(cotada a <b>{_fmt_preco(snap.preco_atual, m, c)}</b> por unidade), ela está com um viés {vies_str}."
-    )
+    extra_wdo = f" <i>({snap.preco_atual * 1000:,.0f} pts WDO)</i>".replace(",", ".") if snap.simbolo == "USDBRL" else ""
 
     if "APOIADO EM SUPORTE" in snap.zona_sr_descricao:
-        leitura_sr = (
-            f"O melhor de tudo pra <b>Position Trade</b> é que o preço está segurando em cima de um <b>suporte bem consolidado na faixa de {sup_1}</b> "
-            f"(testado {snap.toques_suporte}x, com um segundo piso estrutural em {sup_2}). Pra quem tem pouca grana, comprar perto do suporte consolidado é o que coloca dinheiro no bolso, "
-            f"porque o risco fica curtinho abaixo do suporte e o alvo fica lá em cima na <b>resistência consolidada de {res_1}</b> (e depois <b>{res_2}</b>)."
+        tese = (
+            f"Segurando em zona de defesa institucional (<b>{sup_1}</b>) em confluência com a retração de "
+            f"<b>Fibonacci 61.8% ({f618})</b> e fluxo VWMA ({_fmt_preco(snap.vwma, m, c)}). Assimetria de <b>{snap.payoff_sr_real:.1f}:1</b>."
         )
     elif "TESTANDO TETO" in snap.zona_sr_descricao:
-        leitura_sr = (
-            f"Repara no gráfico que ela está encostando numa <b>resistência bem consolidada em {res_1}</b>. "
-            f"Quem tem pouca grana não pode desperdiçar munição comprando no teto. "
-            f"A jogada inteligente de Position Trade aqui é aguardar ela recuar até o <b>suporte consolidado em {sup_1}</b> para comprar barato, ou esperar romper <b>{res_1}</b> com força para buscar <b>{res_2}</b>."
+        tese = (
+            f"Testando teto de resistência em <b>{res_1}</b> (RSI {snap.rsi:.0f}). "
+            f"Evite entrada esticada no topo: aguarde pullback na zona de <b>Fibonacci 50%-61.8% ({f50} / {f618})</b> ou rompimento confirmado acima de {res_1}."
         )
     else:
-        leitura_sr = (
-            f"No mapa estrutural, ela tem um <b>suporte muito bem consolidado em {sup_1}</b> (e fundo maior em {sup_2}) "
-            f"e uma <b>resistência importante lá em {res_1}</b> (com alvo longo de Position em {res_2}). "
-            f"Pra quem está montando posição com pouco capital, vale acumular próximo à zona de defesa do suporte em <b>{sup_1}</b> mirando carregar até <b>{res_1}</b> e <b>{res_2}</b>."
+        tese = (
+            f"Operando com EMA 9 em <b>{_fmt_preco(snap.ema_9, m, c)}</b>, EMA 21 em <b>{_fmt_preco(snap.ema_21, m, c)}</b> "
+            f"e RSI em <b>{snap.rsi:.0f}</b> ({snap.padrao_vela_gatilho.lower()}). "
+            f"Melhor ponto técnico de entrada/pullback fica entre <b>{f50}</b> (Fib 50%) e <b>{f618}</b> (Golden Pocket 61.8%)."
         )
 
-    stop_abaixo_sup = round(min(plano.stop_loss, snap.suporte_consolidado_1 * 0.980), c) if plano.direcao == "COMPRA" else plano.stop_loss
-    qtd_100 = max(1, int(100.0 / snap.preco_atual)) if (m == "R$" and snap.preco_atual <= 100.0) else 0
-    dica_bolso = (
-        f"• Como comprar com pouca grana: use <b>{cod_frac}</b> (com R$ 100 você já compra cerca de <b>{qtd_100} ações</b>, e com R$ 300 compra <b>{max(1, int(300.0 / snap.preco_atual))} ações</b>)"
-        if qtd_100 > 0
-        else f"• Como comprar com pouca grana: use <b>{cod_frac}</b>"
+    return (
+        f"{saudacao}{emoji_op} <b>{html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())} · {html.escape(plano.modalidade)})</b> — "
+        f"Cotação: <b>{_fmt_preco(snap.preco_atual, m, c)}</b>{extra_wdo} | Viés: <b>{operacao_txt}</b>\n\n"
+        f"📊 <b>Leitura Técnica:</b> {tese}\n\n"
+        f"📐 <b>Fibonacci (50% / 61.8%):</b> <b>{f50}</b> / <b>{f618}</b>\n"
+        f"🛡️ <b>Suporte 1 e 2:</b> <b>{sup_1}</b> / <b>{sup_2}</b>\n"
+        f"🛑 <b>Stop Técnico:</b> <b>{_fmt_preco(stop_ref, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
+        f"🎯 <b>Alvos (Resistências &amp; Fib 161.8%):</b> <b>{res_1}</b> · <b>{res_2}</b> · <b>{f1618}</b>\n\n"
+        f"Vai buscar essa operação em <b>{html.escape(snap.simbolo)}</b> no {html.escape(plano.modalidade.title())} ou quer que eu calcule o lote/contratos pro seu capital?"
     )
-
-    niveis = (
-        f"📐 <b>Mapa de Position Trade ({html.escape(snap.simbolo)}):</b>\n"
-        f"{dica_bolso}\n"
-        f"• Suporte consolidado (zona ideal de acumulação): <b>{sup_1}</b> <i>(suporte 2 em {sup_2})</i>\n"
-        f"• Stop estrutural (abaixo do suporte): <b>{_fmt_preco(stop_abaixo_sup, m, c)}</b>\n"
-        f"• Resistência 1 (1º Alvo de Position): <b>{res_1}</b>\n"
-        f"• Resistência 2 (Alvo longo do ciclo): <b>{res_2}</b>"
-    )
-
-    pergunta = (
-        f"Você já tem <b>{html.escape(snap.simbolo)}</b> na carteira ou tá pensando em começar a montar posição nela? "
-        "Me diz quanto você pensa em colocar (pode ser R$ 50, R$ 100, R$ 300, R$ 500...) que eu calculo quantas ações dá pra pegar e quanto dá de lucro lá na resistência!"
-    )
-
-    return f"{abertura}\n\n{leitura_sr}\n\n{niveis}\n\n{pergunta}"
 
 
 def conversar_como_trader_humano_gemini(
@@ -2153,8 +2106,8 @@ def conversar_como_trader_humano_gemini(
     historico_mensagens_recentes: List[Dict[str, str]],
     api_key: str = GEMINI_API_KEY,
 ) -> Optional[str]:
-    """Usa o Gemini para conversar como um trader humano real especialista em POSITION TRADE
-    por Suportes e Resistências consolidados e focado em ajudar quem tem POUCA GRANA a multiplicar capital.
+    """Gera resposta técnica, curta, direta e profissional de Head Trader Multi-Mercado
+    (Fibonacci, Price Action, Suporte/Resistência, VWMA e Gestão de Risco), sem textão e sem citar IAs.
     """
     global _MODELO_VENCEDOR_SESSAO
     if not api_key:
@@ -2165,49 +2118,47 @@ def conversar_como_trader_humano_gemini(
         return None
 
     system_instruction = (
-        "Você é um Trader Sênior e Mentor especialista em POSITION TRADE baseado em SUPORTES E RESISTÊNCIAS BEM CONSOLIDADOS, "
-        "conversando com traders em um grupo do Telegram.\n"
-        "PREMISSA FUNDAMENTAL DO GRUPO: Os usuários têm POUCA GRANA (bancas pequenas de R$ 50, R$ 100, R$ 200, R$ 500, R$ 1.000). "
-        "Sua missão é colocar dinheiro no bolso deles através do POSITION TRADE (comprar ativos em zonas de Suporte Consolidado forte no gráfico Diário/Semanal "
-        "e segurar a posição por semanas ou meses até as Resistências Consolidadas, sem girar carteira todo dia e sem perder dinheiro com taxas ou violinadas de curto prazo).\n"
-        "REGRAS OBRIGATÓRIAS DE COMPORTAMENTO, ESTRATÉGIA E DESIGN:\n"
-        "1. FALE COMO UMA PESSOA REAL E COMPLETE TODAS AS FRASES: Converse de forma natural, acolhedora, inteligente e direta. "
-        "NUNCA deixe uma frase pela metade e NUNCA use cabeçalhos robóticos ('MODO PRESERVAÇÃO DE CAPITAL', 'PARECER DO ANALISTA').\n"
-        "2. FOCO EM POSITION TRADE POR SUPORTES E RESISTÊNCIAS CONSOLIDADOS:\n"
-        "   - Explique qual é o viés atual do ativo, onde fica o principal SUPORTE CONSOLIDADO (o piso estrutural onde vale acumular/comprar barato com stop protegido abaixo) "
-        "e onde ficam as RESISTÊNCIAS CONSOLIDADAS (os grandes tetos onde o trader vai realizar lucro depois de carregar a operação).\n"
-        "   - Se o ativo estiver caro ou batendo no teto de uma resistência, avise como um amigo: quem tem pouca grana não pode comprar topo! Indique esperar recuar no suporte consolidado ou romper a resistência.\n"
-        "3. ORIENTAÇÃO PRÁTICA PARA QUEM TEM POUCA GRANA (MERCADO FRACIONÁRIO B3 'TickerF' E LOTES PEQUENOS):\n"
-        "   - Sempre que falar de uma ação da B3, lembre o usuário que ele NÃO precisa comprar o lote padrão de 100 ações: basta colocar a letra 'F' no final do código na corretora "
-        "(ex: <b>PETR4F</b>, <b>ITSA4F</b>, <b>BBAS3F</b>, <b>WEGE3F</b>) para comprar de 1 em 1 ação a partir de R$ 10 a R$ 40!\n"
-        "   - Cite exemplos reais e acessíveis de quantas ações dá para comprar com valores pequenos (ex: com R$ 100 ou R$ 300, ou com o valor que o usuário informou) e quanto dá de lucro quando chegar na Resistência 1 e na Resistência 2. Nunca fale em bancas de R$ 10.000 a menos que o usuário peça.\n"
-        "4. DESIGN LIMPO E BONITO: Escreva em 2 a 3 parágrafos fluidos. Use apenas negrito HTML (<b>...</b>) e itálico (<i>...</i>). "
-        "NUNCA use a tag <code> (caixas azuis) e NUNCA despeje siglas técnicas cruas ('Score Quant', 'Alpha', 'DI+', 'Stoch.K').\n"
-        "5. QUANDO HOUVER 3 ATIVOS NOS DADOS (RECOMENDAÇÃO / TOP 3): Você é OBRIGADO a apresentar e comentar TODOS OS 3 ATIVOS da lista (citando Preço Atual, código Fracionário com F, Suporte Consolidado e Resistência Consolidada de cada um dos 3). NUNCA fale de apenas 1 ativo quando houver 3 no contexto!\n"
-        "6. FAÇA PERGUNTAS NO FINAL: Sempre termine fazendo 1 ou 2 perguntas naturais para continuar o papo "
-        "(ex: perguntar com quanto a pessoa pretende começar nessa posição — mesmo que seja R$ 50, R$ 100 ou R$ 300 — para você montar a divisão de entrada no suporte junto com ela).\n"
-        "7. USE APENAS OS PREÇOS REAIS fornecidos nos dados do TradingView abaixo. Nunca invente cotações."
+        "Você é um Head Trader e Estrategista Técnico Sênior (especialista em Price Action, Retração e Extensão de Fibonacci, "
+        "Suportes e Resistências Consolidados, Fluxo Institucional VWMA e Médias Móveis EMA 9/21/200) em um grupo de traders no Telegram.\n"
+        "O grupo reúne diferentes perfis de traders: Swing Trade, Day Trade, Mini-Índice (WIN/IBOV em pontos), Mini-Dólar (WDO/USDBRL), "
+        "Contratos Futuros, Criptomoedas (Long & Short), Ações da B3 e Position Trade.\n\n"
+        "REGRAS INEGOCIÁVEIS DE ESTILO E ESTRATÉGIA:\n"
+        "1. ZERO TEXTÃO — SEJA CURTO, CIRÚRGICO E PROFISSIONAL (MÁXIMO 450 A 750 CARACTERES NO TOTAL):\n"
+        "   - Vá direto ao ponto sem enrolação, sem introduções longas e sem filosofar.\n"
+        "   - Entregue tudo o que o trader precisa em no máximo 2 parágrafos curtos (ou 1 parágrafo curto + bullets objetivos): "
+        "Tendência/Viés (COMPRA/LONG ou VENDA/SHORT), Níveis de Fibonacci (50% e Golden Pocket 61.8%), Suporte/Resistência Consolidados, "
+        "Gatilho de Entrada, Stop Técnico e Alvos 1 e 2.\n"
+        "2. PROIBIDO MENCIONAR IA OU ALGORITMOS:\n"
+        "   - NUNCA mencione 'XGBoost', 'motor XGBoost', 'inteligência artificial', 'IA', 'Gemini', 'algoritmo' ou 'robô'. "
+        "Apresente toda a conclusão como leitura técnica pura de gráfico e fluxo.\n"
+        "3. ADAPTE A LINGUAGEM AO PERFIL DO TRADER E DO ATIVO:\n"
+        "   - Criptomoedas (BTC, ETH, SOL, BNB, etc.): fale em LONG (Compra) ou SHORT (Venda), Golden Pocket de Fibonacci (61.8%), liquidez, stop de invalidação e alvos.\n"
+        "   - Mini-Índice (IBOV/WIN), Mini-Dólar (USDBRL/WDO) e Day Trade (5m/15m): fale em pontos/contratos, pullback rápido na EMA 9 / VWMA, Fibonacci 50%-61.8% e parcial no Alvo 1 com stop no Break-Even (0x0).\n"
+        "   - Swing Trade e Position Trade (Ações B3, Ouro, BDRs): fale em Suporte e Resistência consolidados, retração de Fibonacci 61.8%, EMA 21/SMA 200 e Payoff risco/retorno. "
+        "NÃO fique repetindo 'quem tem pouca grana' a menos que o próprio usuário diga que tem pouco dinheiro.\n"
+        "4. QUANDO HOUVER 3 ATIVOS NOS DADOS (TOP 3): Apresente TODOS OS 3 ATIVOS em formato compacto (2 a 3 linhas por ativo com Preço, Fibonacci/Suporte, Stop e Alvo), mantendo a mensagem toda abaixo de 800 caracteres.\n"
+        "5. FORMATAÇÃO LIMPA: Use apenas <b>...</b> e <i>...</i>. Nunca use <code>. Termine com 1 pergunta curta de 1 linha."
     )
 
     bloco_hist = ""
     if historico_mensagens_recentes:
-        linhas_h = [f"- {m.get('autor', 'Trader')}: {m.get('texto', '')}" for m in historico_mensagens_recentes[-6:]]
-        bloco_hist = "HISTÓRICO RECENTE DA CONVERSA NO GRUPO:\n" + "\n".join(linhas_h) + "\n\n"
+        linhas_h = [f"- {m.get('autor', 'Trader')}: {m.get('texto', '')}" for m in historico_mensagens_recentes[-4:]]
+        bloco_hist = "CONTEXTO RECENTE:\n" + "\n".join(linhas_h) + "\n\n"
 
     user_prompt = (
         f"{bloco_hist}"
-        f"DADOS EM TEMPO REAL DO TRADINGVIEW (MAPA DE POSITION TRADE - SUPORTES E RESISTÊNCIAS CONSOLIDADOS P/ POUCA GRANA):\n{contexto_dados_mercado}\n\n"
-        f"MENSAGEM ATUAL DE {nome_usuario or 'Trader'}: \"{pergunta_usuario}\"\n\n"
-        "Responda diretamente em português de forma COMPLETA (nunca corte frases no meio), conversando como um mentor humano de Position Trade por Suportes e Resistências focado em quem tem pouca grana, "
-        "com visual limpo (apenas texto fluido e tags <b> e <i>) e termine fazendo uma pergunta para continuar o papo:"
+        f"DADOS TÉCNICOS EM TEMPO REAL (TRADINGVIEW + FIBONACCI + SUPORTE/RESISTÊNCIA):\n{contexto_dados_mercado}\n\n"
+        f"MENSAGEM DE {nome_usuario or 'Trader'}: \"{pergunta_usuario}\"\n\n"
+        "Responda em português de forma CURTA, DIRETA e PROFISSIONAL (máximo 500 a 750 caracteres, zero textão, proibido citar IA/XGBoost), "
+        "entregando a estratégia exata com Fibonacci, Suporte/Resistência, Entrada, Stop e Alvos, e 1 pergunta curta no final:"
     )
 
     payload = {
         "systemInstruction": {"parts": [{"text": system_instruction}]},
         "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
         "generationConfig": {
-            "temperature": 0.4,
-            "maxOutputTokens": 4096,
+            "temperature": 0.3,
+            "maxOutputTokens": 1500,
         },
     }
 
@@ -2270,18 +2221,19 @@ def formatar_mensagem_sinal_html(
     plano: PlanoRisco,
     auditoria: AuditoriaIA,
 ) -> str:
-    """Design minimalista, limpo e humano para os alertas automáticos de Position Trade em Suporte/Resistência."""
+    """Design curto, cirúrgico e profissional para os alertas automáticos."""
     eh_compra = plano.direcao == "COMPRA"
     m, c = snap.moeda, snap.casas_decimais
     sup_1 = _fmt_preco(snap.suporte_consolidado_1, m, c)
     res_1 = _fmt_preco(snap.resistencia_consolidada_1, m, c)
     res_2 = _fmt_preco(snap.resistencia_consolidada_2, m, c)
-    cod_frac = html.escape(_codigo_execucao_pouca_grana(snap))
+    f618 = _fmt_preco(snap.fib_618, m, c)
+    op_label = "COMPRA / LONG" if eh_compra else "VENDA / SHORT"
 
     icone_titulo = (
-        f"🟢 <b>Position Trade · {html.escape(snap.simbolo)} em Zona de Suporte/Rompimento</b> ({html.escape(snap.intervalo.upper())})"
+        f"🟢 <b>{html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())}) · {op_label}</b>"
         if eh_compra
-        else f"🔴 <b>Position Trade · {html.escape(snap.simbolo)} em Resistência</b> ({html.escape(snap.intervalo.upper())})"
+        else f"🔴 <b>{html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())}) · {op_label}</b>"
     )
 
     racional_limpo = html.escape(re.sub(r"[*_`#]+", "", auditoria.racional_tecnico))
@@ -2289,12 +2241,10 @@ def formatar_mensagem_sinal_html(
     return (
         f"{icone_titulo}\n\n"
         f"{racional_limpo}\n\n"
-        f"💡 <b>Para entrar com pouca grana:</b> <b>{cod_frac}</b>\n"
-        f"📐 <b>Suporte Consolidado:</b> <b>{sup_1}</b>  ·  <b>Preço Unitário:</b> <b>{_fmt_preco(plano.entrada, m, c)}</b>\n"
-        f"🛑 <b>Stop Estrutural (abaixo do suporte):</b> <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
-        f"🎯 <b>1º Alvo (Resistência 1 + Stop no 0x0):</b> <b>{res_1}</b>\n"
-        f"🚀 <b>2º Alvo (Resistência 2):</b> <b>{res_2}</b>\n\n"
-        f"💬 <i>Alguém pensando em montar posição em {html.escape(snap.simbolo)}? Me fala quanto pensa em colocar (mesmo que seja R$ 50, R$ 100 ou R$ 300) que eu calculo quantas ações dá pra pegar!</i>"
+        f"📐 <b>Fibonacci 61.8%:</b> <b>{f618}</b>  ·  <b>Suporte:</b> <b>{sup_1}</b>\n"
+        f"🎯 <b>Entrada/Cotação:</b> <b>{_fmt_preco(plano.entrada, m, c)}</b>  ·  <b>Stop:</b> <b>{_fmt_preco(plano.stop_loss, m, c)}</b> <i>(-{plano.risco_percentual:.1f}%)</i>\n"
+        f"🚀 <b>Alvo 1 (Break-Even 0x0):</b> <b>{res_1}</b>  ·  <b>Alvo 2:</b> <b>{res_2}</b>\n\n"
+        f"💬 <i>Alguém posicionado em {html.escape(snap.simbolo)}? Responda aqui com o timeframe ou capital para dimensionar o lote/contratos?</i>"
     )
 
 
@@ -2486,8 +2436,8 @@ def obter_velas_historicas_grafico(
     qtd: int = 42,
 ) -> List[Tuple[float, float, float, float, float]]:
     """Busca as últimas 42 velas reais (open, high, low, close, volume) via API pública da Binance
-    (para Cripto) ou Yahoo Finance v8 (para Ações B3, Dólar e Ouro), com fallback determinístico
-    ancorado nos níveis reais do TradingView.
+    (para Cripto) ou Yahoo Finance v8 (para Ações B3, Mini-Índice/IBOV, Dólar e Ouro), com fallback
+    determinístico ancorado nos níveis reais do TradingView.
     """
     velas: List[Tuple[float, float, float, float, float]] = []
     tf = (snap.intervalo or "1d").lower()
@@ -2509,9 +2459,13 @@ def obter_velas_historicas_grafico(
                                 velas.append((o, max(h, o, c), min(l, o, c), c, max(v, 0.0)))
             else:
                 yf_sym = (
-                    f"{snap.simbolo}.SA"
-                    if snap.screener == "brazil"
-                    else ("BRL=X" if snap.simbolo == "USDBRL" else ("GC=F" if snap.simbolo == "XAUUSD" else snap.simbolo))
+                    "^BVSP"
+                    if snap.simbolo == "IBOV"
+                    else (
+                        f"{snap.simbolo}.SA"
+                        if snap.screener == "brazil"
+                        else ("BRL=X" if snap.simbolo == "USDBRL" else ("GC=F" if snap.simbolo == "XAUUSD" else snap.simbolo))
+                    )
                 )
                 mapa_yf = {
                     "5m": ("5m", "5d"),
@@ -2551,7 +2505,6 @@ def obter_velas_historicas_grafico(
 
     if len(velas) >= 15:
         velas = velas[-qtd:]
-        # Garante que a última vela reflete a cotação ao vivo extraída do TradingView
         velas[-1] = (
             snap.abertura,
             max(snap.maxima, snap.abertura, snap.preco_atual),
@@ -2559,15 +2512,27 @@ def obter_velas_historicas_grafico(
             snap.preco_atual,
             max(snap.volume, velas[-1][4]),
         )
-        # Conta toques reais nas zonas de Suporte Consolidado e Resistência Consolidada
         tol = max(snap.atr * 0.45, snap.preco_atual * 0.006)
         t_sup = sum(1 for _, _, l, c, _ in velas if abs(min(l, c) - snap.suporte_consolidado_1) <= tol)
         t_res = sum(1 for _, h, _, c, _ in velas if abs(max(h, c) - snap.resistencia_consolidada_1) <= tol)
         snap.toques_suporte = max(2, t_sup)
         snap.toques_resistencia = max(2, t_res)
+        min_perna = min(v[2] for v in velas)
+        max_perna = max(v[1] for v in velas)
+        if max_perna > min_perna > 0:
+            amp_v = max_perna - min_perna
+            if snap.preco_atual >= snap.ema_21:
+                snap.fib_382 = round(max_perna - 0.382 * amp_v, snap.casas_decimais)
+                snap.fib_500 = round(max_perna - 0.500 * amp_v, snap.casas_decimais)
+                snap.fib_618 = round(max_perna - 0.618 * amp_v, snap.casas_decimais)
+                snap.fib_ext_1618 = round(min_perna + 1.618 * amp_v, snap.casas_decimais)
+            else:
+                snap.fib_382 = round(min_perna + 0.382 * amp_v, snap.casas_decimais)
+                snap.fib_500 = round(min_perna + 0.500 * amp_v, snap.casas_decimais)
+                snap.fib_618 = round(min_perna + 0.618 * amp_v, snap.casas_decimais)
+                snap.fib_ext_1618 = round(max(0.01, max_perna - 1.618 * amp_v), snap.casas_decimais)
         return velas
 
-    # Fallback determinístico ancorado nos níveis reais do TradingView (EMA 21, EMA 9, Suporte 1, Resistência 1 e Vela Atual)
     velas_fb: List[Tuple[float, float, float, float, float]] = []
     atr = max(snap.atr, snap.preco_atual * 0.01)
     sup = snap.suporte_consolidado_1 if snap.suporte_consolidado_1 > 0 else (snap.preco_atual - 1.5 * atr)
@@ -2609,7 +2574,7 @@ def obter_velas_historicas_grafico(
 
 def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) -> bytes:
     """Renderiza um gráfico Candlestick estilo TradingView Dark Mode (840x480 PNG) em Python 100% puro
-    (usando apenas struct + zlib da biblioteca padrão), com Suporte Consolidado, Resistências, Stop e EMAs.
+    (usando apenas struct + zlib da biblioteca padrão), com Fibonacci 61.8%, Suporte, Resistências, Stop e EMAs.
     """
     W, H = 840, 480
     bg_r, bg_g, bg_b = 19, 23, 34  # #131722 TradingView Dark
@@ -2663,7 +2628,6 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
     velas = obter_velas_historicas_grafico(snap, qtd=42)
     closes = [v[3] for v in velas]
 
-    # Calcula séries EMA 9 e EMA 21 sobre as velas para desenhar as curvas no gráfico
     def _serie_ema(vals: List[float], periodo: int, valor_final_tv: float) -> List[float]:
         if not vals:
             return []
@@ -2678,16 +2642,15 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
     ema9_s = _serie_ema(closes, 9, snap.ema_9)
     ema21_s = _serie_ema(closes, 21, snap.ema_21)
 
-    # Área de plotagem dos candles e eixo direito de preços
     PLOT_X0, PLOT_X1 = 22, 668
     PLOT_Y0, PLOT_Y1 = 54, 385
     VOL_Y0, VOL_Y1 = 395, 452
 
-    # Faixa vertical de preços (inclui candles, Suporte Consolidado, Stop e Resistências)
     niveis_visiveis = [
         *[v[1] for v in velas],
         *[v[2] for v in velas],
         snap.suporte_consolidado_1,
+        snap.fib_618,
         plano.stop_loss,
         snap.resistencia_consolidada_1,
     ]
@@ -2705,7 +2668,6 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         frac = (p - p_min) / max(p_max - p_min, 1e-9)
         return int(round(PLOT_Y1 - frac * (PLOT_Y1 - PLOT_Y0)))
 
-    # 1. Cabeçalho superior escuro + grade horizontal sutil
     _fill_rect(0, 0, W - 1, 42, 26, 31, 45)
     _draw_hline(43, 0, W - 1, 42, 46, 57, dashed=False, thickness=1)
     for i in range(6):
@@ -2714,10 +2676,8 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         gp = p_max - (i / 5.0) * (p_max - p_min)
         _draw_text(f"{gp:.{snap.casas_decimais}f}", PLOT_X1 + 8, gy - 4, 110, 118, 135, scale=1)
 
-    # Divisória vertical do eixo Y direito
     _fill_rect(PLOT_X1 + 2, 44, PLOT_X1 + 2, H - 1, 42, 46, 57)
 
-    # 2. Faixas sombreadas de Suporte Consolidado (verde escuro) e Resistência Consolidada (azul/petróleo)
     if snap.suporte_consolidado_1 > 0:
         ys = _preco_para_y(snap.suporte_consolidado_1)
         _fill_rect(PLOT_X0, max(PLOT_Y0, ys - 7), PLOT_X1, min(PLOT_Y1, ys + 7), 18, 52, 46)
@@ -2726,7 +2686,6 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         yr1 = _preco_para_y(snap.resistencia_consolidada_1)
         _fill_rect(PLOT_X0, max(PLOT_Y0, yr1 - 6), PLOT_X1, min(PLOT_Y1, yr1 + 6), 24, 50, 74)
 
-    # 3. Barras de Volume no rodapé e Candlesticks (42 velas)
     max_vol = max(max((v[4] for v in velas), default=1.0), 1.0)
     n_velas = len(velas)
     passo_x = (PLOT_X1 - PLOT_X0 - 16) / float(max(n_velas, 1))
@@ -2737,20 +2696,17 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         cx = int(round(PLOT_X0 + 12 + idx * passo_x))
         xs_candles.append(cx)
         alta = c >= o
-        cr, cg, cb = (8, 153, 129) if alta else (242, 54, 69)  # #089981 verde / #f23645 vermelho
+        cr, cg, cb = (8, 153, 129) if alta else (242, 54, 69)
         vr, vg, vb = (16, 75, 68) if alta else (88, 32, 42)
 
-        # Barra de volume
         alt_v = int(round((v / max_vol) * (VOL_Y1 - VOL_Y0)))
         if alt_v > 0:
             _fill_rect(cx - larg_corpo // 2, VOL_Y1 - alt_v, cx + larg_corpo // 2, VOL_Y1, vr, vg, vb)
 
-        # Pavio (high até low)
         yh = max(PLOT_Y0, min(PLOT_Y1, _preco_para_y(h)))
         yl = max(PLOT_Y0, min(PLOT_Y1, _preco_para_y(l)))
         _fill_rect(cx, yh, cx, yl, cr, cg, cb)
 
-        # Corpo do candle (open até close)
         yo = max(PLOT_Y0, min(PLOT_Y1, _preco_para_y(o)))
         yc = max(PLOT_Y0, min(PLOT_Y1, _preco_para_y(c)))
         y_top, y_bot = min(yo, yc), max(yo, yc)
@@ -2758,7 +2714,6 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
             y_bot = min(PLOT_Y1, y_top + 2)
         _fill_rect(cx - larg_corpo // 2, y_top, cx + larg_corpo // 2, y_bot, cr, cg, cb)
 
-    # 4. Curvas EMA 21 (Azul #2962ff) e EMA 9 (Amarelo Ouro #f59e0b)
     for i in range(1, len(xs_candles)):
         _draw_line(
             xs_candles[i - 1],
@@ -2777,7 +2732,7 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
             thickness=2,
         )
 
-    # 5. Linhas horizontais de Suporte, Resistência, Stop e Preço Atual + Etiquetas (Pills) no eixo direito
+    # 5. Linhas horizontais de Suporte, Resistência, Fibonacci 61.8%, Stop e Preço Atual + Etiquetas (Pills) no eixo direito
     etiquetas: List[Tuple[int, str, Tuple[int, int, int]]] = []
 
     if snap.resistencia_consolidada_2 > 0 and p_min <= snap.resistencia_consolidada_2 <= p_max:
@@ -2789,6 +2744,11 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         yr1 = _preco_para_y(snap.resistencia_consolidada_1)
         _draw_hline(yr1, PLOT_X0, PLOT_X1, 56, 189, 248, dashed=True, thickness=2)
         etiquetas.append((yr1, f"RES 1: {snap.resistencia_consolidada_1:.{snap.casas_decimais}f}", (14, 116, 144)))
+
+    if snap.fib_618 > 0 and p_min <= snap.fib_618 <= p_max:
+        yfib = _preco_para_y(snap.fib_618)
+        _draw_hline(yfib, PLOT_X0, PLOT_X1, 168, 85, 247, dashed=True, thickness=1)
+        etiquetas.append((yfib, f"FIB61: {snap.fib_618:.{snap.casas_decimais}f}", (126, 34, 206)))
 
     y_atual = _preco_para_y(snap.preco_atual)
     _draw_hline(y_atual, PLOT_X0, PLOT_X1, 226, 232, 240, dashed=True, thickness=1)
@@ -2805,7 +2765,6 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         _draw_hline(ystop, PLOT_X0, PLOT_X1, 244, 63, 94, dashed=True, thickness=2)
         etiquetas.append((ystop, f"STOP:  {stop_ref:.{snap.casas_decimais}f}", (190, 18, 60)))
 
-    # Evita sobreposição vertical das etiquetas no eixo direito
     etiquetas.sort(key=lambda item: item[0])
     ultimo_y_pill = -100
     for y_orig, txt_lbl, (pr, pg, pb) in etiquetas:
@@ -2816,19 +2775,18 @@ def gerar_grafico_candlestick_png(snap: SnapshotIndicadores, plano: PlanoRisco) 
         _fill_rect(PLOT_X1 + 5, yp - 9, W - 4, yp + 8, pr, pg, pb)
         _draw_text(txt_lbl[:18], PLOT_X1 + 9, yp - 4, 255, 255, 255, scale=1)
 
-    # 6. Título no Topo + Telemetria Dual-IA (XGBoost + Médias)
-    titulo_top = f"{snap.simbolo} - {snap.intervalo.upper()} - POSITION TRADE (SUPORTE E RESISTENCIA)"
+    # 6. Título Técnico no Topo (Fibonacci + Suporte/Resistência + EMAs + RSI)
+    titulo_top = f"{snap.simbolo} ({snap.intervalo.upper()}) - FIBONACCI & SUPORTE/RESISTENCIA"
     _draw_text(titulo_top, 14, 14, 241, 245, 249, scale=2)
     _draw_text(f"EMA9:{snap.ema_9:.{snap.casas_decimais}f}", 515, 16, 245, 158, 11, scale=1)
     _draw_text(f"EMA21:{snap.ema_21:.{snap.casas_decimais}f}", 625, 16, 41, 98, 255, scale=1)
-    cor_xgb = (16, 185, 129) if snap.prob_alta_xgboost >= 60.0 else (245, 158, 11)
-    _draw_text(f"XGB:{snap.prob_alta_xgboost:.0f}%", 745, 16, cor_xgb[0], cor_xgb[1], cor_xgb[2], scale=1)
+    cor_rsi = (16, 185, 129) if 45.0 <= snap.rsi <= 68.0 else (245, 158, 11)
+    _draw_text(f"RSI:{snap.rsi:.0f}", 748, 16, cor_rsi[0], cor_rsi[1], cor_rsi[2], scale=1)
 
-    # 7. Empacota como PNG válido usando struct + zlib (stdlib)
     raw_rows = bytearray()
     row_len = W * 3
     for y in range(H):
-        raw_rows.append(0)  # Filtro PNG 0 (None)
+        raw_rows.append(0)
         start = y * row_len
         raw_rows.extend(buf[start : start + row_len])
 
@@ -2854,8 +2812,7 @@ def enviar_telegram_com_grafico(
     chat_id: str = TELEGRAM_CHAT_ID,
     reply_to_message_id: Optional[int] = None,
 ) -> bool:
-    """Envia a foto do gráfico Candlestick (sendPhoto) junto com a resposta conversacional.
-    Se o texto passar de 1000 caracteres, envia a foto primeiro e o texto completo logo abaixo.
+    """Envia a foto do gráfico Candlestick (sendPhoto) junto com a resposta técnica concisa.
     Trata automaticamente migração de Grupo para Supergrupo (migrate_to_chat_id).
     """
     global TELEGRAM_CHAT_ID
@@ -2906,9 +2863,9 @@ def enviar_telegram_com_grafico(
                         return True
         else:
             legenda_curta = (
-                f"📊 <b>Mapa Gráfico Dual-IA (XGBoost {snap.prob_alta_xgboost:.0f}% + Gemini) · {html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())})</b>\n"
-                f"Suporte Consolidado: <b>{_fmt_preco(snap.suporte_consolidado_1, snap.moeda, snap.casas_decimais)}</b>  ·  "
-                f"Resistência 1: <b>{_fmt_preco(snap.resistencia_consolidada_1, snap.moeda, snap.casas_decimais)}</b>"
+                f"📊 <b>{html.escape(snap.simbolo)} ({html.escape(snap.intervalo.upper())}) · Fibonacci 61.8%: {_fmt_preco(snap.fib_618, snap.moeda, snap.casas_decimais)}</b>\n"
+                f"Suporte: <b>{_fmt_preco(snap.suporte_consolidado_1, snap.moeda, snap.casas_decimais)}</b>  ·  "
+                f"Resistência: <b>{_fmt_preco(snap.resistencia_consolidada_1, snap.moeda, snap.casas_decimais)}</b>"
             )
             data_curta: Dict[str, Any] = {
                 "chat_id": cid_efetivo,
@@ -2947,9 +2904,6 @@ def enviar_telegram_com_grafico(
 
 
 def extrair_valor_banca_da_mensagem(texto: str) -> Optional[float]:
-    """Detecta quando o trader informa o valor que pretende investir/operar, inclusive valores pequenos
-    de quem tem pouca grana (ex.: 'tenho 50 reais', '100 conto', '200 reais', '500', 'vou entrar com 5 mil').
-    """
     if not texto:
         return None
     t = texto.lower().strip()
@@ -2977,7 +2931,6 @@ def obter_username_bot(token: str = TELEGRAM_BOT_TOKEN) -> str:
     if not token:
         return ""
     try:
-        # Garante que nenhum webhook antigo bloqueie o getUpdates (HTTP 409)
         requests.get(
             f"https://api.telegram.org/bot{token}/deleteWebhook",
             params={"drop_pending_updates": "false"},
@@ -3027,9 +2980,6 @@ def _calcular_simulacao_banca_usuario(
     plano: PlanoRisco,
     valor_banca: float,
 ) -> str:
-    """Calcula a posição exata, risco financeiro e lucro projetado nas Resistências
-    quando o trader informa com quanto pretende entrar (ex.: '50 reais', '200 reais', '5 mil').
-    """
     m, c = snap.moeda, snap.casas_decimais
     preco_ref = max(snap.preco_atual, 1e-9)
     qtd_total = valor_banca / preco_ref
@@ -3048,14 +2998,11 @@ def _calcular_simulacao_banca_usuario(
     lucro_r2_fin = qtd_num * ganho_r2_unid
 
     return (
-        f"SIMULAÇÃO PERSONALIZADA P/ APORTE DE {_fmt_preco(valor_banca, m, 2)} DO TRADER: "
-        f"Comprando agora em {_fmt_preco(preco_ref, m, c)} dá cerca de {qtd_str}. "
-        f"Se bater na 1ª Resistência Consolidada ({_fmt_preco(snap.resistencia_consolidada_1, m, c)}), "
-        f"o lucro projetado é de +{_fmt_preco(lucro_r1_fin, m, 2)}; "
-        f"se buscar a 2ª Resistência ({_fmt_preco(snap.resistencia_consolidada_2, m, c)}), "
-        f"o lucro sobe para +{_fmt_preco(lucro_r2_fin, m, 2)}. "
-        f"Caso perca o Suporte Consolidado e acione o Stop em {_fmt_preco(plano.stop_loss, m, c)}, "
-        f"o risco financeiro dessa mão fica em -{_fmt_preco(perda_stop_fin, m, 2)}."
+        f"SIMULAÇÃO P/ CAPITAL DE {_fmt_preco(valor_banca, m, 2)}: "
+        f"Posição de ~{qtd_str} a {_fmt_preco(preco_ref, m, c)}. "
+        f"Alvo 1 ({_fmt_preco(snap.resistencia_consolidada_1, m, c)}): +{_fmt_preco(lucro_r1_fin, m, 2)} | "
+        f"Alvo 2 ({_fmt_preco(snap.resistencia_consolidada_2, m, c)}): +{_fmt_preco(lucro_r2_fin, m, 2)} | "
+        f"Risco até o Stop ({_fmt_preco(plano.stop_loss, m, c)}): -{_fmt_preco(perda_stop_fin, m, 2)}."
     )
 
 
@@ -3067,40 +3014,31 @@ def _resumir_ativo_para_conversa(
     valor_banca_usuario: Optional[float] = None,
 ) -> str:
     m, c = snap.moeda, snap.casas_decimais
-    vies_curto = "Alta (Comprador)" if snap.preco_atual >= snap.ema_21 else "Correção / Recuo"
-    cod_frac = _codigo_execucao_pouca_grana(snap)
-    ex_100 = max(1, int(100.0 / max(snap.preco_atual, 1e-9))) if m == "R$" else 0
-    ex_300 = max(1, int(300.0 / max(snap.preco_atual, 1e-9))) if m == "R$" else 0
-    guia_bolso = (
-        f"Acessibilidade Pouca Grana: Usar código {cod_frac} (1 unidade custa apenas {_fmt_preco(snap.preco_atual, m, c)}; "
-        f"com R$ 100 compra ~{ex_100} ações e com R$ 300 compra ~{ex_300} ações sem precisar de lote padrão)"
-        if m == "R$" and snap.preco_atual <= 150.0
-        else f"Acessibilidade Pouca Grana: Usar {cod_frac}"
-    )
+    eh_compra = plano.direcao == "COMPRA"
+    vies_curto = "COMPRA / LONG" if eh_compra else "VENDA / SHORT"
+    extra_wdo = f" (Equivalente Mini-Dólar WDO: {snap.preco_atual * 1000:,.0f} pts)".replace(",", ".") if snap.simbolo == "USDBRL" else ""
     resumo = (
-        f"Ativo: {snap.simbolo} ({snap.exchange} - Gráfico {snap.intervalo.upper()} - {plano.modalidade}) | "
-        f"{guia_bolso} | "
-        f"Preço Atual: {_fmt_preco(snap.preco_atual, m, c)} (Variação: {snap.variacao_pct:+.2f}%) | "
-        f"Viés Atual: {vies_curto} ({'Setup Aprovado' if aprovado else status_vies}) | "
-        f"IA #1 (Motor XGBoost Gradient Boosted Trees): Probabilidade de Alta = {snap.prob_alta_xgboost:.1f}% ({snap.sinal_xgboost}) — Fatores-Chave XGBoost: {snap.fator_chave_xgboost} | "
-        f"Posição no Canal de Suporte/Resistência: {snap.zona_sr_descricao} | "
-        f"Padrão de Vela / Gatilho de Price Action: {snap.padrao_vela_gatilho} | "
-        f"SUPORTE CONSOLIDADO 1 (Principal piso estrutural p/ acumular no Position Trade): {_fmt_preco(snap.suporte_consolidado_1, m, c)} "
-        f"(Testado/Respeitado {snap.toques_suporte}x no histórico recente) | "
-        f"SUPORTE CONSOLIDADO 2 (Fundo estrutural): {_fmt_preco(snap.suporte_consolidado_2, m, c)} | "
-        f"RESISTÊNCIA CONSOLIDADA 1 (1º Teto / Alvo parcial de Position): {_fmt_preco(snap.resistencia_consolidada_1, m, c)} "
-        f"(Testada {snap.toques_resistencia}x) | "
-        f"RESISTÊNCIA CONSOLIDADA 2 (Alvo longo do ciclo): {_fmt_preco(snap.resistencia_consolidada_2, m, c)} | "
-        f"Assimetria Real de Position Trade (Payoff até a Resistência 1 vs Stop no Suporte): {snap.payoff_sr_real:.2f} para 1 | "
-        f"Média EMA 9: {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | SMA 200: {_fmt_preco(snap.sma_200, m, c)} | "
-        f"RSI: {snap.rsi:.1f} | Tendência Gráfico Maior ({snap.tf_superior.upper()}): {snap.tendencia_mtf_superior} | "
-        f"Stop Estrutural de Proteção (abaixo do suporte): {_fmt_preco(plano.stop_loss, m, c)} (-{plano.risco_percentual:.1f}%)."
+        f"Ativo: {snap.simbolo} ({snap.exchange} - Timeframe {snap.intervalo.upper()} - {plano.modalidade}) | "
+        f"Preço Atual: {_fmt_preco(snap.preco_atual, m, c)}{extra_wdo} (Variação: {snap.variacao_pct:+.2f}%) | "
+        f"Direção/Viés Técnico: {vies_curto} ({'Confluência Confirmada' if aprovado else status_vies}) | "
+        f"Força da Confluência Quantitativa: {snap.prob_alta_xgboost:.0f}% ({snap.fator_chave_xgboost}) | "
+        f"RETRAÇÕES DE FIBONACCI DA PERNA ATUAL: Fib 38.2% = {_fmt_preco(snap.fib_382, m, c)} | "
+        f"Fib 50.0% = {_fmt_preco(snap.fib_500, m, c)} | "
+        f"Fib 61.8% (Golden Pocket Institucional) = {_fmt_preco(snap.fib_618, m, c)} | "
+        f"EXTENSÃO DE FIBONACCI 161.8% (Alvo Técnico Projetado) = {_fmt_preco(snap.fib_ext_1618, m, c)} | "
+        f"Posição no Canal S/R: {snap.zona_sr_descricao} | "
+        f"Price Action / Vela Gatilho: {snap.padrao_vela_gatilho} | "
+        f"SUPORTE CONSOLIDADO 1: {_fmt_preco(snap.suporte_consolidado_1, m, c)} ({snap.toques_suporte}x testado) | "
+        f"SUPORTE CONSOLIDADO 2: {_fmt_preco(snap.suporte_consolidado_2, m, c)} | "
+        f"RESISTÊNCIA CONSOLIDADA 1 (1º Alvo): {_fmt_preco(snap.resistencia_consolidada_1, m, c)} ({snap.toques_resistencia}x testada) | "
+        f"RESISTÊNCIA CONSOLIDADA 2 (2º Alvo): {_fmt_preco(snap.resistencia_consolidada_2, m, c)} | "
+        f"Payoff Risco/Retorno Real: {snap.payoff_sr_real:.2f}:1 | "
+        f"EMA 9: {_fmt_preco(snap.ema_9, m, c)} | EMA 21: {_fmt_preco(snap.ema_21, m, c)} | VWMA (Fluxo Volume): {_fmt_preco(snap.vwma, m, c)} | SMA 200: {_fmt_preco(snap.sma_200, m, c)} | "
+        f"RSI(14): {snap.rsi:.1f} | ADX: {snap.adx:.1f} | Tendência Âncora ({snap.tf_superior.upper()}): {snap.tendencia_mtf_superior} | "
+        f"Stop Técnico: {_fmt_preco(plano.stop_loss, m, c)} (-{plano.risco_percentual:.1f}%)."
     )
     if valor_banca_usuario and valor_banca_usuario > 0:
         resumo += " | " + _calcular_simulacao_banca_usuario(snap, plano, valor_banca_usuario)
-    else:
-        valor_exemplo = 250.0 if m == "R$" else 50.0
-        resumo += " | " + _calcular_simulacao_banca_usuario(snap, plano, valor_exemplo)
     return resumo
 
 
@@ -3109,9 +3047,8 @@ def responder_perguntas_chat(
     bot_username: str = "",
     timeout_long_polling: int = 4,
 ) -> int:
-    """Conversa no grupo como um trader humano real, analisa gráficos em tempo real,
-    envia foto do gráfico candlestick com suportes e resistências desenhados,
-    calcula posição personalizada para quem tem pouca grana e faz perguntas para continuar o diálogo.
+    """Atende diferentes perfis de traders no grupo (Swing, Day Trade, Mini-Índice/Dólar, Contratos,
+    Cripto Long/Short e Position) com mensagens curtas, técnicas (Fibonacci + S/R + VWMA) e gráfico PNG.
     """
     if not TELEGRAM_BOT_TOKEN:
         return 0
@@ -3202,12 +3139,12 @@ def responder_perguntas_chat(
             texto[:100],
         )
 
-        # 1. Comando inicial /start ou /ajuda -> conversa como pessoa real
+        # 1. Comando inicial /start ou /ajuda -> resposta curta, direta e profissional
         if re.match(r"^/(?:start|ajuda|help)\b", texto, flags=re.IGNORECASE):
             boas_vindas = (
-                f"Fala, <b>{html.escape(nome_user)}</b>! Tudo certo? Tô monitorando o mercado inteiro em tempo real com <b>Duas IAs (Motor XGBoost Quantitativo + Gemini)</b> pra <b>Position Trade</b> (baseado em <b>Suportes e Resistências bem consolidados</b> e pensado pra quem opera com <b>pouca grana</b>).\n\n"
-                "Eu analiso <b>Ações da B3 no Fracionário</b> (onde você compra de 1 em 1 ação com a letra <b>F</b> no final, tipo <b>ITSA4F</b>, <b>BBAS3F</b>, <b>PETR4F</b>), <b>Criptomoedas</b>, <b>Ouro (XAUUSD)</b>, <b>Dólar (USDBRL)</b> e <b>Big Techs / BDRs</b>.\n\n"
-                "Você pode me perguntar o que eu acho de qualquer ativo ou pedir as <b>3 melhores oportunidades de Position Trade</b> agora — e eu já te mando a <b>foto do gráfico</b> com os suportes e resistências traçados. Qual ativo ou mercado você quer olhar primeiro?"
+                f"Fala, <b>{html.escape(nome_user)}</b>! Radar Técnico ativo em tempo real.\n\n"
+                "Analiso <b>Swing Trade, Day Trade, Mini-Índice (WIN/IBOV), Mini-Dólar (WDO), Contratos, Criptomoedas (Long &amp; Short), Ações B3, Ouro e BDRs</b> com base em <b>Fibonacci (50% / 61.8%), Suporte/Resistência Consolidados, VWMA e Price Action</b>.\n\n"
+                "Mande o código de qualquer ativo ou peça os <b>3 melhores setups</b> do momento que eu te envio a leitura objetiva com o gráfico traçado. Qual mercado vamos operar agora?"
             )
             if enviar_telegram_html(boas_vindas, chat_id=chat_id_msg, reply_to_message_id=msg_id):
                 _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, boas_vindas)
@@ -3221,7 +3158,7 @@ def responder_perguntas_chat(
             eh_resposta_ao_bot=eh_reply_ao_bot or conversa_recente_ativa,
         )
 
-        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/Position Trade/outros ativos
+        # 3. Se NÃO citou ativo específico, verifica se pediu recomendação/setups
         if not ativo_pedido:
             pedido_rec = identificar_pedido_recomendacao_ranking(texto, bot_username=bot_username)
             if pedido_rec:
@@ -3232,7 +3169,7 @@ def responder_perguntas_chat(
                 excluir_set = {ultimo_simb_mem} if (pediu_outro and ultimo_simb_mem) else None
 
                 logger.info(
-                    "🏆 Pedido de recomendação Multi-Mercado no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
+                    "🏆 Pedido de setups Multi-Mercado no chat (%s): modalidade=%s | segmento=%s | texto='%s'",
                     chat_id_msg,
                     modalidade_rec,
                     segmento_rec,
@@ -3246,13 +3183,13 @@ def responder_perguntas_chat(
                     excluir_simbolos=excluir_set,
                 )
                 resumos_top = [
-                    f"[{idx_op + 1}º ATIVO OBRIGATÓRIO NA RESPOSTA] "
+                    f"[{idx_op + 1}º ATIVO OBRIGATÓRIO] "
                     + _resumir_ativo_para_conversa(s, p, ap, st, valor_banca_usuario=valor_banca_user)
                     for idx_op, (s, p, ap, st) in enumerate(top_oportunidades)
                 ]
                 contexto_mercado = (
-                    f"Modalidade pedida pelo trader: {modalidade_rec} | Segmento: {segmento_rec} (POSITION TRADE MULTI-MERCADO P/ QUEM TEM POUCA GRANA)\n"
-                    "IMPORTANTE: Comente sobre TODOS OS 3 ATIVOS ABAIXO na sua resposta (não fale de apenas 1 ativo!):\n"
+                    f"Modalidade solicitada: {modalidade_rec} | Segmento: {segmento_rec}\n"
+                    "Apresente TODOS OS 3 ATIVOS ABAIXO de forma curta, direta e profissional (máximo 750 caracteres no total):\n"
                     + "\n".join(resumos_top)
                 )
                 resposta_html = conversar_como_trader_humano_gemini(
@@ -3261,7 +3198,7 @@ def responder_perguntas_chat(
                     contexto_dados_mercado=contexto_mercado,
                     historico_mensagens_recentes=hist_msgs,
                 )
-                if not resposta_html:
+                if not resposta_html or len(resposta_html) > 950:
                     resposta_html = formatar_painel_recomendacoes_html(
                         modalidade=modalidade_rec,
                         segmento=segmento_rec,
@@ -3280,19 +3217,19 @@ def responder_perguntas_chat(
                 ):
                     _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_html, simb_foco)
                     respondidas += 1
-                    logger.info("✅ Conversa de recomendação Multi-Mercado com gráfico (%s - %s) enviada no chat.", modalidade_rec, segmento_rec)
+                    logger.info("✅ Top 3 Setups com gráfico (%s - %s) enviados no chat.", modalidade_rec, segmento_rec)
                 continue
 
-            # 4. Continuação de conversa ou saudação/mensagem aberta no grupo (ex.: "opa!", "que vies", "tenho 100 reais")
+            # 4. Continuação de conversa ou mensagem aberta no grupo
             eh_interacao_grupo = bool(
                 re.search(
-                    r"\b(?:opa|oi|ol[áa]|fala|bom\s+dia|boa\s+tarde|boa\s+noite|ajuda|opera[çc][ãa]o|operar|investir|comprar|grana|reais|conto|mercado|suporte|resist[êe]ncia|vi[ée]s)\b",
+                    r"\b(?:opa|oi|ol[áa]|fala|bom\s+dia|boa\s+tarde|boa\s+noite|ajuda|opera[çc][ãa]o|operar|investir|comprar|grana|reais|conto|mercado|suporte|resist[êe]ncia|vi[ée]s|fibonacci|fib|contrato\w*|long|short)\b",
                     texto.lower(),
                 )
             )
             if mencionou_bot or conversa_recente_ativa or eh_interacao_grupo or "?" in texto:
                 ultimo_simb = str(sessao_chat.get("ultimo_simbolo") or "")
-                contexto_extra = "Conversa livre sobre Position Trade por Suportes e Resistências consolidados para quem tem pouca grana."
+                contexto_extra = "Conversa técnica direta sobre setups com Fibonacci, Suporte/Resistência, Fluxo VWMA e Gestão de Risco."
                 snap_ant: Optional[SnapshotIndicadores] = None
                 pl_ant: Optional[PlanoRisco] = None
                 st_ant: str = "EM ANÁLISE"
@@ -3300,6 +3237,7 @@ def responder_perguntas_chat(
                     at_ant = identificar_ativo_na_pergunta(ultimo_simb, eh_resposta_ao_bot=True)
                     if at_ant:
                         tf_ant = extrair_intervalo_da_mensagem(texto)
+                        mod_ant = detectar_modalidade_na_mensagem(texto)
                         snap_ant = extrair_dados_tradingview(at_ant, tf_ant, enriquecer_mtf=True)
                         if snap_ant:
                             ap_ant, _ = pre_filtrar_confluencia_quant(snap_ant)
@@ -3308,9 +3246,9 @@ def responder_perguntas_chat(
                                 snap_ant.preco_atual,
                                 snap_ant.atr,
                                 dir_ant,
-                                ATR_MULTIPLIER_POSITION if tf_ant in ("4h", "1d", "1w") else ATR_MULTIPLIER,
+                                ATR_MULTIPLIER_POSITION if mod_ant == "POSITION TRADE" else (ATR_MULTIPLIER_SWING if tf_ant in ("4h", "1d", "1w") else ATR_MULTIPLIER),
                                 snap_ant.casas_decimais,
-                                "POSITION TRADE" if tf_ant in ("4h", "1d", "1w") else "DAY TRADE",
+                                mod_ant,
                                 snap_ant.moeda,
                             )
                             contexto_extra = _resumir_ativo_para_conversa(
@@ -3327,7 +3265,7 @@ def responder_perguntas_chat(
                     contexto_dados_mercado=contexto_extra,
                     historico_mensagens_recentes=hist_msgs,
                 )
-                if not resposta_livre:
+                if not resposta_livre or len(resposta_livre) > 950:
                     if snap_ant and pl_ant:
                         aud_ant = gerar_auditoria_quant_fallback(snap_ant, pl_ant)
                         resposta_livre = formatar_resposta_analise_chat_html(
@@ -3343,8 +3281,8 @@ def responder_perguntas_chat(
                             )
                     else:
                         resposta_livre = (
-                            f"Fala, <b>{html.escape(nome_user)}</b>! Tô por aqui com as duas IAs (<b>XGBoost + Gemini</b>) mapeando os suportes e resistências do mercado pra <b>Position Trade</b>. "
-                            "Me diz qual ação ou cripto você quer que eu analise agora, ou pede uma recomendação pra quem tá com pouca grana que eu busco as 3 melhores e já te mando o gráfico!"
+                            f"Fala, <b>{html.escape(nome_user)}</b>! Radar ligado. "
+                            "Qual ativo ou modalidade (<b>Swing, Day Trade, Mini-Índice WIN, Mini-Dólar WDO ou Cripto Long/Short</b>) vamos analisar agora?"
                         )
                 if enviar_telegram_com_grafico(
                     resposta_livre,
@@ -3357,11 +3295,11 @@ def responder_perguntas_chat(
                     respondidas += 1
             continue
 
-        # 5. Análise conversacional de um ativo específico citado pelo trader (com foto do gráfico!)
+        # 5. Análise técnica curta e objetiva de um ativo específico citado pelo trader (com foto do gráfico!)
         modalidade_pedido = detectar_modalidade_na_mensagem(texto)
         intervalo_pedido = extrair_intervalo_da_mensagem(texto)
         eh_pos_ativo = modalidade_pedido == "POSITION TRADE"
-        eh_swing_ativo = modalidade_pedido == "SWING TRADE" or intervalo_pedido in ("4h", "1d", "1w")
+        eh_swing_ativo = modalidade_pedido == "SWING TRADE" and intervalo_pedido in ("4h", "1d", "1w")
         mult_atr_pedido = ATR_MULTIPLIER_POSITION if eh_pos_ativo else (ATR_MULTIPLIER_SWING if eh_swing_ativo else ATR_MULTIPLIER)
         mod_final = "POSITION TRADE" if eh_pos_ativo else ("SWING TRADE" if eh_swing_ativo else "DAY TRADE")
 
@@ -3377,9 +3315,8 @@ def responder_perguntas_chat(
         snap = extrair_dados_tradingview(ativo_pedido, intervalo_pedido, enriquecer_mtf=True)
         if not snap:
             aviso_erro = (
-                f"Fala, <b>{html.escape(nome_user)}</b>! Tentei puxar o gráfico de <b>{html.escape(ativo_pedido.simbolo)}</b> "
-                "aqui no TradingView, mas não encontrei esse código. Confirma pra mim o ticker certinho "
-                "(tipo <b>ITSA4</b>, <b>PETR4</b>, <b>VALE3</b> ou <b>BTCUSDT</b>)?"
+                f"Fala, <b>{html.escape(nome_user)}</b>! Não localizei o ticker <b>{html.escape(ativo_pedido.simbolo)}</b> no TradingView. "
+                "Confirma o código (ex: <b>PETR4</b>, <b>VALE3</b>, <b>WIN</b>, <b>WDO</b> ou <b>BTCUSDT</b>)?"
             )
             enviar_telegram_html(aviso_erro, chat_id=chat_id_msg, reply_to_message_id=msg_id)
             continue
@@ -3409,7 +3346,7 @@ def responder_perguntas_chat(
             contexto_dados_mercado=contexto_ativo,
             historico_mensagens_recentes=hist_msgs,
         )
-        if not resposta_html:
+        if not resposta_html or len(resposta_html) > 950:
             auditoria_fb = gerar_auditoria_quant_fallback(snap, plano)
             resposta_html = formatar_resposta_analise_chat_html(
                 snap,
@@ -3432,7 +3369,7 @@ def responder_perguntas_chat(
         ):
             _registrar_turno_conversa(historico, chat_id_msg, nome_user, texto, resposta_html, snap.simbolo)
             respondidas += 1
-            logger.info("✅ Resposta conversacional + foto do gráfico enviada para %s (%s - %s).", ativo_pedido.simbolo, intervalo_pedido, mod_final)
+            logger.info("✅ Resposta técnica curta + foto do gráfico enviada para %s (%s - %s).", ativo_pedido.simbolo, intervalo_pedido, mod_final)
 
     if mudou_offset:
         salvar_historico(historico)
@@ -3443,9 +3380,9 @@ def responder_perguntas_chat(
 def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "") -> int:
     b3_aberta = pregao_b3_aberto()
     enviados = 0
-    eh_pos_padrao = TIMEFRAME_PADRAO in ("4h", "1d", "1w")
-    mult_padrao = ATR_MULTIPLIER_POSITION if eh_pos_padrao else ATR_MULTIPLIER
-    mod_padrao = "POSITION TRADE" if eh_pos_padrao else "DAY TRADE"
+    eh_swing_padrao = TIMEFRAME_PADRAO in ("4h", "1d", "1w")
+    mult_padrao = ATR_MULTIPLIER_SWING if eh_swing_padrao else ATR_MULTIPLIER
+    mod_padrao = "SWING TRADE" if eh_swing_padrao else "DAY TRADE"
 
     logger.info(
         "Iniciando varredura Multi-Mercado %s (Timeframe=%s | Universo=%d ativos: Ações B3 + Cripto + Ouro/Dólar/BDRs | ATR=%.1fx | Nota Mín=%d)...",
@@ -3462,7 +3399,6 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
         pre_carregar_lote_tradingview(ativos_ativos, tf_b)
 
     for idx_ativo, ativo in enumerate(WATCHLIST_PADRAO):
-        # Checa o chat a cada 3 ativos durante a varredura para responder na hora sem fila
         if idx_ativo > 0 and idx_ativo % 3 == 0:
             responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=1)
 
@@ -3523,14 +3459,14 @@ def executar_varredura_sinais(historico: Dict[str, Any], bot_username: str = "")
             salvar_historico(historico)
             enviados += 1
             logger.info(
-                "✅ Sinal disparado com gráfico [%s | %s | Score Quant %d/100 | XGBoost %.1f%% | IA %d/100 | Entrada %s | Stop %s]",
+                "✅ Sinal disparado com gráfico [%s | %s | Score Quant %d/100 | IA %d/100 | Entrada %s | Stop %s | Break-Even %s]",
                 snap.simbolo,
                 plano.direcao,
                 snap.score_quant_local,
-                snap.prob_alta_xgboost,
                 auditoria.nota_confluencia,
                 plano.entrada,
                 plano.stop_loss,
+                plano.gatilho_breakeven,
             )
 
     logger.info("Varredura finalizada: %d sinal(is) aprovado(s) e enviado(s).", enviados)
@@ -3545,13 +3481,13 @@ def executar_ciclo_daytrade() -> int:
     historico = carregar_historico()
     bot_username = obter_username_bot()
 
-    # 1. Responde imediatamente a quaisquer perguntas ou pedidos de Position Trade pendentes no chat
+    # 1. Responde imediatamente a quaisquer perguntas pendentes no chat
     responder_perguntas_chat(historico, bot_username=bot_username, timeout_long_polling=2)
 
     # 2. Executa a varredura automática da Watchlist com as 6 camadas institucionais
     enviados = executar_varredura_sinais(historico, bot_username=bot_username)
 
-    # 3. Escuta contínua no chat (padrão automático de 420s = 7 min no GitHub Actions mesmo sem editar o .yml)
+    # 3. Escuta contínua no chat (padrão automático de 420s = 7 min no GitHub Actions)
     default_listen = "420" if os.environ.get("GITHUB_ACTIONS") == "true" else "0"
     segundos_escuta = int(os.environ.get("CHAT_LISTEN_SECONDS", default_listen) or default_listen)
     if segundos_escuta > 0:
