@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-27T15:15:44.773072-03:00",
-  "ultimo_update_id": 851456989,
+  "atualizado_em": "2026-11-27T15:34:18.543355-03:00",
+  "ultimo_update_id": 851456995,
   "sinais": [
     {
       "chave": "PETR4::VENDA::1d",
@@ -53,40 +53,40 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795800664.639532,
+      "ultimo_ts": 1795804260.329099,
       "ultimo_simbolo": "GGBR4",
       "mensagens": [
         {
           "autor": "PEREGR1NO",
-          "texto": "/swing"
+          "texto": "@faria_limerbot analise long btc"
         },
         {
           "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Olhei os gráficos no gráfico Diário pra Swing Trade mapeando as zonas de suporte e resistência mais consolidadas e separei as 3 melhores estruturas agora:\n\n🟢 AAPL34 — cotada a R$ 101,50, está segurando muito bem em cima de um suporte consolidado na faixa de R$ 100,63, com caminho livre até a resistência em R$ 102,99.\n   ↳ Suporte: R$ 100,63  ·  Stop abaixo do suporte: R$ 96,36  · "
+          "texto": "Fala, PEREGR1NO! Viés de SHORT no BTCUSDT (1D), cotado a US$ 59.826,01. O preço testa o Suporte Consolidado 1 em US$ 58.792,37, abaixo da EMA 21 e SMA 200, com RSI sobrevendido em 26.5 sugerindo repique técnico. \n\nGatilho de venda na perda do suporte ou short na retração até a EMA 9 (US$ 61.303,41) / Golden Pocket. Stop Técnico: US$ 65.831,51. Alvo 1: US$ 54.288,24 | Alvo 2: US$ 40.530,72 (Projeçã"
         },
         {
           "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot qual ação esta boa para fazer swingtrade hoje com 500 reais?"
+          "texto": "@faria_limerbot analise long em btc"
         },
         {
           "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Olhei os gráficos no gráfico Diário pra Swing Trade mapeando as zonas de suporte e resistência mais consolidadas e separei as 3 melhores estruturas agora:\n\n🟡 PRIO3 — cotada a R$ 59,58, está segurando muito bem em cima de um suporte consolidado na faixa de R$ 58,22, com caminho livre até a resistência em R$ 61,54.\n   ↳ Suporte: R$ 58,22  ·  Stop abaixo do suporte: R$ 64,52  ·  Alvo"
+          "texto": "Fala, PEREGR1NO! Pediu LONG em BTC, mas o fluxo diário manda respeitar o SHORT: viés vendedor, cotado a US$ 59.826 abaixo da EMA 21 e SMA 200. O preço belisca o Suporte Consolidado em US$ 58.792, com RSI esgotado em 26.5.\n\nGatilho: short na retração até a EMA 9 (US$ 61.303) ou Golden Pocket de Fibonacci (61.8%) em US$ 67.834. Stop Técnico: US$ 65.831. Alvos: US$ 54.288 e US$ 40.530 (Extensão 161.8"
         },
         {
           "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot quero fazer long em btc"
+          "texto": "@faria_limerbot qual o melhor ativo para position trader no momento"
         },
         {
           "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Que excelente iniciativa querer montar uma posição longa em BTCUSDT, pois quem tem pouco dinheiro não pode ficar comprando no meio do caminho ou correndo atrás de preço esticado. Olhando o gráfico diário agora, o Bitcoin está cotado a US$ 59.739,56, passando por uma fase de correção bem em cima do nosso principal SUPORTE CONSOLIDADO 1 localizado em US$ 58.792,37, que é aquele piso"
+          "texto": "Fala, PEREGR1NO! Para Position Trade, temos estes três setups mapeados no 1D:\n\nGGBR4 (LONG - R$ 26,45): Suporte em R$ 26,03. Alinhado nas EMAs. Entrada na retração (Fib 50% em R$ 25,46). Stop: R$ 24,08. Alvos: R$ 26,94 / R$ 28,36.\nXAUUSD (SHORT - US$ 3.641): Abaixo da EMA 21/SMA 200. Entrada no repique até o Golden Pocket (US$ 3.923). Stop: US$ 3.902. Alvos: US$ 3.557 / US$ 2.944.\nBNBUSDT (SHORT -"
         },
         {
           "autor": "PEREGR1NO",
-          "texto": "@peregr1nobot qual a melhor opção para fazermos position trade"
+          "texto": "ai @benhossi_gabriel vamos testar esse bot na demo"
         },
         {
           "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Que excelente iniciativa buscar o Position Trade, porque quem tem pouca grana precisa esquecer o day trade e comprar ativos apoiados em pisos sólidos no gráfico diário para segurar por semanas ou meses, sem pagar taxas à toa. Olhei o mapa completo do mercado e separei os três ativos que estão nos melhores pontos agora para montarmos posição sem correria.\n\nO primeiro destaque é a G"
+          "texto": "Fala, PEREGR1NO! Bora testar na demo com gestão de risco afiada. GGBR4 (LONG) cotada a R$ 26,41, apoiada em Suporte Consolidado de R$ 26,03 e alinhada nas EMAs (9 &gt; 21 &gt; 200). \n\nGatilho de compra na retração até a região de Fibonacci 50% (R$ 25,46) ou Golden Pocket (R$ 25,11). Stop Técnico: R$ 24,51. Alvo 1: R$ 26,94 e Alvo 2: R$ 28,36.\n\nVai posicionar essa ordem limite ou esperar o teste do"
         }
       ]
     },
