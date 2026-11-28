@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-27T22:07:28.568425-03:00",
-  "ultimo_update_id": 851457015,
+  "atualizado_em": "2026-11-27T23:11:55.178933-03:00",
+  "ultimo_update_id": 851457024,
   "sinais": [
     {
       "chave": "PETR4::VENDA::1d",
@@ -53,17 +53,9 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795828048.56821,
+      "ultimo_ts": 1795831915.178604,
       "ultimo_simbolo": "GGBR4",
       "mensagens": [
-        {
-          "autor": "PEREGR1NO",
-          "texto": "ai @benhossi_gabriel vamos testar esse bot na demo"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Bora testar na demo com gestão de risco afiada. GGBR4 (LONG) cotada a R$ 26,41, apoiada em Suporte Consolidado de R$ 26,03 e alinhada nas EMAs (9 &gt; 21 &gt; 200). \n\nGatilho de compra na retração até a região de Fibonacci 50% (R$ 25,46) ou Golden Pocket (R$ 25,11). Stop Técnico: R$ 24,51. Alvo 1: R$ 26,94 e Alvo 2: R$ 28,36.\n\nVai posicionar essa ordem limite ou esperar o teste do"
-        },
         {
           "autor": "Gabriel",
           "texto": "@faria_limerbot  faça uma analise gráfica e de dados onchain consultando pontos de liquidez na coinglass no prazo de 7 e 10 dias. e Me dê 3 sugestões pra operar de forma estruturada no mercado futuro de cripto esse final de semana"
@@ -87,6 +79,14 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, PEREGR1NO! Criou foi nada, aqui a leitura de fluxo e price action é pura raiz. \n\nGGBR4 (Swing Trade - LONG) cotada a R$ 25,89. Preço buscando o Golden Pocket (61.8%) em R$ 25,46 e alinhado com o suporte sólido testado 17x em R$ 25,41 e VWMA. Gatilho de compra na retração atual. Stop técnico de proteção em R$ 23,96. Alvos técnicos em R$ 26,45 e R$ 27,90.\n\nVai posionar parcial na resistência 1"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "Entao, nos vamos treinar esse bot aos poucos"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Treinar o quê, rapaz? O fluxo institucional e o price action raiz não precisam de treino, só de leitura cirúrgica.\n\nGGBR4 (Swing Trade - LONG) a R$ 25,89. O preço busca o Golden Pocket em R$ 25,14 e respeita o suporte consolidado em R$ 25,41, apoiado pela EMA 9 &gt; EMA 21 &gt; SMA 200 e VWMA.\n• Gatilho: Compra na retração atual.\n• Stop Técnico: R$ 23,96.\n• Alvos: R$ 26,45 (Parcia"
         }
       ]
     },
