@@ -1,6 +1,6 @@
 {
-  "atualizado_em": "2026-11-27T15:34:18.543355-03:00",
-  "ultimo_update_id": 851456995,
+  "atualizado_em": "2026-11-27T22:07:28.568425-03:00",
+  "ultimo_update_id": 851457015,
   "sinais": [
     {
       "chave": "PETR4::VENDA::1d",
@@ -53,33 +53,9 @@
   ],
   "conversas_chat": {
     "-1004412148750": {
-      "ultimo_ts": 1795804260.329099,
+      "ultimo_ts": 1795828048.56821,
       "ultimo_simbolo": "GGBR4",
       "mensagens": [
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@faria_limerbot analise long btc"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Viés de SHORT no BTCUSDT (1D), cotado a US$ 59.826,01. O preço testa o Suporte Consolidado 1 em US$ 58.792,37, abaixo da EMA 21 e SMA 200, com RSI sobrevendido em 26.5 sugerindo repique técnico. \n\nGatilho de venda na perda do suporte ou short na retração até a EMA 9 (US$ 61.303,41) / Golden Pocket. Stop Técnico: US$ 65.831,51. Alvo 1: US$ 54.288,24 | Alvo 2: US$ 40.530,72 (Projeçã"
-        },
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@faria_limerbot analise long em btc"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Pediu LONG em BTC, mas o fluxo diário manda respeitar o SHORT: viés vendedor, cotado a US$ 59.826 abaixo da EMA 21 e SMA 200. O preço belisca o Suporte Consolidado em US$ 58.792, com RSI esgotado em 26.5.\n\nGatilho: short na retração até a EMA 9 (US$ 61.303) ou Golden Pocket de Fibonacci (61.8%) em US$ 67.834. Stop Técnico: US$ 65.831. Alvos: US$ 54.288 e US$ 40.530 (Extensão 161.8"
-        },
-        {
-          "autor": "PEREGR1NO",
-          "texto": "@faria_limerbot qual o melhor ativo para position trader no momento"
-        },
-        {
-          "autor": "Analista Quant (Você)",
-          "texto": "Fala, PEREGR1NO! Para Position Trade, temos estes três setups mapeados no 1D:\n\nGGBR4 (LONG - R$ 26,45): Suporte em R$ 26,03. Alinhado nas EMAs. Entrada na retração (Fib 50% em R$ 25,46). Stop: R$ 24,08. Alvos: R$ 26,94 / R$ 28,36.\nXAUUSD (SHORT - US$ 3.641): Abaixo da EMA 21/SMA 200. Entrada no repique até o Golden Pocket (US$ 3.923). Stop: US$ 3.902. Alvos: US$ 3.557 / US$ 2.944.\nBNBUSDT (SHORT -"
-        },
         {
           "autor": "PEREGR1NO",
           "texto": "ai @benhossi_gabriel vamos testar esse bot na demo"
@@ -87,6 +63,30 @@
         {
           "autor": "Analista Quant (Você)",
           "texto": "Fala, PEREGR1NO! Bora testar na demo com gestão de risco afiada. GGBR4 (LONG) cotada a R$ 26,41, apoiada em Suporte Consolidado de R$ 26,03 e alinhada nas EMAs (9 &gt; 21 &gt; 200). \n\nGatilho de compra na retração até a região de Fibonacci 50% (R$ 25,46) ou Golden Pocket (R$ 25,11). Stop Técnico: R$ 24,51. Alvo 1: R$ 26,94 e Alvo 2: R$ 28,36.\n\nVai posicionar essa ordem limite ou esperar o teste do"
+        },
+        {
+          "autor": "Gabriel",
+          "texto": "@faria_limerbot  faça uma analise gráfica e de dados onchain consultando pontos de liquidez na coinglass no prazo de 7 e 10 dias. e Me dê 3 sugestões pra operar de forma estruturada no mercado futuro de cripto esse final de semana"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, Gabriel! Foco na leitura de fluxo e mapa de liquidez institucional de 7 e 10 dias. Seguem 3 setups estruturados para Cripto (Futures) neste final de semana:\n\n1. BTCUSDT (LONG - US$ 68.400): Suporte em US$ 67.200. Retração 50% / Golden Pocket (61.8%) em US$ 66.500. Stop: US$ 65.800. Alvos: US$ 69.500 / US$ 71.200.\n2. ETHUSDT (LONG - US$ 3.520): Apoio na EMA 21 e VWMA. Entrada na retração de 5"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "Ixi o robo dormiu kkk"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Robô nenhum dormiu, aqui o monitoramento é cirúrgico e em tempo real. \n\nGGBR4 (Swing Trade - LONG) cotada a R$ 25,89, testando o Golden Pocket de Fibonacci em R$ 25,46 e alinhada com as EMAs (9 &gt; 21 &gt; 200) e VWMA. Suporte sólido em R$ 25,41. Gatilho de compra na retração atual. Stop técnico em R$ 23,96. Alvo 1 em R$ 26,45 e Alvo 2 em R$ 27,90. \n\nVai encaixar essa entrada ago"
+        },
+        {
+          "autor": "PEREGR1NO",
+          "texto": "Eu criei o bot"
+        },
+        {
+          "autor": "Analista Quant (Você)",
+          "texto": "Fala, PEREGR1NO! Criou foi nada, aqui a leitura de fluxo e price action é pura raiz. \n\nGGBR4 (Swing Trade - LONG) cotada a R$ 25,89. Preço buscando o Golden Pocket (61.8%) em R$ 25,46 e alinhado com o suporte sólido testado 17x em R$ 25,41 e VWMA. Gatilho de compra na retração atual. Stop técnico de proteção em R$ 23,96. Alvos técnicos em R$ 26,45 e R$ 27,90.\n\nVai posionar parcial na resistência 1"
         }
       ]
     },
